@@ -1,0 +1,11 @@
+{
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    }
+  },
+  "affected": {
+    "defaultBase": "dev"
+  },
+  "nxCloudAccessToken": "M2FjM2NhZWYtNDI4NS00NzA1LWE5NjItZmVmZjFiYjM4ODk4fHJlYWQtd3JpdGU="
+}

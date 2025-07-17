@@ -1,0 +1,7 @@
+{{{responseMethodTsComments}}}{{responseMethodName}}({{>operationParameters}}): Observable<{{@root.responseClass}}<{{{resultType}}}>> {
+    return {{importName}}(this.http, this.rootUrl, params, context);
+  }
+{{{responseMethodTsComments}}}{{responseMethodName}}Async({{>operationParameters}}): Promise<{{@root.responseClass}}<{{{resultType}}}>> {
+    return firstValueFrom(this.{{responseMethodName}}(params, context));
+  }
+  

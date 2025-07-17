@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "UBBGradePortal": {
+      "Name": "UBBGradePortal",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "root",
+      "PassFile": "/pgpass",
+      "SSLMode": "prefer"
+    }
+  }
+}

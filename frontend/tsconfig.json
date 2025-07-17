@@ -1,0 +1,12 @@
+{
+  "extends": ["../tsconfig.json"],
+  "include": ["./src"],
+  "compilerOptions": {
+    "paths": {
+      "$backend/services": ["codegen/backend-services/src/public-api.ts"],
+      "$core/*": ["frontend/src/app/core/*"],
+      "$shared/*": ["frontend/src/app/shared/*"],
+      "$features/*": ["frontend/src/app/features/*"]
+    }
+  }
+}

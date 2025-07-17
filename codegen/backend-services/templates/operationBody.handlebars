@@ -1,0 +1,9 @@
+{{{bodyMethodTsComments}}}{{methodName}}({{>operationParameters}}): Observable<{{{resultType}}}> {
+    return this.{{responseMethodName}}(params, context).pipe(
+      map((r: {{@root.responseClass}}<{{{resultType}}}>): {{{resultType}}} => r.body)
+    );
+  }
+{{{bodyMethodTsComments}}}{{methodName}}Async({{>operationParameters}}): Promise<{{{resultType}}}> {
+    return firstValueFrom(this.{{methodName}}(params, context));
+  }
+  

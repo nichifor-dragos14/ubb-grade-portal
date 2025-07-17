@@ -1,0 +1,7 @@
+{
+    "name": "infrastructure",
+    "scripts": {
+        "start": "docker compose up >> \"$(date +'%m-%d-%Y').log\" 2>&1",
+        "clean": "docker compose down"
+    }
+}

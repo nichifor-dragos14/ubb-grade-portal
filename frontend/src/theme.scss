@@ -1,0 +1,73 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$my-primary: mat.define-palette(mat.$deep-purple-palette, 600);
+$my-accent: mat.define-palette(mat.$amber-palette, 600);
+$my-warning: mat.define-palette(mat.$red-palette, 600);
+
+$my-typography: mat.define-typography-config();
+
+$my-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $my-primary,
+      accent: $my-accent,
+      warning: $my-warning,
+    ),
+    typography: $my-typography,
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($my-theme);
+@include mat.typography-hierarchy($my-typography);
+
+// Material customizations
+
+.mat-mdc-button-base {
+  --mdc-typography-button-text-transform: uppercase;
+  --mdc-text-button-container-shape: 16px !important;
+  .mdc-button__label {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
+}
+
+cdk-virtual-scroll-viewport > .cdk-virtual-scroll-content-wrapper {
+  width: 100%; // fixes a issue with content overflow
+}
+
+.mat-drawer-container,
+.mat-sidenav-content {
+  overflow: visible !important;
+}
+
+/* Styles for Chrome, Safari, and newer versions of Edge and Opera */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox scrollbar styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}

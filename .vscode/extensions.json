@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "obenjiro.arrr",
+        "angular.ng-template",
+        "formulahendry.auto-rename-tag",
+        "wmaurer.change-case",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "tomwhite007.rename-angular-component",
+        "ng-refactor.ng-refactor",
+        "bierner.emojisense"
+    ]
+}

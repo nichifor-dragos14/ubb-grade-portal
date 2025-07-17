@@ -1,0 +1,6 @@
+packages:
+  - backend
+  - frontend
+  - infrastructure
+  - codegen/.generated/*
+  - codegen/*

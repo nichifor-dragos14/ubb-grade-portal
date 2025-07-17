@@ -1,0 +1,22 @@
+{
+    "name": "codegen-backend-services",
+    "version": "0.0.0",
+    "main": "./index.ts",
+    "scripts": {
+        "build": "bash ./generate-backend-client.sh",
+        "start": "nodemon --watch backend.swagger.json --exec 'pnpm build'",
+        "install": "pnpm build",
+        "clean": "rm -rf ./node_modules && rm -rf ./src/generated",
+        "format": "prettier ./src --write"
+    },
+    "dependencies": {
+        "ng-openapi-gen": "^0.51.0",
+        "nodemon": "^3.0.2",
+        "@angular/cli": "^17.0.1",
+        "@angular/common": "^17.0.0",
+        "@angular/core": "^17.0.0",
+        "rxjs": "~7.8.0",
+        "tslib": "^2.3.0",
+        "zone.js": "~0.14.2"
+    }
+}
