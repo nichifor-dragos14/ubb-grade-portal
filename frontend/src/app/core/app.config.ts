@@ -14,7 +14,6 @@ import {
 } from '@angular/common/http';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { StarRatingModule } from 'angular-star-rating';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +22,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     importProvidersFrom(
       BackendApiModule.forRoot({ rootUrl: '/api' }),
-      StarRatingModule.forRoot(),
       HttpClientModule,
       BrowserAnimationsModule,
       MatSnackBarModule,
