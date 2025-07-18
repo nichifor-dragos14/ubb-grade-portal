@@ -4,7 +4,6 @@
     ".": "bash .nx-run-auto.sh",
     "start": "pnpm -s . start",
     "clean": "pnpm -s . clean",
-    "lint": "pnpm -s . lint",
     "format": "pnpm -s . format",
     "build": "pnpm -s . build",
     "backend:new-migration": "pnpm -s . backend create-migration"

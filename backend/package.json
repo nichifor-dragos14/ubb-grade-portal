@@ -7,7 +7,6 @@
     "build": "dotnet publish ./UBBGradePortal.WebApi/UBBGradePortal.WebApi.csproj -o dist",
     "clean": "dotnet clean ./UBBGradePortal.sln && rm -rf dist",
     "start": "dotnet watch --project ./UBBGradePortal.WebApi/UBBGradePortal.WebApi.csproj",
-    "lint": "dotnet jb cleanupcode ./UBBGradePortal.sln",
     "format": "dotnet format ./UBBGradePortal.sln"
   },
   "dependencies": {
