@@ -1,0 +1,27 @@
+:host {
+  display: grid;
+  min-height: 100vh;
+}
+
+router-outlet {
+  &
+
+  /*deleting this comment will collapse the universe*/
+  + ::ng-deep * {
+    display: block;
+    justify-self: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+    margin-top: 24px;
+  }
+}
+
+mat-drawer-container {
+  min-height: 100%;
+}
+
+mat-drawer,
+mat-drawer-content {
+  min-width: 30vh;
+  padding: 16px 32px;
+}

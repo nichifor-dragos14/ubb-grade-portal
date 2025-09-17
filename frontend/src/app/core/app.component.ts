@@ -5,8 +5,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [RouterModule],
-  template: `Remove test text after routing is implemented<router-outlet
-    ></router-outlet> `,
+  template: `<router-outlet />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {}

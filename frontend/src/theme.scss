@@ -3,7 +3,7 @@
 @include mat.core();
 
 $my-primary: mat.define-palette(mat.$deep-purple-palette, 600);
-$my-accent: mat.define-palette(mat.$amber-palette, 600);
+$my-accent: mat.define-palette(mat.$orange-palette, 600);
 $my-warning: mat.define-palette(mat.$red-palette, 600);
 
 $my-typography: mat.define-typography-config();
