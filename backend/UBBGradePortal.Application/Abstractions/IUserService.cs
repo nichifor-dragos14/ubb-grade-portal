@@ -4,5 +4,7 @@ namespace UBBGradePortal.Application.Abstractions;
 
 public interface IUserService
 {
-    Task AddUser(User user);
+    Task<User?> GetById(Guid userId);
+    Task Add(User user);
+    Task EnrollToCourses(Guid userId, List<Guid> courseIds);
 }

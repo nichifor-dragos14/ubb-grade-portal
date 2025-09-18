@@ -2,8 +2,7 @@
 
 namespace UBBGradePortal.Infrastructure.Abstractions;
 
-public interface IUserRepository
+public interface ICourseEnrollmentRepository
 {
-    Task<User?> GetById(Guid userId);
-    Task Add(User user);
+    Task Add(List<CourseEnrollment> courseEnrollments);
 }

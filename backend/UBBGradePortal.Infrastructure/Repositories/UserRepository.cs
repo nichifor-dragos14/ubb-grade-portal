@@ -1,4 +1,5 @@
-﻿using UBBGradePortal.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
 
@@ -13,10 +14,20 @@ public class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddUser(User user)
+    public async Task Add(User user)
     {
         _dbContext.Users.Add(user);
 
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetById(Guid userId)
+    {
+        return await _dbContext
+            .Users
+            .Include(u => u.CourseEnrollments)
+            .Include(u => u.CreatedCourses)
+            .Include(u => u.SolvedActivities)
+            .FirstOrDefaultAsync(u => u.Id == userId);
     }
 }

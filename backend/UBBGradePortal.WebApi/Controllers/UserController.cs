@@ -23,7 +23,7 @@ namespace UBBGradePortal.WebApi.Controllers
             // conversion will be here
 
 
-            await _userService.AddUser(user);
+            await _userService.Add(user);
 
             return CreatedAtAction(nameof(Create), new { id = user.Id }, user);
         }

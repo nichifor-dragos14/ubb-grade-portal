@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using UBBGradePortal.WebApi.Auth;
 using UBBGradePortal.WebApi.Development;
 using Vernou.Swashbuckle.HttpResultsAdapter;
 
@@ -38,6 +39,8 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
                 });
 
             services.AddAuthorization();
+
+            services.AddScoped<TokenService>();
 
             services.AddControllers();
 
