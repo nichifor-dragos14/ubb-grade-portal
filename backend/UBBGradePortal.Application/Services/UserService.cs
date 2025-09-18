@@ -9,19 +9,27 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly ICourseEnrollmentRepository _courseEnrollmentRepository;
 
-    public UserService(IUserRepository userRepository, ICourseEnrollmentRepository courseEnrollmentRepository)
+    public UserService(
+        IUserRepository userRepository,
+        ICourseEnrollmentRepository courseEnrollmentRepository
+    )
     {
         _userRepository = userRepository;
         _courseEnrollmentRepository = courseEnrollmentRepository;
     }
 
-    public async Task Add(User user)
+    public async Task Add(User user, CancellationToken cancellationToken)
     {
-        await _userRepository.Add(user);
+        await _userRepository.Add(user, cancellationToken);
     }
 
-    public async Task EnrollToCourses(Guid userId, List<Guid> courseIds)
+    public async Task EnrollToCourses(Guid userId, List<Guid> courseIds, CancellationToken cancellationToken)
     {
+        if(courseIds.Count == 0)
+        {
+            return;
+        }
+
         courseIds = courseIds
             .Distinct()
             .ToList();
@@ -33,11 +41,12 @@ public class UserService : IUserService
                 CourseId = courseId
             })
             .ToList();
-        await _courseEnrollmentRepository.Add(enrollments);
+
+        await _courseEnrollmentRepository.Add(enrollments, cancellationToken);
     }
 
-    public async Task<User?> GetById(Guid userId)
+    public async Task<User?> GetById(Guid userId, CancellationToken cancellationToken)
     {
-        return await _userRepository.GetById(userId);
+        return await _userRepository.GetById(userId, cancellationToken);
     }
 }

@@ -13,10 +13,10 @@ public class CourseEnrollmentRepository : ICourseEnrollmentRepository
         _dbContext = dbContext;
     }
 
-    public async Task Add(List<CourseEnrollment> courseEnrollments)
+    public async Task Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)
     {
 
         _dbContext.CourseEnrollments.AddRange(courseEnrollments);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -4,5 +4,5 @@ namespace UBBGradePortal.Infrastructure.Abstractions;
 
 public interface ICourseEnrollmentRepository
 {
-    Task Add(List<CourseEnrollment> courseEnrollments);
+    Task Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken);
 }

@@ -12,18 +12,18 @@ public sealed class TokenService
     private readonly IConfiguration _configuration;
     private readonly IUserService _userService;
 
-    public TokenService(IConfiguration cfg, IUserService userService)
+    public TokenService(IConfiguration configuration, IUserService userService)
     {
-        _configuration = cfg;
+        _configuration = configuration;
         _userService = userService;
     }
 
-    public async Task<string> CreateAsync(ApplicationUser user, CancellationToken ct = default)
+    public async Task<string> CreateAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var profile = await _userService.GetById(user.Id);
+        var profile = await _userService.GetById(user.Id, cancellationToken);
 
         var claims = new List<Claim>
         {

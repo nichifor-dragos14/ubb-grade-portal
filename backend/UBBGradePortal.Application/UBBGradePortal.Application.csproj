@@ -12,8 +12,8 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
     <Folder Include="Converters\" />
+    <Folder Include="DTOs\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

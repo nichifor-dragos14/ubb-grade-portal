@@ -31,10 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Authorize\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\UBBGradePortal.Application\UBBGradePortal.Application.csproj" />
   </ItemGroup>
 </Project>

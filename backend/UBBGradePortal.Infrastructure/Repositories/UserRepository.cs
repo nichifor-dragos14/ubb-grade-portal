@@ -14,20 +14,20 @@ public class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
-    public async Task Add(User user)
+    public async Task Add(User user, CancellationToken cancellationToken)
     {
         _dbContext.Users.Add(user);
 
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<User?> GetById(Guid userId)
+    public async Task<User?> GetById(Guid userId, CancellationToken cancellationToken)
     {
         return await _dbContext
             .Users
             .Include(u => u.CourseEnrollments)
             .Include(u => u.CreatedCourses)
             .Include(u => u.SolvedActivities)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 }

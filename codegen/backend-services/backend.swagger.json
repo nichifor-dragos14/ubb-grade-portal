@@ -5,26 +5,26 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Users": {
+    "/register": {
       "post": {
         "tags": [
-          "Users"
+          "Account"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -35,20 +35,104 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/AuthResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/AuthResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/AuthResponse"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Course": {
+      "get": {
+        "tags": [
+          "Course"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Course/domains": {
+      "get": {
+        "tags": [
+          "Course"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           }
         }
       }
@@ -56,187 +140,66 @@
   },
   "components": {
     "schemas": {
-      "Activity": {
+      "AuthResponse": {
         "required": [
-          "course",
-          "courseId",
-          "id",
-          "name",
-          "solvedActivities"
+          "accessToken"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
+          "accessToken": {
             "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "courseId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course": {
-            "$ref": "#/components/schemas/Course"
-          },
-          "solvedActivities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SolvedActivity"
-            }
           }
         },
         "additionalProperties": false
       },
-      "Course": {
+      "LoginRequest": {
         "required": [
-          "activities",
-          "courseDomain",
-          "courseDomainId",
-          "courseEnrollments",
-          "createdByUser",
-          "createdByUserId",
-          "id",
-          "name"
+          "email",
+          "password"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
+          "email": {
             "type": "string"
           },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "activities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Activity"
-            }
-          },
-          "courseEnrollments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseEnrollment"
-            }
-          },
-          "createdByUserId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdByUser": {
-            "$ref": "#/components/schemas/User"
-          },
-          "courseDomainId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "courseDomain": {
-            "$ref": "#/components/schemas/CourseDomain"
+          "password": {
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "CourseDomain": {
+      "RegisterRequest": {
         "required": [
-          "courses",
-          "id",
-          "name"
+          "email",
+          "firstName",
+          "lastName",
+          "password",
+          "role"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
+          "email": {
             "type": "string"
           },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+          "password": {
+            "type": "string"
           },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+          "firstName": {
+            "type": "string"
           },
-          "courses": {
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "courseIds": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Course"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "CourseEnrollment": {
-        "required": [
-          "course",
-          "courseId",
-          "id",
-          "user",
-          "userId"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
+              "type": "string",
+              "format": "uuid"
+            },
             "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "courseId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course": {
-            "$ref": "#/components/schemas/Course"
           }
         },
         "additionalProperties": false
@@ -249,107 +212,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "SolvedActivity": {
-        "required": [
-          "activity",
-          "activityId",
-          "id",
-          "user",
-          "userId"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "activityId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "activity": {
-            "$ref": "#/components/schemas/Activity"
-          },
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          }
-        },
-        "additionalProperties": false
-      },
-      "User": {
-        "required": [
-          "courseEnrollments",
-          "createdCourses",
-          "email",
-          "firstName",
-          "id",
-          "lastName",
-          "role",
-          "solvedActivities"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/Role"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "courseEnrollments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseEnrollment"
-            }
-          },
-          "createdCourses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Course"
-            }
-          },
-          "solvedActivities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SolvedActivity"
-            }
-          }
-        },
-        "additionalProperties": false
       }
     }
   }

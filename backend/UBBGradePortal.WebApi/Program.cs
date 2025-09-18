@@ -26,7 +26,13 @@ using (var scope = app.Services.CreateScope())
     {
         if (!await roleManager.RoleExistsAsync(name))
         {
-            await roleManager.CreateAsync(new ApplicationRole { Name = name, NormalizedName = name.ToUpperInvariant() });
+            await roleManager.CreateAsync(
+                new ApplicationRole 
+                { 
+                    Name = name,
+                    NormalizedName = name.ToUpperInvariant() 
+                }
+            );
         }
     }       
 }

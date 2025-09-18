@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
-using UBBGradePortal.Domain.Entities;
 
 namespace UBBGradePortal.WebApi.Controllers
 {
@@ -10,22 +9,11 @@ namespace UBBGradePortal.WebApi.Controllers
     {
         private readonly IUserService _userService;
 
-        public UsersController(IUserService userService)
+        public UsersController(
+            IUserService userService
+        )
         {
             _userService = userService;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<User>> Create([FromBody] User user)
-        {
-            // validation will be here
-
-            // conversion will be here
-
-
-            await _userService.Add(user);
-
-            return CreatedAtAction(nameof(Create), new { id = user.Id }, user);
         }
     }
 }

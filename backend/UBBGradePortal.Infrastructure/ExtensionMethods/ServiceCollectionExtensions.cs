@@ -51,6 +51,9 @@ public static class ServiceCollectionExtensions
             .AddCheck<DbContextHealthCheck<ApplicationDbContext>>("Postgres:UBBGradePortal");
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<ICourseDomainRepository, CourseDomainRepository>();
+        services.AddScoped<ICourseEnrollmentRepository, CourseEnrollmentRepository>();
 
         return services;
     }

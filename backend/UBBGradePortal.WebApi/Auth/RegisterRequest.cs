@@ -8,5 +8,5 @@ public record RegisterRequest(
     string FirstName,
     string LastName,
     Role Role,
-    List<Guid> CourseIds
+    List<Guid>? CourseIds
 );
