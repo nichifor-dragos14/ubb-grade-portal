@@ -1,4 +1,6 @@
-﻿using NSwag.Generation.Processors.Security;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using UBBGradePortal.WebApi.Development;
 using Vernou.Swashbuckle.HttpResultsAdapter;
 
@@ -13,7 +15,29 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
         {
             // Add options
 
-            // Add authentiocation
+            var jwtSection = configuration.GetSection("Jwt");
+            var jwtKey = jwtSection.GetValue<string>("Key")
+                              ?? throw new InvalidOperationException("Missing Jwt:Key");
+            var jwtIssuer = jwtSection.GetValue<string>("Issuer")!;
+            var jwtAudience = jwtSection.GetValue<string>("Audience")!;
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(o =>
+                {
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = jwtIssuer,
+                        ValidAudience = jwtAudience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = TimeSpan.FromMinutes(1),
+                    };
+                });
+
+            services.AddAuthorization();
 
             services.AddControllers();
 

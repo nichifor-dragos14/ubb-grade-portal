@@ -3,6 +3,6 @@
 public enum Role
 {
     Student = 0,
-    Profesor = 1,
+    Professor = 1,
     Admin = 2,
 }

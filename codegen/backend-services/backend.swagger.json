@@ -299,7 +299,6 @@
           "firstName",
           "id",
           "lastName",
-          "password",
           "role",
           "solvedActivities"
         ],
@@ -316,9 +315,6 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
-          },
-          "password": {
             "type": "string"
           },
           "role": {
