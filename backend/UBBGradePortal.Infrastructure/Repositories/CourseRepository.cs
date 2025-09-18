@@ -14,8 +14,12 @@ public class CourseRepository : ICourseRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<Course>> GetAll(CancellationToken cancellationToken)
+    public async Task<List<Course>> GetAllByCourseDomainIds(List<Guid> courseDomainIds, CancellationToken cancellationToken)
     {
-        return await _dbContext.Courses.ToListAsync(cancellationToken);
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Where(c => courseDomainIds.Contains(c.CourseDomainId))
+            .ToListAsync(cancellationToken);
     }
 }

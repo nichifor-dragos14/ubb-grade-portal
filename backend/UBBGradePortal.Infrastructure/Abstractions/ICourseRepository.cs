@@ -4,5 +4,5 @@ namespace UBBGradePortal.Infrastructure.Abstractions;
 
 public interface ICourseRepository
 {
-    Task<List<Course>> GetAll(CancellationToken cancellationToken);
+    Task<List<Course>> GetAllByCourseDomainIds(List<Guid> courseDomainIds, CancellationToken cancellationToken);
 }

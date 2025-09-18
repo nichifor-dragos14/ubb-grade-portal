@@ -4,7 +4,7 @@
   <span>Fill out the form below to begin your journey with us!</span>
 </div>
 
-<mat-stepper [linear]="false" #stepper>
+<mat-stepper [linear]="true" #stepper>
   <mat-step [stepControl]="personalInformationFormGroup">
     <form [formGroup]="personalInformationFormGroup">
       <ng-template matStepLabel id="personal-information-form">
@@ -49,6 +49,7 @@
             placeholder="Enter your password"
             formControlName="password"
             required
+            type="password"
           />
         </mat-form-field>
 
@@ -72,12 +73,18 @@
     <div id="course-domain-form-container">
       <form [formGroup]="courseDomainFormGroup" id="course-domain-form">
         <mat-selection-list
-          #coursedomainsref
           formControlName="courseDomains"
           class="scrollable-list-container"
+          [multiple]="true"
+          (selectionChange)="onDomainsSelectionChange($event)"
         >
-          @for (courseDomain of courseDomains; track courseDomain) {
-            <mat-list-option>{{ courseDomain }}</mat-list-option>
+          @for (
+            courseDomain of courseDomains;
+            track courseDomain.courseDomainId
+          ) {
+            <mat-list-option [value]="courseDomain.courseDomainId">
+              {{ courseDomain.name }}
+            </mat-list-option>
           }
         </mat-selection-list>
 
@@ -99,8 +106,10 @@
           formControlName="courses"
           class="scrollable-list-container"
         >
-          @for (course of courses; track course) {
-            <mat-list-option>{{ course }}</mat-list-option>
+          @for (course of courses; track course.courseId) {
+            <mat-list-option [value]="course.courseId">
+              {{ course.name }}
+            </mat-list-option>
           }
         </mat-selection-list>
 
@@ -130,7 +139,9 @@
         <button mat-raised-button color="accent" matStepperPrevious>
           Back
         </button>
-        <button mat-raised-button color="primary">Finish</button>
+        <button mat-raised-button color="primary" (click)="onSubmitForm()">
+          Register now
+        </button>
       </div>
     </div>
   </mat-step>

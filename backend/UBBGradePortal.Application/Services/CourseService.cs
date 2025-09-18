@@ -17,14 +17,15 @@ public class CourseService : ICourseService
         _courseDomainRepository = courseDomainRepository;
     }
 
-    public async Task<List<CourseDto>> GetAll(CancellationToken cancellationToken)
+    public async Task<List<CourseDto>> GetAllByCourseDomainIds(List<Guid> courseDomainIds, CancellationToken cancellationToken)
     {
-        var courses = await _courseRepository.GetAll(cancellationToken);
+        var courses = await _courseRepository.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
         return courses.Select(c => new CourseDto
             {
                 CourseId = c.Id,
                 Name = c.Name,
+                CourseDomainName = c.CourseDomain.Name
             })
             .ToList();
     }

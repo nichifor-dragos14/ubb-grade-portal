@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.Course;
 
 namespace UBBGradePortal.WebApi.Controllers;
 
@@ -19,20 +21,23 @@ public class CourseController : ControllerBase
     /// <summary> Get all courses. </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllCourses(CancellationToken cancellationToken)
+    public async Task<Results<Ok<List<CourseDto>>, BadRequest>> GetAllCoursesByDomainIds(
+        [FromQuery] List<Guid> courseDomainIds,
+        CancellationToken cancellationToken
+    )
     {
-        var courses = await _courseService.GetAll(cancellationToken);
+        var courses = await _courseService.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
-        return Ok(courses);
+        return TypedResults.Ok(courses);
     }
 
     /// <summary> Get all course domains. </summary>
     [HttpGet("domains")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllCourseDomains(CancellationToken cancellationToken)
+    public async Task<Results<Ok<List<CourseDomainDto>>, BadRequest>> GetAllCourseDomains(CancellationToken cancellationToken)
     {
         var courseDomains = await _courseService.GetAllCourseDomains(cancellationToken);
 
-        return Ok(courseDomains);
+        return TypedResults.Ok(courseDomains);
     }
 }

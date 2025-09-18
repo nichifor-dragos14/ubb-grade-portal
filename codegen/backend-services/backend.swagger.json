@@ -118,9 +118,35 @@
         "tags": [
           "Course"
         ],
+        "parameters": [
+          {
+            "name": "courseDomainIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -132,7 +158,20 @@
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDomainDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -147,6 +186,44 @@
         "type": "object",
         "properties": {
           "accessToken": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CourseDomainDto": {
+        "required": [
+          "courseDomainId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "courseDomainId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CourseDto": {
+        "required": [
+          "courseDomainName",
+          "courseId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "courseDomainName": {
             "type": "string"
           }
         },
