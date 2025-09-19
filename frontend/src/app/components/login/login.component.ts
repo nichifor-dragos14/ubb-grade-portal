@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { AccountService } from '$backend/services';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,8 @@ import { RouterLink } from '@angular/router';
 export class LoginComponent {
   private _formBuilder = inject(FormBuilder);
   private _accountService = inject(AccountService);
+  private _authService = inject(AuthService);
+  private _router = inject(Router);
 
   loginFormGroup = this._formBuilder.group({
     email: ['', Validators.required],
@@ -49,6 +52,7 @@ export class LoginComponent {
       },
     });
 
-    console.log(token);
+    this._authService.setToken(token.accessToken);
+    this._router.navigateByUrl('/main');
   }
 }

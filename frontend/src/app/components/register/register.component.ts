@@ -16,6 +16,7 @@ import {
   CourseDto,
   CourseService,
 } from '$backend/services';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -36,6 +37,7 @@ export class RegisterComponent {
   private _formBuilder = inject(FormBuilder);
   private _courseService = inject(CourseService);
   private _accountService = inject(AccountService);
+  private _router = inject(Router);
 
   personalInformationFormGroup = this._formBuilder.group({
     firstName: ['', Validators.required],
@@ -109,5 +111,7 @@ export class RegisterComponent {
         role: studentRole,
       },
     });
+
+    this._router.navigateByUrl('/main');
   }
 }

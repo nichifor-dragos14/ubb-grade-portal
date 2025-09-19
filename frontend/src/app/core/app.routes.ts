@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
-import { LayoutComponent } from '$shared/layout/layout.component';
+import { LayoutComponent } from 'frontend/src/app/components/layout/layout.component';
 import { LoginComponent } from '../components/login/login.component';
 import { RegisterComponent } from '../components/register/register.component';
+import { roleGuard } from '../auth/role.guard';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,8 @@ export const routes: Routes = [
   },
   {
     path: 'main',
+    canActivate: [roleGuard],
+    data: { roles: ['Student', 'Profesor', 'Admin'] },
     component: LayoutComponent,
     children: [],
   },
