@@ -16,6 +16,7 @@ import {
   CourseDto,
   CourseService,
 } from '$backend/services';
+
 @Component({
   selector: 'app-register',
   standalone: true,

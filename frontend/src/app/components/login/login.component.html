@@ -1,1 +1,43 @@
-<p>login works!</p>
+<div class="text-container">
+  <h1>Welcome back</h1>
+
+  <span>Log in to resume your journey!</span>
+</div>
+
+<div id="login-form-container">
+  <form [formGroup]="loginFormGroup" id="login-form">
+    <div id="login-form-fields">
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          placeholder="Enter your email"
+          formControlName="email"
+          required
+        />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          placeholder="Enter your password"
+          formControlName="password"
+          required
+          type="password"
+        />
+      </mat-form-field>
+    </div>
+
+    <span class="login-form-info">
+      * Don't have an accout? You can register
+      <a routerLink="/register">here</a>
+    </span>
+
+    <button mat-raised-button color="primary" (click)="onSubmitForm()">
+      Log in
+    </button>
+  </form>
+</div>
+
+<img src="assets/ubb-logo.png" />
