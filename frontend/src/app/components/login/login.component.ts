@@ -1,58 +1,88 @@
 import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { AccountService } from '$backend/services';
 import { Router, RouterLink } from '@angular/router';
+import { AccountService } from '$backend/services';
 import { AuthService } from '../../auth/auth.service';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    MatButtonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
+    CommonModule,
     MatFormFieldModule,
     MatInputModule,
-    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-  private _formBuilder = inject(FormBuilder);
-  private _accountService = inject(AccountService);
-  private _authService = inject(AuthService);
-  private _router = inject(Router);
+  private formBuilder = inject(FormBuilder);
+  private accountService = inject(AccountService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  loginFormGroup = this._formBuilder.group({
-    email: ['', Validators.required],
-    password: ['', Validators.required],
+  hide = true;
+  submitting = false;
+  redirecting = false;
+
+  loginFormGroup = this.formBuilder.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  async onSubmitForm() {
-    const email = this.loginFormGroup.controls.email.value;
-    const password = this.loginFormGroup.controls.password.value;
+  get email() {
+    return this.loginFormGroup.controls.email;
+  }
 
-    if (email == null || password == null) {
+  get password() {
+    return this.loginFormGroup.controls.password;
+  }
+
+  async onSubmitForm() {
+    this.loginFormGroup.markAllAsTouched();
+
+    if (this.loginFormGroup.invalid || this.submitting || this.redirecting) {
       return;
     }
 
-    const token = await this._accountService.loginPost$JsonAsync({
-      body: {
-        email: email,
-        password: password,
-      },
-    });
+    this.submitting = true;
 
-    this._authService.setToken(token.accessToken);
-    this._router.navigateByUrl('/main');
+    const { email, password } = this.loginFormGroup.getRawValue();
+
+    try {
+      const res = await this.accountService.loginPost$JsonAsync({
+        body: { email: email!, password: password! },
+      });
+
+      this.authService.setToken(res.accessToken);
+
+      this.submitting = false;
+      this.redirecting = true;
+
+      await this.router.navigateByUrl('/main');
+    } finally {
+      this.submitting = false;
+      this.redirecting = false;
+    }
   }
 }

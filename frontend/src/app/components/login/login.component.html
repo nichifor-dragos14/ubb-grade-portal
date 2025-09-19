@@ -1,43 +1,90 @@
-<div class="text-container">
-  <h1>Welcome back</h1>
+<div class="bg">
+  <!-- decorative animated blobs -->
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
 
-  <span>Log in to resume your journey!</span>
+  <div class="center">
+    <mat-card class="auth-card">
+      <header class="heading">
+        <h1>Welcome back</h1>
+        <p>Log in to resume your journey!</p>
+      </header>
+
+      <!-- overlay spinner when submitting OR redirecting -->
+      <div class="overlay" *ngIf="submitting || redirecting">
+        <mat-progress-spinner mode="indeterminate" diameter="48">
+        </mat-progress-spinner>
+      </div>
+
+      <form
+        [formGroup]="loginFormGroup"
+        (ngSubmit)="onSubmitForm()"
+        class="form"
+      >
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix>mail</mat-icon>
+          <input
+            matInput
+            type="email"
+            autocomplete="email"
+            placeholder="Enter your email"
+            formControlName="email"
+            required
+          />
+          <mat-error *ngIf="email.touched && email.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="email.touched && email.hasError('email')">
+            Enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hide ? 'password' : 'text'"
+            autocomplete="current-password"
+            placeholder="Enter your password"
+            formControlName="password"
+            required
+          />
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="hide = !hide"
+            [attr.aria-label]="'Toggle password visibility'"
+          >
+            <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="password.touched && password.hasError('required')">
+            Password is required
+          </mat-error>
+          <mat-error *ngIf="password.touched && password.hasError('minlength')">
+            Minimum 8 characters
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="submit"
+          type="submit"
+          [disabled]="loginFormGroup.invalid || submitting || redirecting"
+        >
+          <span>Log in</span>
+        </button>
+
+        <div class="alt">
+          <span>Don’t have an account? Create one </span>
+          <a routerLink="/register">here</a>
+        </div>
+      </form>
+    </mat-card>
+
+    <img class="brand" src="assets/ubb-logo.png" alt="UBB logo" />
+  </div>
 </div>
-
-<div id="login-form-container">
-  <form [formGroup]="loginFormGroup" id="login-form">
-    <div id="login-form-fields">
-      <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input
-          matInput
-          placeholder="Enter your email"
-          formControlName="email"
-          required
-        />
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Password</mat-label>
-        <input
-          matInput
-          placeholder="Enter your password"
-          formControlName="password"
-          required
-          type="password"
-        />
-      </mat-form-field>
-    </div>
-
-    <span class="login-form-info">
-      * Don't have an accout? You can register
-      <a routerLink="/register">here</a>
-    </span>
-
-    <button mat-raised-button color="primary" (click)="onSubmitForm()">
-      Log in
-    </button>
-  </form>
-</div>
-
-<img src="assets/ubb-logo.png" />

@@ -1,150 +1,228 @@
-<div class="text-container">
-  <h1>Sign up for a course</h1>
+<div class="bg">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
 
-  <span>Fill out the form below to begin your journey with us!</span>
-</div>
-
-<mat-stepper [linear]="true" #stepper>
-  <mat-step [stepControl]="personalInformationFormGroup">
-    <form [formGroup]="personalInformationFormGroup">
-      <ng-template matStepLabel id="personal-information-form">
-        Fill in your personal information
-      </ng-template>
-
-      <div id="personal-information-form-container">
-        <mat-form-field appearance="fill">
-          <mat-label>First name</mat-label>
-          <input
-            matInput
-            placeholder="Your first name"
-            formControlName="firstName"
-            required
-          />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Last name</mat-label>
-          <input
-            matInput
-            placeholder="Your last name"
-            formControlName="lastName"
-            required
-          />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Email</mat-label>
-          <input
-            matInput
-            placeholder="Enter your email"
-            formControlName="email"
-            required
-          />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Password</mat-label>
-          <input
-            matInput
-            placeholder="Enter your password"
-            formControlName="password"
-            required
-            type="password"
-          />
-        </mat-form-field>
-
-        <span class="personal-information-form-info">
-          * Your password must contain at least 8 characters, one letter, and
-          one number.
-        </span>
-      </div>
-
-      <div class="stepper-actions">
-        <span></span>
-        <button mat-raised-button color="primary" matStepperNext>Next</button>
-      </div>
-    </form>
-  </mat-step>
-
-  <mat-step
-    [stepControl]="courseDomainFormGroup"
-    label="Pick your course domains"
-  >
-    <div id="course-domain-form-container">
-      <form [formGroup]="courseDomainFormGroup" id="course-domain-form">
-        <mat-selection-list
-          formControlName="courseDomains"
-          class="scrollable-list-container"
-          [multiple]="true"
-          (selectionChange)="onDomainsSelectionChange($event)"
-        >
-          @for (
-            courseDomain of courseDomains;
-            track courseDomain.courseDomainId
-          ) {
-            <mat-list-option [value]="courseDomain.courseDomainId">
-              {{ courseDomain.name }}
-            </mat-list-option>
-          }
-        </mat-selection-list>
-
-        <div class="stepper-actions">
-          <button mat-raised-button color="accent" matStepperPrevious>
-            Back
-          </button>
-          <button mat-raised-button color="primary" matStepperNext>Next</button>
-        </div>
-      </form>
+  <div id="register-wrapper">
+    <div class="text-container">
+      <h1>Sign up for a course</h1>
+      <span>Fill out the form below to begin your journey with us!</span>
     </div>
-  </mat-step>
 
-  <mat-step [stepControl]="courseFormGroup" label="Pick your courses">
-    <div id="course-form-container">
-      <form [formGroup]="courseFormGroup" id="course-form">
-        <mat-selection-list
-          #coursesref
-          formControlName="courses"
-          class="scrollable-list-container"
-        >
-          @for (course of courses; track course.courseId) {
-            <mat-list-option [value]="course.courseId">
-              {{ course.name }}
-            </mat-list-option>
-          }
-        </mat-selection-list>
-
-        <div class="stepper-actions">
-          <button mat-raised-button color="accent" matStepperPrevious>
-            Back
-          </button>
-          <button mat-raised-button color="primary" matStepperNext>Next</button>
-        </div>
-      </form>
-    </div>
-  </mat-step>
-
-  <mat-step class="stepper-actions">
-    <ng-template matStepLabel>Done</ng-template>
-    <div id="done-container">
-      <div class="text-container">
-        <h2>You are done!</h2>
-
-        <span>
-          Click on finish to complete your registration and begin your learning
-          path.
-        </span>
+    <div class="stepper-card" #card>
+      <!-- card overlay -->
+      <div
+        class="overlay"
+        *ngIf="loadingDomains || loadingCourses || submitting || redirecting"
+      >
+        <mat-progress-spinner mode="indeterminate" diameter="56">
+        </mat-progress-spinner>
       </div>
 
-      <div class="stepper-actions">
-        <button mat-raised-button color="accent" matStepperPrevious>
+      <mat-stepper
+        [linear]="true"
+        #stepper
+        (selectionChange)="onStepperChanged($event)"
+      >
+        <!-- Step 1 -->
+        <mat-step [stepControl]="personalInformationFormGroup">
+          <form [formGroup]="personalInformationFormGroup">
+            <ng-template matStepLabel id="personal-information-form">
+              Fill in your personal information
+            </ng-template>
+
+            <div class="step-body">
+              <div #stepBody>
+                <div id="personal-information-form-container">
+                  <mat-form-field appearance="outline">
+                    <mat-label>First name</mat-label>
+                    <input
+                      matInput
+                      placeholder="Your first name"
+                      formControlName="firstName"
+                      required
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Last name</mat-label>
+                    <input
+                      matInput
+                      placeholder="Your last name"
+                      formControlName="lastName"
+                      required
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input
+                      matInput
+                      placeholder="Enter your email"
+                      formControlName="email"
+                      required
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Password</mat-label>
+                    <input
+                      matInput
+                      placeholder="Enter your password"
+                      formControlName="password"
+                      type="password"
+                      required
+                    />
+                  </mat-form-field>
+
+                  <span class="personal-information-form-info">
+                    * Your password must contain at least 8 characters, one
+                    letter, and one number.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2 -->
+        <mat-step
+          [stepControl]="courseDomainFormGroup"
+          label="Pick your course domains"
+        >
+          <div class="step-body">
+            <div #stepBody>
+              <div id="course-domain-form-container">
+                <form
+                  [formGroup]="courseDomainFormGroup"
+                  id="course-domain-form"
+                >
+                  <mat-selection-list
+                    formControlName="courseDomains"
+                    class="scrollable-list-container"
+                    [multiple]="true"
+                    (selectionChange)="onDomainsSelectionChange($event)"
+                  >
+                    @for (
+                      courseDomain of courseDomains;
+                      track courseDomain.courseDomainId
+                    ) {
+                      <mat-list-option [value]="courseDomain.courseDomainId">
+                        {{ courseDomain.name }}
+                      </mat-list-option>
+                    }
+                  </mat-selection-list>
+                </form>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 3 -->
+        <mat-step [stepControl]="courseFormGroup" label="Pick your courses">
+          <div class="step-body">
+            <div #stepBody>
+              <div id="course-form-container">
+                <form [formGroup]="courseFormGroup" id="course-form">
+                  <mat-selection-list
+                    formControlName="courses"
+                    class="scrollable-list-container"
+                    [multiple]="true"
+                  >
+                    @for (course of courses; track course.courseId) {
+                      <mat-list-option [value]="course.courseId">
+                        {{ course.name }}
+                      </mat-list-option>
+                    }
+                  </mat-selection-list>
+                </form>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 4 -->
+        <mat-step>
+          <ng-template matStepLabel>Done</ng-template>
+
+          <div class="step-body">
+            <div #stepBody>
+              <div id="done-container">
+                <div class="text-container">
+                  <h2>You are done!</h2>
+                  <span>
+                    Click on finish to complete your registration and begin your
+                    learning path.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+
+      <!-- fixed footer buttons at the bottom of the card -->
+      <div class="card-actions">
+        <button
+          mat-stroked-button
+          color="accent"
+          (click)="stepper.previous()"
+          [disabled]="stepper.selectedIndex === 0 || submitting || redirecting"
+        >
           Back
         </button>
-        <button mat-raised-button color="primary" (click)="onSubmitForm()">
-          Register now
-        </button>
+
+        <ng-container [ngSwitch]="stepper.selectedIndex">
+          <button
+            *ngSwitchCase="0"
+            mat-raised-button
+            color="primary"
+            (click)="stepper.next()"
+            [disabled]="
+              personalInformationFormGroup.invalid || submitting || redirecting
+            "
+          >
+            Next
+          </button>
+
+          <button
+            *ngSwitchCase="1"
+            mat-raised-button
+            color="primary"
+            (click)="stepper.next()"
+            [disabled]="
+              courseDomainFormGroup.invalid ||
+              loadingCourses ||
+              submitting ||
+              redirecting
+            "
+          >
+            Next
+          </button>
+
+          <button
+            *ngSwitchCase="2"
+            mat-raised-button
+            color="primary"
+            (click)="stepper.next()"
+            [disabled]="courseFormGroup.invalid || submitting || redirecting"
+          >
+            Next
+          </button>
+
+          <button
+            *ngSwitchDefault
+            mat-raised-button
+            color="primary"
+            (click)="onSubmitForm()"
+            [disabled]="submitting || redirecting"
+          >
+            Register now
+          </button>
+        </ng-container>
       </div>
     </div>
-  </mat-step>
-</mat-stepper>
 
-<img src="assets/ubb-logo.png" />
+    <img src="assets/ubb-logo.png" alt="UBB logo" />
+  </div>
+</div>

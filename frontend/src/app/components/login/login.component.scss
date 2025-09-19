@@ -1,43 +1,158 @@
-:host {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Subtle gradient background with animated blobs */
+.bg {
+  position: relative;
+  min-height: 100svh;
+  background:
+    radial-gradient(
+      1200px 800px at 10% -10%,
+      rgba(99, 91, 255, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 600px at 110% 0%,
+      rgba(255, 169, 64, 0.12),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #f7f7fb 0%, #f3f6ff 100%);
+  overflow: hidden;
 }
 
-.text-container {
+.blob {
+  position: absolute;
+  filter: blur(40px);
+  opacity: 0.5;
+  border-radius: 50%;
+  animation: float 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.b1 {
+  width: 380px;
+  height: 380px;
+  left: -120px;
+  top: -80px;
+  background: #a78bfa;
+}
+
+.b2 {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  top: 120px;
+  background: #60a5fa;
+  animation-delay: 0.8s;
+}
+
+.b3 {
+  width: 320px;
+  height: 320px;
+  left: 30%;
+  bottom: -120px;
+  background: #f472b6;
+  animation-delay: 1.6s;
+}
+
+@keyframes float {
+  to {
+    transform: translateY(-20px) translateX(10px) scale(1.03);
+  }
+}
+
+/* Center column: card + logo stacked */
+.center {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center; /* card vertically centered */
+  gap: 18px; /* space between card and logo */
+  padding: 24px;
+}
+
+/* Glass card */
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 18px 18px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(17, 24, 39, 0.12);
+  position: relative; /* for the overlay */
+}
+
+/* More gap around the title/subtitle */
+.heading {
+  text-align: center;
+  margin: 18px 6px 14px; /* ⬅️ increased gap above & below */
+}
+.heading h1 {
+  margin: 0 0 8px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.heading p {
+  margin: 0;
+  opacity: 0.75;
+}
+
+/* Form layout */
+.form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 64px;
+  gap: 18px;
+  padding: 8px 6px 16px;
+}
+mat-form-field {
+  width: 100%;
 }
 
-#login-form-container {
-  margin: auto auto;
-  background-color: #f5f5f5;
-  gap: 32px;
-  min-width: 40%;
+/* Submit button with spinner */
+.submit {
+  width: 100%;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-#login-form {
-  padding: 48px 64px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+/* Overlay spinner (blocks form while submitting or redirecting) */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  z-index: 2;
 }
 
-#login-form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Logo centered under the card */
+.brand {
+  width: 170px;
+  height: auto;
+  opacity: 0.8;
+  user-select: none;
+  pointer-events: none;
+  margin-bottom: 10px; /* lower side */
 }
 
-.login-form-info {
-  color: grey;
-}
-
-img {
-  width: 240px;
-  height: 120px;
-  place-self: center;
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .auth-card {
+    max-width: 94vw;
+    padding: 12px;
+  }
+  .form {
+    padding: 6px;
+    gap: 16px;
+  }
+  .center {
+    gap: 14px;
+  }
 }

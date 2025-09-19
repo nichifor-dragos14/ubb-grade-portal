@@ -1,28 +1,159 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: block;
 }
 
+/* Background */
+.bg {
+  position: relative;
+  min-height: 100svh;
+  background:
+    radial-gradient(
+      1200px 800px at 10% -10%,
+      rgba(99, 91, 255, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 600px at 110% 0%,
+      rgba(255, 169, 64, 0.12),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #f7f7fb 0%, #f3f6ff 100%);
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  filter: blur(40px);
+  opacity: 0.5;
+  border-radius: 50%;
+  animation: float 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.b1 {
+  width: 380px;
+  height: 380px;
+  left: -120px;
+  top: -80px;
+  background: #a78bfa;
+}
+
+.b2 {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  top: 120px;
+  background: #60a5fa;
+  animation-delay: 0.8s;
+}
+.b3 {
+  width: 320px;
+  height: 320px;
+  left: 30%;
+  bottom: -120px;
+  background: #f472b6;
+  animation-delay: 1.6s;
+}
+
+@keyframes float {
+  to {
+    transform: translateY(-20px) translateX(10px) scale(1.03);
+  }
+}
+
+/* Wrapper (TS sets --card-height) */
+#register-wrapper {
+  --card-width: min(960px, 92vw);
+  --card-height: 640px; /* default; overwritten to tallest step at runtime */
+  --body-padding: 110px; /* header area only; footer is separate */
+  --body-height: calc(var(--card-height) - var(--body-padding));
+
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+/* Intro text */
 .text-container {
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 64px;
+  gap: 10px;
+  padding: 8px 16px 0;
 }
 
-mat-stepper {
-  max-width: 60%;
-  margin: 0 auto;
-  background-color: #f5f5f5;
+/* Fixed-size card with footer */
+.stepper-card {
+  position: relative;
+  width: var(--card-width);
+  height: var(--card-height);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(17, 24, 39, 0.12);
+  padding: 8px 8px 0;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Overlay covers the whole card (including footer) */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  z-index: 3;
+}
+
+/* Stepper fills remaining space */
+.stepper-card mat-stepper {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Each step body: fixed height + own scroll; leave bottom padding so footer doesn't cover content */
+.step-body {
+  height: var(--body-height);
+  overflow: auto;
+  padding: 8px 8px 72px; /* bottom padding equals footer height */
+}
+
+/* Footer buttons pinned to bottom of card */
+.card-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.95) 35%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+/* Forms and lists */
 #personal-information-form-container {
-  padding: 32px 16px;
+  padding: 16px 16px;
   display: grid;
   column-gap: 32px;
-  row-gap: 8px;
+  row-gap: 12px;
 }
 
 #personal-information-form-container mat-form-field {
@@ -36,53 +167,53 @@ mat-stepper {
   color: grey;
 }
 
-#personal-information-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 #course-domain-form-container {
-  padding: 32px 16px;
+  padding: 16px 16px;
 }
-
 #course-domain-form {
   display: flex;
   flex-direction: column;
-  row-gap: 32px;
+  row-gap: 24px;
 }
 
 #course-form-container {
-  padding: 32px 16px;
+  padding: 16px 16px;
 }
 
 #course-form {
   display: flex;
   flex-direction: column;
-  row-gap: 32px;
+  row-gap: 24px;
 }
 
-.stepper-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 16px;
-}
-
+/* Lists use all available height in the body */
 .scrollable-list-container {
-  max-height: 400px;
+  max-height: 100%;
   overflow-y: auto;
-  //border: 1px solid #ccc;
 }
 
+/* Done step */
 #done-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* Logo under card */
 img {
-  width: 240px;
-  height: 120px;
+  width: 200px;
+  height: auto;
   place-self: center;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  #register-wrapper {
+    --card-height: 680px;
+  }
+  #personal-information-form-container mat-form-field {
+    width: 100%;
+  }
 }
