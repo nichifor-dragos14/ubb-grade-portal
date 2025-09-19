@@ -10,7 +10,6 @@
     </div>
 
     <div class="stepper-card" #card>
-      <!-- card overlay -->
       <div
         class="overlay"
         *ngIf="loadingDomains || loadingCourses || submitting || redirecting"
@@ -24,7 +23,6 @@
         #stepper
         (selectionChange)="onStepperChanged($event)"
       >
-        <!-- Step 1 -->
         <mat-step [stepControl]="personalInformationFormGroup">
           <form [formGroup]="personalInformationFormGroup">
             <ng-template matStepLabel id="personal-information-form">
@@ -85,7 +83,6 @@
           </form>
         </mat-step>
 
-        <!-- Step 2 -->
         <mat-step
           [stepControl]="courseDomainFormGroup"
           label="Pick your course domains"
@@ -118,7 +115,6 @@
           </div>
         </mat-step>
 
-        <!-- Step 3 -->
         <mat-step [stepControl]="courseFormGroup" label="Pick your courses">
           <div class="step-body">
             <div #stepBody>
@@ -141,7 +137,6 @@
           </div>
         </mat-step>
 
-        <!-- Step 4 -->
         <mat-step>
           <ng-template matStepLabel>Done</ng-template>
 
@@ -161,7 +156,6 @@
         </mat-step>
       </mat-stepper>
 
-      <!-- fixed footer buttons at the bottom of the card -->
       <div class="card-actions">
         <button
           mat-stroked-button

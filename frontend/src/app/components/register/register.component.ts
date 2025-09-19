@@ -35,6 +35,7 @@ import {
   CourseService,
 } from '$backend/services';
 import { finalize } from 'rxjs/operators';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -58,6 +59,7 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
   private formBuilder = inject(FormBuilder);
   private courseService = inject(CourseService);
   private accountService = inject(AccountService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
@@ -98,6 +100,10 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
   private resizeObserver?: ResizeObserver;
 
   async ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      await this.router.navigateByUrl('/main');
+    }
+
     this.loadingDomains = true;
 
     this.courseService

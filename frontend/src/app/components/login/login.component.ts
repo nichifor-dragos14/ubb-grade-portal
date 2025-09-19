@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -35,7 +35,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
@@ -56,6 +56,12 @@ export class LoginComponent {
 
   get password() {
     return this.loginFormGroup.controls.password;
+  }
+
+  async ngOnInit(): Promise<void> {
+    if (this.authService.isAuthenticated()) {
+      await this.router.navigateByUrl('/main');
+    }
   }
 
   async onSubmitForm() {

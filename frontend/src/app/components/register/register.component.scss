@@ -2,7 +2,6 @@
   display: block;
 }
 
-/* Background */
 .bg {
   position: relative;
   min-height: 100svh;
@@ -46,6 +45,7 @@
   background: #60a5fa;
   animation-delay: 0.8s;
 }
+
 .b3 {
   width: 320px;
   height: 320px;
@@ -61,11 +61,10 @@
   }
 }
 
-/* Wrapper (TS sets --card-height) */
 #register-wrapper {
   --card-width: min(960px, 92vw);
-  --card-height: 640px; /* default; overwritten to tallest step at runtime */
-  --body-padding: 110px; /* header area only; footer is separate */
+  --card-height: 640px;
+  --body-padding: 110px;
   --body-height: calc(var(--card-height) - var(--body-padding));
 
   position: relative;
@@ -78,7 +77,6 @@
   padding: 24px;
 }
 
-/* Intro text */
 .text-container {
   align-items: center;
   display: flex;
@@ -87,7 +85,6 @@
   padding: 8px 16px 0;
 }
 
-/* Fixed-size card with footer */
 .stepper-card {
   position: relative;
   width: var(--card-width);
@@ -103,7 +100,6 @@
   flex-direction: column;
 }
 
-/* Overlay covers the whole card (including footer) */
 .overlay {
   position: absolute;
   inset: 0;
@@ -114,20 +110,17 @@
   z-index: 3;
 }
 
-/* Stepper fills remaining space */
 .stepper-card mat-stepper {
   flex: 1 1 auto;
   overflow: hidden;
 }
 
-/* Each step body: fixed height + own scroll; leave bottom padding so footer doesn't cover content */
 .step-body {
   height: var(--body-height);
   overflow: auto;
-  padding: 8px 8px 72px; /* bottom padding equals footer height */
+  padding: 8px 8px 72px;
 }
 
-/* Footer buttons pinned to bottom of card */
 .card-actions {
   position: absolute;
   left: 0;
@@ -148,7 +141,6 @@
   z-index: 2;
 }
 
-/* Forms and lists */
 #personal-information-form-container {
   padding: 16px 16px;
   display: grid;
@@ -170,6 +162,7 @@
 #course-domain-form-container {
   padding: 16px 16px;
 }
+
 #course-domain-form {
   display: flex;
   flex-direction: column;
@@ -186,34 +179,21 @@
   row-gap: 24px;
 }
 
-/* Lists use all available height in the body */
 .scrollable-list-container {
   max-height: 100%;
   overflow-y: auto;
 }
 
-/* Done step */
 #done-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Logo under card */
 img {
   width: 200px;
   height: auto;
   place-self: center;
   opacity: 0.8;
   margin-bottom: 10px;
-}
-
-/* Small screens */
-@media (max-width: 640px) {
-  #register-wrapper {
-    --card-height: 680px;
-  }
-  #personal-information-form-container mat-form-field {
-    width: 100%;
-  }
 }

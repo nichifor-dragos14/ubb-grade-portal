@@ -1,12 +1,62 @@
-import { Component } from '@angular/core';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { RouterModule } from '@angular/router';
+import { Component, ViewChild, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+
+import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterModule, MatSidenavModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatBadgeModule,
+  ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
+
+  authService = inject(AuthService);
+  router = inject(Router);
+
+  get roles(): string[] {
+    return this.authService.roles();
+  }
+
+  hasRole(role: string): boolean {
+    return this.roles.includes(role);
+  }
+
+  isProfessor(): boolean {
+    return this.hasRole('Professor');
+  }
+
+  async onLogout() {
+    this.authService.logout();
+    await this.router.navigateByUrl('/login');
+  }
+
+  toggleSidenav() {
+    this.drawer.toggle();
+  }
+
+  async goProfile() {
+    await this.router.navigateByUrl('/main/profile');
+  }
+}

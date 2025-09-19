@@ -1,5 +1,181 @@
-<mat-drawer-container>
-  <mat-drawer mode="side" opened> Drawer content </mat-drawer>
+<mat-drawer-container class="container">
+  <mat-drawer #drawer class="sidenav" mode="side" opened>
+    <div class="brand">
+      <mat-icon>school</mat-icon>
+      <span>UBB Grade Portal</span>
+    </div>
 
-  <mat-drawer-content> <router-outlet /> </mat-drawer-content>
+    <div class="nav-scroll">
+      <mat-nav-list class="nav-list">
+        <!-- STUDENT -->
+        <ng-container *ngIf="hasRole('Student')">
+          <a
+            mat-list-item
+            routerLink="/main/dashboard"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <div matListItemTitle>Dashboard</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/enrollments"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>how_to_reg</mat-icon>
+            <div matListItemTitle>My Enrollments</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/solved-activities"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>task_alt</mat-icon>
+            <div matListItemTitle>My Solved Activities</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/achievements"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>emoji_events</mat-icon>
+            <div matListItemTitle>My Achievements</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/leaderboards"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>leaderboard</mat-icon>
+            <div matListItemTitle>Leaderboards</div>
+          </a>
+        </ng-container>
+
+        <!-- PROFESSOR / PROFESOR -->
+        <ng-container *ngIf="isProfessor()">
+          <a
+            mat-list-item
+            routerLink="/main/prof/courses"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>library_books</mat-icon>
+            <div matListItemTitle>My Courses</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/prof/verification-requests"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>rule</mat-icon>
+            <div matListItemTitle>Verification Requests</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/prof/library"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>collections_bookmark</mat-icon>
+            <div matListItemTitle>My Library</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/leaderboards"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>leaderboard</mat-icon>
+            <div matListItemTitle>Leaderboards</div>
+          </a>
+        </ng-container>
+
+        <!-- ADMIN -->
+        <ng-container *ngIf="hasRole('Admin')">
+          <a
+            mat-list-item
+            routerLink="/main/admin/users"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>group</mat-icon>
+            <div matListItemTitle>Manage Users</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/admin/courses"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>menu_book</mat-icon>
+            <div matListItemTitle>Manage Courses</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/admin/enrollments"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>how_to_reg</mat-icon>
+            <div matListItemTitle>Manage Enrollments</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/admin/course-domains"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>category</mat-icon>
+            <div matListItemTitle>Manage Course Domains</div>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/main/admin/activities"
+            routerLinkActive="active"
+          >
+            <mat-icon matListItemIcon>assignment</mat-icon>
+            <div matListItemTitle>Manage Activities</div>
+          </a>
+        </ng-container>
+      </mat-nav-list>
+    </div>
+
+    <div class="sidenav-footer">
+      <button mat-stroked-button color="primary" (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </div>
+  </mat-drawer>
+
+  <mat-drawer-content class="content">
+    <mat-toolbar color="primary" class="toolbar">
+      <button mat-icon-button class="menu-btn" (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="title">UBB Grade Portal</span>
+      <span class="spacer"></span>
+
+      <!-- Notifications -->
+      <button
+        mat-icon-button
+        class="notif-button"
+        [matMenuTriggerFor]="notificationsMenu"
+        matBadge="{{ 3 }}"
+        matBadgeColor="accent"
+        matBadgePosition="above after"
+        matBadgeHidden="{{ 0 === 0 }}"
+        aria-label="Notifications"
+        matTooltip="Notifications"
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <mat-menu #notificationsMenu="matMenu" xPosition="before"> </mat-menu>
+
+      <!-- Profile -->
+      <button mat-icon-button matTooltip="Profile" (click)="goProfile()">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <div class="page">
+      <router-outlet />
+    </div>
+  </mat-drawer-content>
 </mat-drawer-container>
