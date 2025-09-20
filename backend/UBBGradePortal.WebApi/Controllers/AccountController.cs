@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.Auth;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Auth;
 using UBBGradePortal.WebApi.Auth;
@@ -103,36 +103,5 @@ public class AccountController : ControllerBase
         var jwt = await _tokenService.CreateAsync(user, cancellationToken);
 
         return Ok(new AuthResponse(jwt));
-    }
-
-    [HttpGet("me")]
-    [Authorize]
-    public async Task<IActionResult> Me(CancellationToken cancellationToken)
-    {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdString))
-        {
-            return Unauthorized();
-        }
-
-        var userId = Guid.Parse(userIdString);
-        var user = await _userService.GetById(userId, cancellationToken);
-
-        if (user is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(
-            new
-            {
-                user.Id,
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                user.Role
-            }
-        );
     }
 }

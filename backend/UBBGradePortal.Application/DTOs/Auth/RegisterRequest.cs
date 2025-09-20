@@ -1,6 +1,6 @@
 ﻿using UBBGradePortal.Domain.Enums;
 
-namespace UBBGradePortal.WebApi.Auth;
+namespace UBBGradePortal.Application.DTOs.Auth;
 
 public record RegisterRequest(
     string Email,
