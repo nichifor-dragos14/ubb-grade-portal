@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Course;
@@ -34,10 +36,41 @@ public class CourseController : ControllerBase
     /// <summary> Get all course domains. </summary>
     [HttpGet("domains")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<List<CourseDomainDto>>, BadRequest>> GetAllCourseDomains(CancellationToken cancellationToken)
+    public async Task<Results<Ok<List<CourseDomainDto>>, BadRequest>> GetAllCourseDomains(
+        CancellationToken cancellationToken
+    )
     {
         var courseDomains = await _courseService.GetAllCourseDomains(cancellationToken);
 
         return TypedResults.Ok(courseDomains);
+    }
+
+    /// <summary> Add a course. </summary>
+    [HttpPost]
+    [Authorize(Roles = "Profesor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<Results<Ok<bool>, BadRequest>> AddCourse(
+        [FromBody] AddCourseDto course,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var result = await _courseService.Add(course, loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+
+    /// <summary> Update a course. </summary>
+    [HttpPost]
+    [Authorize(Roles = "Profesor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<Results<Ok<bool>, BadRequest>> UpdateCourse(
+        [FromBody] UpdateCourseDto course,
+        CancellationToken cancellationToken
+    )
+    {
+        var result = await _courseService.Update(course, cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

@@ -5,5 +5,5 @@ namespace UBBGradePortal.Infrastructure.Abstractions;
 public interface IUserRepository
 {
     Task<User?> GetById(Guid userId, CancellationToken cancellationToken);
-    Task Add(User user, CancellationToken cancellationToken);
+    Task<bool> Add(User user, CancellationToken cancellationToken);
 }

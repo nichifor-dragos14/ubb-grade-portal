@@ -1,22 +1,39 @@
 ﻿using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
+using UBBGradePortal.Infrastructure.Microsoft;
 
 namespace UBBGradePortal.Infrastructure.Repositories;
 
 public class CourseEnrollmentRepository : ICourseEnrollmentRepository
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<CourseEnrollmentRepository> _logger;
 
-    public CourseEnrollmentRepository(ApplicationDbContext dbContext)
+    public CourseEnrollmentRepository(
+        ApplicationDbContext dbContext,
+        ILogger<CourseEnrollmentRepository> logger
+    )
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
-    public async Task Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)
+    public async Task<bool> Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)
     {
+        try
+        {
+            await _dbContext.CourseEnrollments.AddRangeAsync(courseEnrollments, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
-        _dbContext.CourseEnrollments.AddRange(courseEnrollments);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex.Message.ToString());
+
+            return false;
+        }
+
     }
 }

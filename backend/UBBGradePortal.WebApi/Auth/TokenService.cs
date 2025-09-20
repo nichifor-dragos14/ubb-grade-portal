@@ -12,7 +12,10 @@ public sealed class TokenService
     private readonly IConfiguration _configuration;
     private readonly IUserService _userService;
 
-    public TokenService(IConfiguration configuration, IUserService userService)
+    public TokenService(
+        IConfiguration configuration,
+        IUserService userService
+    )
     {
         _configuration = configuration;
         _userService = userService;
@@ -21,7 +24,7 @@ public sealed class TokenService
     public async Task<string> CreateAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var profile = await _userService.GetById(user.Id, cancellationToken);
 
@@ -44,7 +47,7 @@ public sealed class TokenService
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:AccessTokenMinutes"] ?? "60")),
-            signingCredentials: creds
+            signingCredentials: credentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);

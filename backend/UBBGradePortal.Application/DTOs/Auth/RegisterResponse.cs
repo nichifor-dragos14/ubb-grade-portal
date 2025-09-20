@@ -1,5 +1,5 @@
 ﻿namespace UBBGradePortal.Application.DTOs.Auth;
 
-public record AuthResponse(
-    string AccessToken
+public record RegisterResponse(
+    Guid UserId
 );

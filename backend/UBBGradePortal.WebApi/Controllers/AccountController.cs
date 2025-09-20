@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Auth;
-using UBBGradePortal.Domain.Entities;
+using UBBGradePortal.Application.DTOs.User;
 using UBBGradePortal.Infrastructure.Auth;
 using UBBGradePortal.WebApi.Auth;
 
@@ -29,6 +29,7 @@ public class AccountController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary> User registration. </summary>
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Register(
@@ -45,8 +46,6 @@ public class AccountController : ControllerBase
 
         var create = await _users.CreateAsync(applicationUser, request.Password);
 
-        // validate: make sure the courses exist and no courses are already enrolled for the user; validate user info
-
         if (!create.Succeeded)
         {
             return BadRequest(string.Join("; ", create.Errors.Select(e => e.Description)));
@@ -56,29 +55,34 @@ public class AccountController : ControllerBase
 
         if (!await _roles.RoleExistsAsync(roleName))
         {
-            await _roles.CreateAsync(new ApplicationRole { Name = roleName, NormalizedName = roleName.ToUpperInvariant() });
+            await _roles.CreateAsync(new ApplicationRole 
+            { 
+                Name = roleName,
+                NormalizedName = roleName.ToUpperInvariant() 
+            });
         }
 
         await _users.AddToRoleAsync(applicationUser, roleName);
 
-        var newUser = new User
+        var user = new AddUserDto(
+            applicationUser.Id,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Role
+        );
+
+        await _userService.Add(user, cancellationToken);
+
+        if (request.CourseIds != null && request.CourseIds.Count != 0)
         {
-            Id = applicationUser.Id,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Email = request.Email,
-            Role = request.Role,
-            CreatedOn = DateTime.UtcNow
-        };
+            await _userService.EnrollToCourses(applicationUser.Id, request.CourseIds, cancellationToken);
+        }
 
-        await _userService.Add(newUser, cancellationToken);
-        await _userService.EnrollToCourses(applicationUser.Id, request.CourseIds, cancellationToken);
-
-        var jwt = await _tokenService.CreateAsync(applicationUser, cancellationToken);
-
-        return Ok(new AuthResponse(jwt));
+        return Ok(new RegisterResponse(user.Id));
     }
 
+    /// <summary> User login. </summary>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Login(

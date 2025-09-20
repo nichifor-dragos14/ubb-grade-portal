@@ -1,7 +1,7 @@
 ﻿namespace UBBGradePortal.Application.DTOs.Course;
 
-public record CourseDto(
-    Guid CourseId,
+public record UpdateCourseDto(
+    Guid Id,
     string Name,
-    string CourseDomainName
+    string Description
 );

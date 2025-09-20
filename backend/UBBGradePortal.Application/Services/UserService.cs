@@ -1,6 +1,8 @@
 ﻿using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.User;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
+using UBBGradePortal.Infrastructure.Microsoft;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -8,41 +10,66 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly ICourseEnrollmentRepository _courseEnrollmentRepository;
+    private readonly ICourseRepository _courseRepository;
+    private readonly ILogger<UserService> _logger;
 
     public UserService(
         IUserRepository userRepository,
-        ICourseEnrollmentRepository courseEnrollmentRepository
+        ICourseEnrollmentRepository courseEnrollmentRepository,
+        ICourseRepository courseRepository,
+        ILogger<UserService> logger
     )
     {
         _userRepository = userRepository;
         _courseEnrollmentRepository = courseEnrollmentRepository;
+        _courseRepository = courseRepository;
+        _logger = logger;
     }
 
-    public async Task Add(User user, CancellationToken cancellationToken)
+    public async Task<bool> Add(AddUserDto addUserDto, CancellationToken cancellationToken)
     {
-        await _userRepository.Add(user, cancellationToken);
-    }
-
-    public async Task EnrollToCourses(Guid userId, List<Guid> courseIds, CancellationToken cancellationToken)
-    {
-        if(courseIds.Count == 0)
+        var user = new User
         {
-            return;
-        }
+            Id = addUserDto.Id,
+            FirstName = addUserDto.FirstName,
+            LastName = addUserDto.LastName,
+            Email = addUserDto.Email,
+            Role = addUserDto.Role,
+            CreatedOn = DateTime.UtcNow,
+            UpdatedOn = DateTime.UtcNow,
+        };
+
+        return await _userRepository.Add(user, cancellationToken);
+    }
+
+    public async Task<bool> EnrollToCourses(Guid userId, List<Guid> courseIds, CancellationToken cancellationToken)
+    {
+        var courses = await _courseRepository.GetAll(cancellationToken);
 
         courseIds = courseIds
             .Distinct()
+            .Where(courseId => courses.Any(c => c.Id == courseId))
             .ToList();
+
+        if (courseIds.Count == 0)
+        {
+            _logger.LogInformation("No courses were available for enrollment");
+
+            return false;
+        }
 
         var enrollments = courseIds
             .Select(courseId => new CourseEnrollment
             {
+                Id = Guid.NewGuid(),
                 UserId = userId,
-                CourseId = courseId
+                CourseId = courseId,
+                CreatedOn = DateTime.UtcNow,
+                UpdatedOn = DateTime.UtcNow,
             })
             .ToList();
 
-        await _courseEnrollmentRepository.Add(enrollments, cancellationToken);
+        return await _courseEnrollmentRepository.Add(enrollments, cancellationToken);
     }
 
     public async Task<User?> GetById(Guid userId, CancellationToken cancellationToken)
