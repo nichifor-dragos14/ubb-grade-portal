@@ -61,7 +61,7 @@ public class CourseController : ControllerBase
     }
 
     /// <summary> Update a course. </summary>
-    [HttpPost]
+    [HttpPut]
     [Authorize(Roles = "Profesor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<Results<Ok<bool>, BadRequest>> UpdateCourse(

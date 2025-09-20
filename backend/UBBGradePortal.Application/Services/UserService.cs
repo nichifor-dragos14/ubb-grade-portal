@@ -1,8 +1,8 @@
-﻿using UBBGradePortal.Application.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.User;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
-using UBBGradePortal.Infrastructure.Microsoft;
 
 namespace UBBGradePortal.Application.Services;
 

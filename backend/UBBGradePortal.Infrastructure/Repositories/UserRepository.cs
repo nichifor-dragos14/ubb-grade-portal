@@ -2,7 +2,7 @@
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
-using UBBGradePortal.Infrastructure.Microsoft;
+using Microsoft.Extensions.Logging;
 
 namespace UBBGradePortal.Infrastructure.Repositories;
 

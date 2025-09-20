@@ -2,7 +2,7 @@
 using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
-using UBBGradePortal.Infrastructure.Microsoft;
+using Microsoft.Extensions.Logging;
 
 namespace UBBGradePortal.Application.Services;
 
