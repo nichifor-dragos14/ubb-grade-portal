@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -31,15 +32,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   hide = true;
   submitting = false;
@@ -72,6 +77,7 @@ export class LoginComponent implements OnInit {
     }
 
     this.submitting = true;
+    this.cdr.detectChanges();
 
     const { email, password } = this.loginFormGroup.getRawValue();
 
@@ -84,11 +90,19 @@ export class LoginComponent implements OnInit {
 
       this.submitting = false;
       this.redirecting = true;
+      this.cdr.detectChanges();
 
       await this.router.navigateByUrl('/main');
+    } catch (message: any) {
+      this.snackBar.open(message.error, 'Close', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
     } finally {
       this.submitting = false;
       this.redirecting = false;
+      this.cdr.detectChanges();
     }
   }
 }

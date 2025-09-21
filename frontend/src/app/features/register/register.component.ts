@@ -23,6 +23,7 @@ import {
   CourseService,
 } from '$backend/services';
 import { AuthService } from '../../core/auth/auth.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-register',
@@ -39,6 +40,7 @@ import { AuthService } from '../../core/auth/auth.service';
     MatIconModule,
     MatProgressSpinnerModule,
     RouterModule,
+    MatSnackBarModule,
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
@@ -47,6 +49,7 @@ export class RegisterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   private courseService = inject(CourseService);
   private accountService = inject(AccountService);
@@ -107,7 +110,15 @@ export class RegisterComponent implements OnInit {
     try {
       this.courseDomains = await this.courseService.apiCourseDomainsGetAsync();
     } catch {
-      // error toastr here
+      this.snackBar.open(
+        'Something went wrong while searching for subject areas.',
+        'Close',
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        }
+      );
       this.courseDomains = [];
     } finally {
       this.loadingDomains = false;
@@ -134,8 +145,16 @@ export class RegisterComponent implements OnInit {
       this.courses = await this.courseService.apiCourseGetAsync({
         courseDomainIds: courseDomainIds,
       });
-    } catch {
-      // error toastr here
+    } catch (message: any) {
+      this.snackBar.open(
+        'Something went wrong while searching for courses.',
+        'Close',
+        {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        }
+      );
       this.courseDomains = [];
     } finally {
       this.loadingCourses = false;
@@ -194,6 +213,13 @@ export class RegisterComponent implements OnInit {
       this.cdr.detectChanges();
 
       await this.router.navigateByUrl('/main');
+    } catch (message: any) {
+      var errors = message.error.split(';');
+      this.snackBar.open(errors[1], 'Close', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
     } finally {
       this.submitting = false;
       this.redirecting = false;
