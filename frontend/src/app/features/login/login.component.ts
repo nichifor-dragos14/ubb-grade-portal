@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '$backend/services';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';

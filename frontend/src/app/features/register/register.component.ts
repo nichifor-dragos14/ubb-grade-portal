@@ -22,7 +22,7 @@ import {
   CourseDto,
   CourseService,
 } from '$backend/services';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-register',

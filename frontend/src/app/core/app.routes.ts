@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LayoutComponent } from '../features/layout/layout.component';
 import { LoginComponent } from '../features/login/login.component';
 import { RegisterComponent } from '../features/register/register.component';
-import { roleGuard } from '../auth/role.guard';
+import { roleGuard } from './auth/role.guard';
 
 export const routes: Routes = [
   {
@@ -21,7 +21,7 @@ export const routes: Routes = [
   {
     path: 'main',
     canActivate: [roleGuard],
-    data: { roles: ['Student', 'Profesor', 'Admin'] },
+    data: { roles: ['Student', 'Professor', 'Admin'] },
     component: LayoutComponent,
     children: [],
   },
