@@ -35,6 +35,14 @@
                       formControlName="firstName"
                       required
                     />
+
+                    <mat-error
+                      *ngIf="
+                        firstName.touched && firstName.hasError('required')
+                      "
+                    >
+                      The first name is required.
+                    </mat-error>
                   </mat-form-field>
 
                   <mat-form-field>
@@ -45,6 +53,12 @@
                       formControlName="lastName"
                       required
                     />
+
+                    <mat-error
+                      *ngIf="lastName.touched && lastName.hasError('required')"
+                    >
+                      The last name is required.
+                    </mat-error>
                   </mat-form-field>
 
                   <mat-form-field>
@@ -55,6 +69,16 @@
                       formControlName="email"
                       required
                     />
+
+                    <mat-error
+                      *ngIf="email.touched && email.hasError('required')"
+                    >
+                      The email is required.
+                    </mat-error>
+
+                    <mat-error *ngIf="email.touched && email.hasError('email')">
+                      Must be in email format
+                    </mat-error>
                   </mat-form-field>
 
                   <mat-form-field>
@@ -80,19 +104,25 @@
                     <mat-error
                       *ngIf="password.touched && password.hasError('required')"
                     >
-                      Password is required
+                      The password is required
                     </mat-error>
 
                     <mat-error
                       *ngIf="password.touched && password.hasError('minlength')"
                     >
-                      Minimum 8 characters
+                      Must have at least 8 characters
+                    </mat-error>
+
+                    <mat-error
+                      *ngIf="password.touched && password.hasError('pattern')"
+                    >
+                      Must include at least one letter and one number
                     </mat-error>
                   </mat-form-field>
 
                   <span class="personal-information-form-info">
-                    * Your password must contain at least 8 characters, one
-                    letter, and one number.
+                    * Your personal data remains private—we will not share it.
+                    It's processed only for your account and service experience.
                   </span>
                 </div>
               </div>

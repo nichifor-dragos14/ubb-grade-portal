@@ -69,7 +69,14 @@ export class RegisterComponent implements OnInit {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d).*$/),
+      ],
+    ],
   });
 
   courseDomainFormGroup = this.formBuilder.group({
@@ -95,6 +102,18 @@ export class RegisterComponent implements OnInit {
 
   get password() {
     return this.personalInformationFormGroup.controls.password;
+  }
+
+  get email() {
+    return this.personalInformationFormGroup.controls.email;
+  }
+
+  get firstName() {
+    return this.personalInformationFormGroup.controls.firstName;
+  }
+
+  get lastName() {
+    return this.personalInformationFormGroup.controls.lastName;
   }
 
   async ngOnInit() {

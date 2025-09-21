@@ -33,11 +33,11 @@
           />
 
           <mat-error *ngIf="email.touched && email.hasError('required')">
-            Email is required
+            The email is required.
           </mat-error>
 
           <mat-error *ngIf="email.touched && email.hasError('email')">
-            Enter a valid email
+            Must be in email format
           </mat-error>
         </mat-form-field>
 
@@ -51,6 +51,7 @@
             formControlName="password"
             required
           />
+
           <button
             type="button"
             mat-icon-button
@@ -81,7 +82,7 @@
         </button>
 
         <div class="alt">
-          <span>Don’t have an account? Create one </span>
+          <span>Don't have an account? Create one </span>
           <a routerLink="/register">here</a>
         </div>
       </form>
