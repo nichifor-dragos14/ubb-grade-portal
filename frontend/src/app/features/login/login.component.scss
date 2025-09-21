@@ -104,17 +104,9 @@
   gap: 18px;
   padding: 8px 6px 16px;
 }
+
 mat-form-field {
   width: 100%;
-}
-
-.submit {
-  width: 100%;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .overlay {
@@ -125,15 +117,6 @@ mat-form-field {
   background: rgba(255, 255, 255, 0.55);
   border-radius: 16px;
   z-index: 2;
-}
-
-.brand {
-  width: 170px;
-  height: auto;
-  opacity: 0.8;
-  user-select: none;
-  pointer-events: none;
-  margin-bottom: 10px;
 }
 
 @media (max-width: 480px) {
@@ -148,4 +131,22 @@ mat-form-field {
   .center {
     gap: 14px;
   }
+}
+
+.submit {
+  width: 100%;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.brand {
+  width: 170px;
+  height: auto;
+  opacity: 0.8;
+  user-select: none;
+  pointer-events: none;
+  margin-bottom: 10px;
 }

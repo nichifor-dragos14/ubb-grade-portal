@@ -5,34 +5,25 @@
 
   <div id="register-wrapper">
     <div class="text-container">
-      <h1>Sign up for a course</h1>
-      <span>Fill out the form below to begin your journey with us!</span>
+      <h1>Create your learning path 🚀</h1>
+      <span>Choose your interests now—you can add more later.</span>
     </div>
 
     <div class="stepper-card" #card>
-      <div
-        class="overlay"
-        *ngIf="loadingDomains || loadingCourses || submitting || redirecting"
-      >
+      <div class="overlay" *ngIf="isLoading">
         <mat-progress-spinner mode="indeterminate" diameter="56">
         </mat-progress-spinner>
       </div>
 
-      <mat-stepper
-        [linear]="true"
-        #stepper
-        (selectionChange)="onStepperChanged($event)"
-      >
+      <mat-stepper [linear]="true" #stepper>
         <mat-step [stepControl]="personalInformationFormGroup">
           <form [formGroup]="personalInformationFormGroup">
-            <ng-template matStepLabel id="personal-information-form">
-              Fill in your personal information
-            </ng-template>
+            <ng-template matStepLabel> Enter your details </ng-template>
 
             <div class="step-body">
               <div #stepBody>
                 <div id="personal-information-form-container">
-                  <mat-form-field appearance="outline">
+                  <mat-form-field>
                     <mat-label>First name</mat-label>
                     <input
                       matInput
@@ -42,7 +33,7 @@
                     />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline">
+                  <mat-form-field>
                     <mat-label>Last name</mat-label>
                     <input
                       matInput
@@ -52,7 +43,7 @@
                     />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline">
+                  <mat-form-field>
                     <mat-label>Email</mat-label>
                     <input
                       matInput
@@ -62,15 +53,37 @@
                     />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline">
+                  <mat-form-field>
                     <mat-label>Password</mat-label>
                     <input
                       matInput
+                      [type]="hide ? 'password' : 'text'"
                       placeholder="Enter your password"
                       formControlName="password"
-                      type="password"
                       required
                     />
+                    <button
+                      type="button"
+                      mat-icon-button
+                      matSuffix
+                      (click)="hide = !hide"
+                    >
+                      <mat-icon>
+                        {{ hide ? 'visibility_off' : 'visibility' }}
+                      </mat-icon>
+                    </button>
+
+                    <mat-error
+                      *ngIf="password.touched && password.hasError('required')"
+                    >
+                      Password is required
+                    </mat-error>
+
+                    <mat-error
+                      *ngIf="password.touched && password.hasError('minlength')"
+                    >
+                      Minimum 8 characters
+                    </mat-error>
                   </mat-form-field>
 
                   <span class="personal-information-form-info">
@@ -85,7 +98,7 @@
 
         <mat-step
           [stepControl]="courseDomainFormGroup"
-          label="Pick your course domains"
+          label="Select your subject areas"
         >
           <div class="step-body">
             <div #stepBody>
@@ -98,7 +111,7 @@
                     formControlName="courseDomains"
                     class="scrollable-list-container"
                     [multiple]="true"
-                    (selectionChange)="onDomainsSelectionChange($event)"
+                    (selectionChange)="onCourseDomainsSelectionChange()"
                   >
                     @for (
                       courseDomain of courseDomains;
@@ -115,7 +128,7 @@
           </div>
         </mat-step>
 
-        <mat-step [stepControl]="courseFormGroup" label="Pick your courses">
+        <mat-step [stepControl]="courseFormGroup" label="Select your courses">
           <div class="step-body">
             <div #stepBody>
               <div id="course-form-container">
@@ -138,16 +151,16 @@
         </mat-step>
 
         <mat-step>
-          <ng-template matStepLabel>Done</ng-template>
+          <ng-template matStepLabel>Confirm & enroll</ng-template>
 
           <div class="step-body">
             <div #stepBody>
               <div id="done-container">
                 <div class="text-container">
-                  <h2>You are done!</h2>
+                  <h2>Almost there!</h2>
                   <span>
-                    Click on finish to complete your registration and begin your
-                    learning path.
+                    Click the register button to complete your registration and
+                    begin your learning path.
                   </span>
                 </div>
               </div>
@@ -166,54 +179,25 @@
           Back
         </button>
 
-        <ng-container [ngSwitch]="stepper.selectedIndex">
-          <button
-            *ngSwitchCase="0"
-            mat-raised-button
-            color="primary"
-            (click)="stepper.next()"
-            [disabled]="
-              personalInformationFormGroup.invalid || submitting || redirecting
-            "
-          >
-            Next
-          </button>
-
-          <button
-            *ngSwitchCase="1"
-            mat-raised-button
-            color="primary"
-            (click)="stepper.next()"
-            [disabled]="
-              courseDomainFormGroup.invalid ||
-              loadingCourses ||
-              submitting ||
-              redirecting
-            "
-          >
-            Next
-          </button>
-
-          <button
-            *ngSwitchCase="2"
-            mat-raised-button
-            color="primary"
-            (click)="stepper.next()"
-            [disabled]="courseFormGroup.invalid || submitting || redirecting"
-          >
-            Next
-          </button>
-
-          <button
-            *ngSwitchDefault
-            mat-raised-button
-            color="primary"
-            (click)="onSubmitForm()"
-            [disabled]="submitting || redirecting"
-          >
-            Register now
-          </button>
-        </ng-container>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="
+            stepper.selectedIndex === 3 ? onSubmitForm() : stepper.next()
+          "
+          [disabled]="
+            [
+              personalInformationFormGroup.invalid,
+              courseDomainFormGroup.invalid || loadingCourses,
+              courseFormGroup.invalid,
+              false,
+            ][stepper.selectedIndex] ||
+            submitting ||
+            redirecting
+          "
+        >
+          {{ stepper.selectedIndex === 3 ? 'Register now' : 'Next' }}
+        </button>
       </div>
     </div>
 

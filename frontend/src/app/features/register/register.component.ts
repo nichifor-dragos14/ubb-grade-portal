@@ -1,15 +1,4 @@
-import {
-  Component,
-  inject,
-  ElementRef,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  AfterViewInit,
-  OnDestroy,
-  ChangeDetectorRef,
-  NgZone,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -23,10 +12,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
-import { MatListModule, MatSelectionListChange } from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
 import {
   AccountService,
@@ -34,7 +22,6 @@ import {
   CourseDto,
   CourseService,
 } from '$backend/services';
-import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({
@@ -55,21 +42,24 @@ import { AuthService } from '../../auth/auth.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
 })
-export class RegisterComponent implements AfterViewInit, OnDestroy {
+export class RegisterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+
   private courseService = inject(CourseService);
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
-  private zone = inject(NgZone);
+
+  courseDomains: CourseDomainDto[] = [];
+  courses: CourseDto[] = [];
 
   loadingDomains = false;
   loadingCourses = false;
   submitting = false;
   redirecting = false;
 
-  activeIndex = 0;
+  hide = true;
 
   personalInformationFormGroup = this.formBuilder.group({
     firstName: ['', Validators.required],
@@ -90,103 +80,66 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
     }),
   });
 
-  courseDomains: CourseDomainDto[] = [];
-  courses: CourseDto[] = [];
+  get isLoading(): boolean {
+    return (
+      this.loadingDomains ||
+      this.loadingCourses ||
+      this.submitting ||
+      this.redirecting
+    );
+  }
 
-  @ViewChild('card', { static: true }) cardRef!: ElementRef<HTMLDivElement>;
-  @ViewChildren('stepBody') stepBodyRefs!: QueryList<
-    ElementRef<HTMLDivElement>
-  >;
-  private resizeObserver?: ResizeObserver;
+  get password() {
+    return this.personalInformationFormGroup.controls.password;
+  }
 
   async ngOnInit() {
     if (this.authService.isAuthenticated()) {
       await this.router.navigateByUrl('/main');
+
+      return;
     }
 
     this.loadingDomains = true;
+    this.cdr.detectChanges();
 
-    this.courseService
-      .apiCourseDomainsGet()
-      .pipe(
-        finalize(() => {
-          this.zone.run(() => {
-            this.loadingDomains = false;
-            this.recalculateCardHeight();
-            this.cdr.detectChanges();
-          });
-        })
-      )
-      .subscribe({
-        next: (domains) => {
-          this.courseDomains = domains;
-        },
-        error: () => {
-          this.courseDomains = [];
-        },
-      });
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => this.recalculateCardHeight(), 0);
-    this.resizeObserver = new ResizeObserver(() =>
-      this.recalculateCardHeight()
-    );
-    this.resizeObserver.observe(this.cardRef.nativeElement);
-  }
-
-  ngOnDestroy(): void {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
+    try {
+      this.courseDomains = await this.courseService.apiCourseDomainsGetAsync();
+    } catch {
+      // error toastr here
+      this.courseDomains = [];
+    } finally {
+      this.loadingDomains = false;
+      this.cdr.detectChanges();
     }
   }
 
-  onStepperChanged(event: StepperSelectionEvent): void {
-    this.activeIndex = event.selectedIndex;
-    this.recalculateCardHeight();
-  }
-
-  onDomainsSelectionChange(_e: MatSelectionListChange) {
+  async onCourseDomainsSelectionChange() {
     const courseDomainIds =
       this.courseDomainFormGroup.controls.courseDomains.value;
 
     if (courseDomainIds == null || courseDomainIds.length === 0) {
       this.courses = [];
-      this.courseFormGroup.patchValue({ courses: [] });
-      this.recalculateCardHeight();
+      this.loadingCourses = false;
+      this.cdr.detectChanges();
+
       return;
     }
 
     this.loadingCourses = true;
+    this.cdr.detectChanges();
 
-    this.courseService
-      .apiCourseGet({ courseDomainIds: courseDomainIds })
-      .pipe(
-        finalize(() => {
-          // force change detection so the loader disappears immediately
-          this.zone.run(() => {
-            this.loadingCourses = false;
-            this.recalculateCardHeight();
-            this.cdr.detectChanges();
-          });
-        })
-      )
-      .subscribe({
-        next: (courses) => {
-          this.courses = courses;
-
-          const allowed = new Set(this.courses.map((c) => c.courseId));
-          const current = this.courseFormGroup.controls.courses.value ?? [];
-          const next = current.filter((id) => allowed.has(id));
-          if (next.length !== current.length) {
-            this.courseFormGroup.patchValue({ courses: next });
-          }
-        },
-        error: () => {
-          this.courses = [];
-          this.courseFormGroup.patchValue({ courses: [] });
-        },
+    try {
+      this.courses = await this.courseService.apiCourseGetAsync({
+        courseDomainIds: courseDomainIds,
       });
+    } catch {
+      // error toastr here
+      this.courseDomains = [];
+    } finally {
+      this.loadingCourses = false;
+      this.cdr.detectChanges();
+    }
   }
 
   async onSubmitForm() {
@@ -221,6 +174,8 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
     }
 
     this.submitting = true;
+    this.cdr.detectChanges();
+
     try {
       await this.accountService.registerPost$JsonAsync({
         body: {
@@ -235,33 +190,13 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
 
       this.submitting = false;
       this.redirecting = true;
+      this.cdr.detectChanges();
+
       await this.router.navigateByUrl('/main');
     } finally {
       this.submitting = false;
       this.redirecting = false;
+      this.cdr.detectChanges();
     }
-  }
-
-  private recalculateCardHeight(): void {
-    if (!this.cardRef || !this.stepBodyRefs || this.stepBodyRefs.length === 0) {
-      return;
-    }
-
-    let maxBody = 0;
-    this.stepBodyRefs.forEach((ref) => {
-      const el = ref.nativeElement;
-      maxBody = Math.max(maxBody, el.scrollHeight);
-    });
-
-    const chrome = 110; // header area only (footer is outside the scroll)
-    const target = maxBody + chrome;
-
-    const maxAllowed = Math.max(560, window.innerHeight - 140);
-    const finalHeight = Math.min(Math.max(target, 580), maxAllowed);
-
-    this.cardRef.nativeElement.style.setProperty(
-      '--card-height',
-      `${finalHeight}px`
-    );
   }
 }

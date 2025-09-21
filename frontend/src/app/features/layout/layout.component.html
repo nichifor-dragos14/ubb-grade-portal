@@ -18,6 +18,7 @@
             <mat-icon matListItemIcon>dashboard</mat-icon>
             <div matListItemTitle>Dashboard</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/enrollments"
@@ -26,6 +27,7 @@
             <mat-icon matListItemIcon>how_to_reg</mat-icon>
             <div matListItemTitle>My Enrollments</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/solved-activities"
@@ -34,6 +36,7 @@
             <mat-icon matListItemIcon>task_alt</mat-icon>
             <div matListItemTitle>My Solved Activities</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/achievements"
@@ -42,6 +45,7 @@
             <mat-icon matListItemIcon>emoji_events</mat-icon>
             <div matListItemTitle>My Achievements</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/leaderboards"
@@ -52,35 +56,38 @@
           </a>
         </ng-container>
 
-        <!-- PROFESSOR / PROFESOR -->
-        <ng-container *ngIf="isProfessor()">
+        <!-- PROFESSOR -->
+        <ng-container *ngIf="hasRole('Professor')">
           <a
             mat-list-item
-            routerLink="/main/prof/courses"
+            routerLink="/main/professor/courses"
             routerLinkActive="active"
           >
             <mat-icon matListItemIcon>library_books</mat-icon>
             <div matListItemTitle>My Courses</div>
           </a>
+
           <a
             mat-list-item
-            routerLink="/main/prof/verification-requests"
+            routerLink="/main/professor/verification-requests"
             routerLinkActive="active"
           >
             <mat-icon matListItemIcon>rule</mat-icon>
             <div matListItemTitle>Verification Requests</div>
           </a>
+
           <a
             mat-list-item
-            routerLink="/main/prof/library"
+            routerLink="/main/professor/library"
             routerLinkActive="active"
           >
             <mat-icon matListItemIcon>collections_bookmark</mat-icon>
             <div matListItemTitle>My Library</div>
           </a>
+
           <a
             mat-list-item
-            routerLink="/main/leaderboards"
+            routerLink="/main/professor/leaderboards"
             routerLinkActive="active"
           >
             <mat-icon matListItemIcon>leaderboard</mat-icon>
@@ -98,6 +105,7 @@
             <mat-icon matListItemIcon>group</mat-icon>
             <div matListItemTitle>Manage Users</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/admin/courses"
@@ -106,6 +114,7 @@
             <mat-icon matListItemIcon>menu_book</mat-icon>
             <div matListItemTitle>Manage Courses</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/admin/enrollments"
@@ -114,6 +123,7 @@
             <mat-icon matListItemIcon>how_to_reg</mat-icon>
             <div matListItemTitle>Manage Enrollments</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/admin/course-domains"
@@ -122,6 +132,7 @@
             <mat-icon matListItemIcon>category</mat-icon>
             <div matListItemTitle>Manage Course Domains</div>
           </a>
+
           <a
             mat-list-item
             routerLink="/main/admin/activities"
@@ -160,7 +171,6 @@
         matBadgeColor="accent"
         matBadgePosition="above after"
         matBadgeHidden="{{ 0 === 0 }}"
-        aria-label="Notifications"
         matTooltip="Notifications"
       >
         <mat-icon>notifications</mat-icon>
@@ -169,7 +179,7 @@
       <mat-menu #notificationsMenu="matMenu" xPosition="before"> </mat-menu>
 
       <!-- Profile -->
-      <button mat-icon-button matTooltip="Profile" (click)="goProfile()">
+      <button mat-icon-button matTooltip="Profile" (click)="goToProfile()">
         <mat-icon>account_circle</mat-icon>
       </button>
     </mat-toolbar>

@@ -43,10 +43,6 @@ export class LayoutComponent {
     return this.roles.includes(role);
   }
 
-  isProfessor(): boolean {
-    return this.hasRole('Professor');
-  }
-
   async onLogout() {
     this.authService.logout();
     await this.router.navigateByUrl('/login');
@@ -56,7 +52,7 @@ export class LayoutComponent {
     this.drawer.toggle();
   }
 
-  async goProfile() {
+  async goToProfile() {
     await this.router.navigateByUrl('/main/profile');
   }
 }
