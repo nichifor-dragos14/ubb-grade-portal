@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,6 +38,7 @@ import { AuthService } from '../../auth/auth.service';
     MatListModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    RouterModule,
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
