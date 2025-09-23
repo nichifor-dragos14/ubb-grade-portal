@@ -1,1 +1,34 @@
-<p>professor-courses works!</p>
+<app-page-header title="Your courses 📚">
+  <button mat-button button color="primary" [routerLink]="['new']">Add</button>
+</app-page-header>
+
+<mat-nav-list>
+  @for (course of courses; track course.courseId) {
+    <a mat-list-item [routerLink]="[course.courseId]" routerLinkActive="active">
+      <span
+        matListItemIcon
+        [matBadge]="course.numberOfEntrollments"
+        [matBadgeHidden]="course.numberOfActivities === 0"
+        matBadgeColor="primary"
+        matBadgeSize="small"
+        matBadgePosition="above after"
+      >
+        <mat-icon>fact_check</mat-icon>
+      </span>
+
+      <span matListItemTitle>
+        {{ course.name }}
+      </span>
+
+      <span matListItemLine>
+        {{ course.numberOfActivities }} students have enrolled.
+      </span>
+
+      <span matListItemMeta>
+        {{ course.createdOn | dateFormat }}
+      </span>
+    </a>
+  }
+</mat-nav-list>
+
+<router-outlet hidden />

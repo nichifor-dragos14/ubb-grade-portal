@@ -241,6 +241,31 @@
           }
         }
       }
+    },
+    "/api/Course/created": {
+      "get": {
+        "tags": [
+          "Course"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProfessorCreatedCourse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -328,6 +353,42 @@
           },
           "password": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorCreatedCourse": {
+        "required": [
+          "courseDomainName",
+          "courseId",
+          "name",
+          "numberOfActivities",
+          "numberOfEntrollments"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "courseDomainName": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "numberOfEntrollments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfActivities": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

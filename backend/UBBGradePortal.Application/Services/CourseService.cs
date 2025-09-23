@@ -68,6 +68,22 @@ public class CourseService : ICourseService
             .ToList();
     }
 
+    public async Task<List<ProfessorCreatedCourse>> GetAllProfessorCreated(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var courses = await _courseRepository.GetAllProfessorCreated(loggedUserId, cancellationToken);
+
+        return courses
+            .Select(c => new ProfessorCreatedCourse(
+                c.Id,
+                c.Name,
+                c.CourseDomain.Name,
+                c.CreatedOn,
+                c.CourseEnrollments.Count,
+                c.Activities.Count
+            ))
+            .ToList();
+    }
+
     public async Task<bool> Update(UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(updateCourseDto.Id, cancellationToken);

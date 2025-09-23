@@ -75,6 +75,27 @@ public class CourseRepository : ICourseRepository
         }
     }
 
+    public async Task<List<Course>> GetAllProfessorCreated(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _dbContext
+                .Courses
+                .Include(c => c.CourseDomain)
+                .Include(c => c.CourseEnrollments)
+                .Include(c => c.Activities)
+                .Include(c => c.CreatedByUser)
+                .Where(c => c.CreatedByUserId == loggedUserId)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex.Message.ToString());
+
+            return [];
+        }
+    }
+
     public async Task<Course?> GetById(Guid id, CancellationToken cancellationToken)
     {
         try

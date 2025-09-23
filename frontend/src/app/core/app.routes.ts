@@ -6,6 +6,8 @@ import { roleGuard } from './auth/role.guard';
 import { ProfessorCoursesComponent } from '$features/professor/professor-courses/professor-courses.component';
 import { ProfessorActivityFeedbackComponent } from '$features/professor/professor-activity-feedback/professor-activity-feedback.component';
 import { ProfessorLibraryComponent } from '$features/professor/professor-library/professor-library.component';
+import { ProfessorAddCourseComponent } from '$features/professor/professor-add-course/professor-add-course.component';
+import { ProfessorUpdateCourseComponent } from '$features/professor/professor-update-course/professor-update-course.component';
 
 export const routes: Routes = [
   {
@@ -37,6 +39,20 @@ export const routes: Routes = [
             canActivate: [roleGuard],
             data: { roles: ['Professor'] },
             component: ProfessorCoursesComponent,
+            children: [
+              {
+                path: 'new',
+                canActivate: [roleGuard],
+                data: { roles: ['Professor'] },
+                component: ProfessorAddCourseComponent,
+              },
+              {
+                path: ':id',
+                canActivate: [roleGuard],
+                data: { roles: ['Professor'] },
+                component: ProfessorUpdateCourseComponent,
+              },
+            ],
           },
           {
             path: 'activity-feedback',

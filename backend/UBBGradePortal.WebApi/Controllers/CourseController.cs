@@ -45,6 +45,19 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(courseDomains);
     }
 
+    /// <summary> Get all the courses created by professor. </summary>
+    [HttpGet("created")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<Results<Ok<List<ProfessorCreatedCourse>>, BadRequest>> GetAllProfessorCreated(
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var courses = await _courseService.GetAllProfessorCreated(loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(courses);
+    }
+
     /// <summary> Add a course. </summary>
     [HttpPost]
     [Authorize(Roles = "Profesor,Admin")]

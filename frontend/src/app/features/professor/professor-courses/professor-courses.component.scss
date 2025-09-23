@@ -1,0 +1,40 @@
+:host {
+  display: grid !important;
+  grid-template-areas: 'header right' 'list right';
+  grid-template-rows: min-content 1fr;
+  grid-template-columns: 2fr 3fr;
+  grid-gap: 0 16px;
+  height: 100%;
+  position: relative;
+}
+
+mat-nav-list {
+  grid-area: list;
+}
+
+app-page-header {
+  grid-area: header;
+  height: 'min-content';
+  position: sticky;
+  top: 14.5px;
+}
+
+:host router-outlet {
+  display: none;
+
+  & ::ng-deep + * {
+    grid-area: right;
+    height: min-content;
+    position: sticky;
+    top: 88px;
+    overflow-y: scroll;
+    max-height: 80vh;
+    margin-right: 1px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    scrollbar-width: none;
+  }
+}
