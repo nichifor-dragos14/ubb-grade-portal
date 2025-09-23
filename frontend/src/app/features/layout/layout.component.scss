@@ -35,9 +35,13 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-self: center;
   padding: 8px 12px 0;
-  font-weight: 600;
+}
+
+#logo {
+  height: 60px;
+  width: 60px;
 }
 
 .nav-scroll {
@@ -86,7 +90,7 @@
 }
 
 .title {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .spacer {
@@ -135,7 +139,7 @@
 .page {
   flex: 1 1 auto;
   overflow: auto;
-  max-width: 1200px;
+  width: 80%;
   margin: 24px auto;
   padding: 0 16px 24px;
   box-sizing: border-box;
