@@ -247,16 +247,31 @@
         "tags": [
           "Course"
         ],
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProfessorCreatedCourse"
-                  }
+                  "$ref": "#/components/schemas/PaginatedProfessorCreatedCourseDto"
                 }
               }
             }
@@ -357,7 +372,27 @@
         },
         "additionalProperties": false
       },
-      "ProfessorCreatedCourse": {
+      "PaginatedProfessorCreatedCourseDto": {
+        "required": [
+          "count",
+          "courses"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfessorCreatedCourseDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorCreatedCourseDto": {
         "required": [
           "courseDomainName",
           "courseId",

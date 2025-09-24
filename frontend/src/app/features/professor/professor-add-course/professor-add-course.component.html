@@ -1,1 +1,47 @@
-<p>professor-add-course works!</p>
+<section role="course-actions">
+  <a mat-icon-button routerLink="../" color="accent">
+    <mat-icon>close</mat-icon>
+  </a>
+
+  <button
+    mat-button
+    color="primary"
+    type="submit"
+    [disabled]="addCourseFormGroup.invalid"
+    (click)="createCourse()"
+  >
+    SAVE
+  </button>
+</section>
+
+<form [formGroup]="addCourseFormGroup" (ngSubmit)="createCourse()">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" />
+    <mat-error *ngIf="name.touched && name.hasError('required')">
+      The name is required.
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description"> </textarea>
+  </mat-form-field>
+
+  <mat-selection-list
+    formControlName="courseDomainId"
+    class="scrollable-list-container"
+    [multiple]="false"
+  >
+    @for (courseDomain of courseDomains; track courseDomain.courseDomainId) {
+      <mat-list-option [value]="courseDomain.courseDomainId">
+        {{ courseDomain.name }}
+      </mat-list-option>
+      <mat-error
+        *ngIf="courseDomainId.touched && courseDomainId.hasError('required')"
+      >
+        The course domain is required.
+      </mat-error>
+    }
+  </mat-selection-list>
+</form>

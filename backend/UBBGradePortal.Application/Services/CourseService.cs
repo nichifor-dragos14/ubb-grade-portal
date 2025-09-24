@@ -3,6 +3,7 @@ using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using Microsoft.Extensions.Logging;
+using System.Data.Entity.Core.Metadata.Edm;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -68,20 +69,24 @@ public class CourseService : ICourseService
             .ToList();
     }
 
-    public async Task<List<ProfessorCreatedCourse>> GetAllProfessorCreated(Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<PaginatedProfessorCreatedCourseDto> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
     {
-        var courses = await _courseRepository.GetAllProfessorCreated(loggedUserId, cancellationToken);
+        var (Count, Courses) = await _courseRepository.GetAllProfessorCreated(pageNumber, pageSize, loggedUserId, cancellationToken);
 
-        return courses
-            .Select(c => new ProfessorCreatedCourse(
-                c.Id,
-                c.Name,
-                c.CourseDomain.Name,
-                c.CreatedOn,
-                c.CourseEnrollments.Count,
-                c.Activities.Count
-            ))
-            .ToList();
+        return 
+            new PaginatedProfessorCreatedCourseDto(
+                Count,
+                Courses
+                    .Select(c => new ProfessorCreatedCourseDto(
+                        c.Id,
+                        c.Name,
+                        c.CourseDomain.Name,
+                        c.CreatedOn,
+                        c.CourseEnrollments.Count,
+                        c.Activities.Count
+                    ))
+                    .ToList()
+            );
     }
 
     public async Task<bool> Update(UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)

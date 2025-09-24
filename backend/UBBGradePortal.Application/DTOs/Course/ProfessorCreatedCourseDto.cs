@@ -1,6 +1,6 @@
 ﻿namespace UBBGradePortal.Application.DTOs.Course;
 
-public record ProfessorCreatedCourse(
+public record ProfessorCreatedCourseDto(
     Guid CourseId,
     string Name,
     string CourseDomainName,

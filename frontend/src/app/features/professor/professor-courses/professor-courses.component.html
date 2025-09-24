@@ -1,5 +1,5 @@
 <app-page-header title="Your courses 📚">
-  <button mat-button button color="primary" [routerLink]="['new']">Add</button>
+  <button mat-button button color="primary" [routerLink]="['new']">ADD</button>
 </app-page-header>
 
 <mat-nav-list>
@@ -7,7 +7,7 @@
     <a mat-list-item [routerLink]="[course.courseId]" routerLinkActive="active">
       <span
         matListItemIcon
-        [matBadge]="course.numberOfEntrollments"
+        [matBadge]="course.numberOfActivities"
         [matBadgeHidden]="course.numberOfActivities === 0"
         matBadgeColor="primary"
         matBadgeSize="small"
@@ -20,8 +20,8 @@
         {{ course.name }}
       </span>
 
-      <span matListItemLine>
-        {{ course.numberOfActivities }} students have enrolled.
+      <span matListItemLine
+        >{{ course.numberOfEntrollments }} students have enrolled.
       </span>
 
       <span matListItemMeta>
@@ -30,5 +30,14 @@
     </a>
   }
 </mat-nav-list>
+
+<mat-paginator
+  [length]="courseCount"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  showFirstLastButtons
+  (page)="onPage($event)"
+>
+</mat-paginator>
 
 <router-outlet hidden />

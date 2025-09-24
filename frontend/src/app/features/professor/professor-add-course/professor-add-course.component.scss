@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px !important;
+  gap: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+section[role='course-actions'] {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+textarea {
+  min-height: 150px;
+}

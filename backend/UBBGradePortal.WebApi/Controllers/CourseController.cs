@@ -48,19 +48,21 @@ public class CourseController : ControllerBase
     /// <summary> Get all the courses created by professor. </summary>
     [HttpGet("created")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<List<ProfessorCreatedCourse>>, BadRequest>> GetAllProfessorCreated(
-        CancellationToken cancellationToken
+    public async Task<Results<Ok<PaginatedProfessorCreatedCourseDto>, BadRequest>> GetAllProfessorCreated(
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber,
+        [FromQuery] int pageSize
     )
     {
         var loggedUserId = new Guid(User.Identity.GetUserId());
-        var courses = await _courseService.GetAllProfessorCreated(loggedUserId, cancellationToken);
+        var paginatedResponse = await _courseService.GetAllProfessorCreated(pageNumber, pageSize, loggedUserId, cancellationToken);
 
-        return TypedResults.Ok(courses);
+        return TypedResults.Ok(paginatedResponse);
     }
 
     /// <summary> Add a course. </summary>
     [HttpPost]
-    [Authorize(Roles = "Profesor,Admin")]
+    [Authorize(Roles = "Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<Results<Ok<bool>, BadRequest>> AddCourse(
         [FromBody] AddCourseDto course,
@@ -75,7 +77,7 @@ public class CourseController : ControllerBase
 
     /// <summary> Update a course. </summary>
     [HttpPut]
-    [Authorize(Roles = "Profesor,Admin")]
+    [Authorize(Roles = "Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<Results<Ok<bool>, BadRequest>> UpdateCourse(
         [FromBody] UpdateCourseDto course,

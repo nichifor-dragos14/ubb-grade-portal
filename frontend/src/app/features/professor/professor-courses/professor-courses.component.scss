@@ -12,9 +12,15 @@ mat-nav-list {
   grid-area: list;
 }
 
+mat-paginator {
+  grid-area: list;
+  align-self: end;
+  margin-top: 8px;
+}
+
 app-page-header {
   grid-area: header;
-  height: 'min-content';
+  height: min-content;
   position: sticky;
   top: 14.5px;
 }
@@ -26,7 +32,7 @@ app-page-header {
     grid-area: right;
     height: min-content;
     position: sticky;
-    top: 88px;
+    top: 8px;
     overflow-y: scroll;
     max-height: 80vh;
     margin-right: 1px;
