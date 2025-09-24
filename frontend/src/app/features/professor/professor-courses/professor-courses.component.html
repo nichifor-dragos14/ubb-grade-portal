@@ -2,7 +2,12 @@
   <button mat-button button color="primary" [routerLink]="['new']">ADD</button>
 </app-page-header>
 
-<mat-nav-list>
+<div class="overlay" *ngIf="isLoading">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<mat-nav-list *ngIf="!isLoading">
   @for (course of courses; track course.courseId) {
     <a mat-list-item [routerLink]="[course.courseId]" routerLinkActive="active">
       <span
@@ -16,17 +21,13 @@
         <mat-icon>fact_check</mat-icon>
       </span>
 
-      <span matListItemTitle>
-        {{ course.name }}
+      <span matListItemTitle>{{ course.name }}</span>
+
+      <span matListItemLine>
+        {{ course.numberOfEntrollments }} students have enrolled.
       </span>
 
-      <span matListItemLine
-        >{{ course.numberOfEntrollments }} students have enrolled.
-      </span>
-
-      <span matListItemMeta>
-        {{ course.createdOn | dateFormat }}
-      </span>
+      <span matListItemMeta>{{ course.createdOn | dateFormat }}</span>
     </a>
   }
 </mat-nav-list>

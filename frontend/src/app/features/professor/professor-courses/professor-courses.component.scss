@@ -1,21 +1,14 @@
 :host {
   display: grid !important;
-  grid-template-areas: 'header right' 'list right';
-  grid-template-rows: min-content 1fr;
+  grid-template-areas:
+    'header right'
+    'list   right'
+    'pager  right';
+  grid-template-rows: min-content 1fr min-content;
   grid-template-columns: 2fr 3fr;
   grid-gap: 0 16px;
   height: 100%;
   position: relative;
-}
-
-mat-nav-list {
-  grid-area: list;
-}
-
-mat-paginator {
-  grid-area: list;
-  align-self: end;
-  margin-top: 8px;
 }
 
 app-page-header {
@@ -23,6 +16,25 @@ app-page-header {
   height: min-content;
   position: sticky;
   top: 14.5px;
+}
+
+mat-nav-list {
+  grid-area: list;
+}
+
+mat-paginator {
+  grid-area: pager;
+  align-self: end;
+  margin-top: 8px;
+}
+
+.overlay {
+  grid-area: list;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  z-index: 3;
 }
 
 :host router-outlet {
@@ -40,7 +52,6 @@ app-page-header {
     &::-webkit-scrollbar {
       display: none;
     }
-
     scrollbar-width: none;
   }
 }

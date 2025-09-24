@@ -14,10 +14,20 @@
   </button>
 </section>
 
-<form [formGroup]="addCourseFormGroup" (ngSubmit)="createCourse()">
+<div *ngIf="isLoading" class="form-loader">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<form
+  *ngIf="!isLoading"
+  [formGroup]="addCourseFormGroup"
+  (ngSubmit)="createCourse()"
+>
   <mat-form-field>
     <mat-label>Name</mat-label>
     <input matInput formControlName="name" />
+
     <mat-error *ngIf="name.touched && name.hasError('required')">
       The name is required.
     </mat-error>
@@ -37,6 +47,7 @@
       <mat-list-option [value]="courseDomain.courseDomainId">
         {{ courseDomain.name }}
       </mat-list-option>
+
       <mat-error
         *ngIf="courseDomainId.touched && courseDomainId.hasError('required')"
       >

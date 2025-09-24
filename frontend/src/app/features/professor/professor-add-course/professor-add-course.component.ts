@@ -11,15 +11,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatIconModule } from '@angular/material/icon';
-
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CourseDomainDto, CourseService } from '$backend/services';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
+
+import { CourseDomainDto, CourseService } from '$backend/services';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-professor-add-course',
@@ -36,6 +37,7 @@ import { CommonModule } from '@angular/common';
     MatSelectModule,
     MatSlideToggleModule,
     CommonModule,
+    MatProgressSpinner,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +60,10 @@ export class ProfessorAddCourseComponent implements OnInit {
   loadingDomains = false;
   submitting = false;
   redirecting = false;
+
+  get isLoading(): boolean {
+    return this.loadingDomains || this.submitting || this.redirecting;
+  }
 
   get name() {
     return this.addCourseFormGroup.controls.name;
@@ -102,8 +108,6 @@ export class ProfessorAddCourseComponent implements OnInit {
       return;
     }
 
-    const studentRole = 0;
-
     if (this.submitting || this.redirecting) {
       return;
     }
@@ -124,7 +128,7 @@ export class ProfessorAddCourseComponent implements OnInit {
       this.redirecting = true;
       this.cdr.detectChanges();
 
-      await this.router.navigateByUrl('/main');
+      await this.router.navigateByUrl('/main/professor/courses');
     } catch (message: any) {
       this.snackBar.open(message.error, 'Close', {
         duration: 4000,

@@ -11,6 +11,12 @@ form {
   gap: 8px;
 }
 
+.form-loader {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+}
+
 section[role='course-actions'] {
   display: grid;
   grid-template-columns: 1fr auto;
