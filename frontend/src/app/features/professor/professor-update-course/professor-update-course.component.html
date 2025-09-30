@@ -1,1 +1,41 @@
-<p>professor-update-course works!</p>
+<section role="course-actions">
+  <a mat-icon-button routerLink="../" color="accent">
+    <mat-icon>close</mat-icon>
+  </a>
+
+  <button
+    mat-button
+    color="primary"
+    type="submit"
+    [disabled]="updateCourseFormGroup.invalid"
+    (click)="updateCourse()"
+  >
+    UPDATE
+  </button>
+</section>
+
+<div *ngIf="isLoading" class="form-loader">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<form
+  *ngIf="!isLoading"
+  [formGroup]="updateCourseFormGroup"
+  (ngSubmit)="updateCourse()"
+>
+  <mat-form-field>
+    <mat-label>Name (disabled)</mat-label>
+    <input matInput formControlName="name" [disabled]="true" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description"> </textarea>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Domain name (disabled)</mat-label>
+    <input matInput formControlName="courseDomainName" [disabled]="true" />
+  </mat-form-field>
+</form>

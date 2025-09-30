@@ -1,12 +1,137 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  inject,
+} from '@angular/core';
+
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { Router, RouterModule } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatListModule } from '@angular/material/list';
+import { CommonModule } from '@angular/common';
+
+import { CourseDetailsDto, CourseService } from '$backend/services';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-professor-update-course',
-  standalone: true,
-  imports: [],
   templateUrl: './professor-update-course.component.html',
-  styleUrl: './professor-update-course.component.scss'
+  styleUrls: ['./professor-update-course.component.scss'],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatInputModule,
+    MatListModule,
+    MatIconModule,
+    RouterModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    CommonModule,
+    MatProgressSpinner,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfessorUpdateCourseComponent {
+export class ProfessorUpdateCourseComponent implements OnChanges {
+  private formBuilder = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private courseService = inject(CourseService);
 
+  @Input() course!: CourseDetailsDto;
+
+  updateCourseFormGroup = this.formBuilder.group({
+    courseId: ['', Validators.required],
+    name: [''],
+    description: [''],
+    courseDomainName: [''],
+  });
+
+  submitting = false;
+  redirecting = false;
+
+  get isLoading(): boolean {
+    return this.submitting || this.redirecting;
+  }
+
+  get name() {
+    return this.updateCourseFormGroup.controls.name;
+  }
+
+  get description() {
+    return this.updateCourseFormGroup.controls.description;
+  }
+
+  get courseDomainName() {
+    return this.updateCourseFormGroup.controls.courseDomainName;
+  }
+
+  ngOnChanges() {
+    this.updateCourseFormGroup.reset({
+      name: this.course?.name,
+      description: this.course?.description,
+      courseId: this.course?.id,
+      courseDomainName: (this.course as any)?.courseDomainName ?? '',
+    });
+
+    this.updateCourseFormGroup.get('name')?.disable();
+    this.updateCourseFormGroup.get('courseDomainName')?.disable();
+  }
+
+  async updateCourse() {
+    this.updateCourseFormGroup.markAllAsTouched();
+
+    const courseId =
+      this.updateCourseFormGroup.controls.courseId.value?.toString();
+    const description = this.updateCourseFormGroup.controls.description.value;
+
+    if (courseId == null || description == null) {
+      return;
+    }
+
+    if (this.submitting || this.redirecting) {
+      return;
+    }
+
+    this.submitting = true;
+    this.cdr.detectChanges();
+
+    try {
+      await this.courseService.apiCoursePutAsync({
+        body: {
+          description: description,
+          id: courseId,
+        },
+      });
+
+      this.submitting = false;
+      this.redirecting = true;
+      this.cdr.detectChanges();
+
+      await this.router.navigateByUrl('/main/professor/courses');
+    } catch (message: any) {
+      this.snackBar.open(message.error, 'Close', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    } finally {
+      this.submitting = false;
+      this.redirecting = false;
+      this.cdr.detectChanges();
+    }
+  }
 }

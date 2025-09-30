@@ -33,6 +33,28 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(courses);
     }
 
+    /// <summary> Get course by id. </summary>
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<Results<Ok<CourseDetailsDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("Something went wrong");
+        }
+
+        var course = await _courseService.GetById(id, cancellationToken);
+
+        return course is null
+            ? TypedResults.NotFound("The course was not found")
+            : TypedResults.Ok(course);
+    }
+
     /// <summary> Get all course domains. </summary>
     [HttpGet("domains")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -47,6 +69,7 @@ public class CourseController : ControllerBase
 
     /// <summary> Get all the courses created by professor. </summary>
     [HttpGet("created")]
+    [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<Results<Ok<PaginatedProfessorCreatedCourseDto>, BadRequest>> GetAllProfessorCreated(
         CancellationToken cancellationToken,

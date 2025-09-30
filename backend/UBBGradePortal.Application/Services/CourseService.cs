@@ -3,7 +3,6 @@ using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using Microsoft.Extensions.Logging;
-using System.Data.Entity.Core.Metadata.Edm;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -89,6 +88,26 @@ public class CourseService : ICourseService
             );
     }
 
+    public async Task<CourseDetailsDto?> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var course = await _courseRepository.GetById(id, cancellationToken);
+
+        if (course == null)
+        {
+            _logger.LogInformation("The course is not available");
+
+            return null;
+        }
+
+        return
+            new CourseDetailsDto(
+                course.Id,
+                course.Name,
+                course.Description,
+                course.CourseDomain.Name
+            );
+    }
+
     public async Task<bool> Update(UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(updateCourseDto.Id, cancellationToken);
@@ -100,7 +119,6 @@ public class CourseService : ICourseService
             return false;
         }
 
-        course.Name = updateCourseDto.Name;
         course.Description = updateCourseDto.Description;
 
         return await _courseRepository.Update(course, cancellationToken);
