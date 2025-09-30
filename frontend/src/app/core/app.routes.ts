@@ -35,57 +35,10 @@ export const routes: Routes = [
         path: 'professor',
         canActivate: [roleGuard],
         data: { roles: ['Student', 'Professor', 'Admin'] },
-        children: [
-          {
-            path: 'courses',
-            canActivate: [roleGuard],
-            data: { roles: ['Professor'] },
-            component: ProfessorCoursesComponent,
-            children: [
-              {
-                path: 'new',
-                canActivate: [roleGuard],
-                data: { roles: ['Professor'] },
-                component: ProfessorAddCourseComponent,
-              },
-              {
-                path: ':id',
-                canActivate: [roleGuard],
-                data: { roles: ['Professor'] },
-                runGuardsAndResolvers: 'always',
-                component: ProfessorUpdateCourseComponent,
-                resolve: {
-                  course: async ({ params }: ActivatedRouteSnapshot) => {
-                    const router = inject(Router);
-                    const courseService = inject(CourseService);
-
-                    try {
-                      return await courseService.apiCourseIdGetAsync({
-                        id: params['id'],
-                      });
-                    } catch (error) {
-                      router.navigate(['/error']);
-
-                      return null;
-                    }
-                  },
-                },
-              },
-            ],
-          },
-          {
-            path: 'activity-feedback',
-            canActivate: [roleGuard],
-            data: { roles: ['Professor'] },
-            component: ProfessorActivityFeedbackComponent,
-          },
-          {
-            path: 'library',
-            canActivate: [roleGuard],
-            data: { roles: ['Professor'] },
-            component: ProfessorLibraryComponent,
-          },
-        ],
+        loadChildren: () =>
+          import('../features/professor/course.module').then(
+            (m) => m.CourseModule
+          ),
       },
     ],
   },

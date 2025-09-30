@@ -128,7 +128,7 @@ export class ProfessorAddCourseComponent implements OnInit {
       this.redirecting = true;
       this.cdr.detectChanges();
 
-      await this.router.navigateByUrl('/main/professor/courses');
+      await this.router.navigateByUrl('/main/professor/reinit-courses');
     } catch (message: any) {
       this.snackBar.open(message.error, 'Close', {
         duration: 4000,
