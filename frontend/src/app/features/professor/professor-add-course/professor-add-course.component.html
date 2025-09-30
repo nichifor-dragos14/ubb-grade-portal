@@ -33,11 +33,6 @@
     </mat-error>
   </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description"> </textarea>
-  </mat-form-field>
-
   <mat-selection-list
     formControlName="courseDomainId"
     class="scrollable-list-container"
@@ -55,4 +50,9 @@
       </mat-error>
     }
   </mat-selection-list>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description"> </textarea>
+  </mat-form-field>
 </form>

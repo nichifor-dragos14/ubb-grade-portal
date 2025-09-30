@@ -30,12 +30,12 @@
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description"> </textarea>
+    <mat-label>Domain name (disabled)</mat-label>
+    <input matInput formControlName="courseDomainName" [disabled]="true" />
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label>Domain name (disabled)</mat-label>
-    <input matInput formControlName="courseDomainName" [disabled]="true" />
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description"> </textarea>
   </mat-form-field>
 </form>
