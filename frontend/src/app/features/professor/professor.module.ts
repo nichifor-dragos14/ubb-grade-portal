@@ -5,22 +5,23 @@ import {
   RouterModule,
   Routes,
 } from '@angular/router';
-import { ProfessorCoursesComponent } from './professor-courses/professor-courses.component';
-import { ProfessorAddCourseComponent } from './professor-add-course/professor-add-course.component';
-import { ProfessorUpdateCourseComponent } from './professor-update-course/professor-update-course.component';
+import { ProfessorCoursesComponent } from './courses/professor-courses/professor-courses.component';
+import { ProfessorAddCourseComponent } from './courses/professor-add-course/professor-add-course.component';
+import { ProfessorUpdateCourseComponent } from './courses/professor-update-course/professor-update-course.component';
 import { inject, NgModule } from '@angular/core';
 import { CourseService } from '$backend/services';
-import { CourseDummyComponent } from './course.dumm.component';
+import { CourseDummyComponent } from './courses/course.dummy.component';
 
-const COURSE_ROUTES: Routes = [
+const PROFESSOR_ROUTES: Routes = [
   {
     path: '',
     children: [
       {
         path: 'reinit-courses',
+        canActivate: [roleGuard],
+        data: { roles: ['Professor'] },
         component: CourseDummyComponent,
       },
-
       {
         path: 'courses',
         canActivate: [roleGuard],
@@ -63,7 +64,7 @@ const COURSE_ROUTES: Routes = [
 ] satisfies Routes;
 
 @NgModule({
-  imports: [RouterModule.forChild(COURSE_ROUTES)],
+  imports: [RouterModule.forChild(PROFESSOR_ROUTES)],
   exports: [RouterModule],
 })
-export class CourseModule {}
+export class ProfessorModule {}

@@ -6,18 +6,19 @@
 
     <div class="nav-scroll">
       <mat-nav-list class="nav-list">
+        <!-- COMMON -->
+        <a
+          mat-list-item
+          routerLink="/main/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <mat-icon matListItemIcon>dashboard</mat-icon>
+          <div matListItemTitle>Dashboard</div>
+        </a>
+
         <!-- STUDENT -->
         <ng-container *ngIf="hasRole('Student')">
-          <a
-            mat-list-item
-            routerLink="/main/dashboard"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
-            <mat-icon matListItemIcon>dashboard</mat-icon>
-            <div matListItemTitle>Dashboard</div>
-          </a>
-
           <a
             mat-list-item
             routerLink="/main/enrollments"
