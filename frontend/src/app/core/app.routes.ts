@@ -7,8 +7,13 @@ import { DashboardComponent } from '$features/dashboard/dashboard.component';
 
 export const routes: Routes = [
   {
+    path: 'main',
+    redirectTo: '/main/dashboard',
+    pathMatch: 'full',
+  },
+  {
     path: '',
-    redirectTo: '/main',
+    redirectTo: '/main/dashboard',
     pathMatch: 'full',
   },
   {
