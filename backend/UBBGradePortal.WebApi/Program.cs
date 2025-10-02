@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using UBBGradePortal.Application.ExtensionMethods;
+using UBBGradePortal.Application.Options;
 using UBBGradePortal.Domain.ExtensionMethods;
 using UBBGradePortal.Infrastructure.Auth;
 using UBBGradePortal.Infrastructure.ExtensionMethods;
@@ -7,6 +8,8 @@ using UBBGradePortal.WebApi.ExtensionMethods;
 
 var builder = WebApplication.CreateBuilder(args)
                          .ConfigureSerilog();
+
+builder.Services.Configure<MinioConfigurationOptions>(builder.Configuration.GetSection("Minio"));
 
 builder.Services
        .AddDomain()

@@ -14,8 +14,6 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
             IConfiguration configuration,
             IWebHostEnvironment env)
         {
-            // Add options
-
             var jwtSection = configuration.GetSection("Jwt");
             var jwtKey = jwtSection.GetValue<string>("Key")
                               ?? throw new InvalidOperationException("Missing Jwt:Key");
