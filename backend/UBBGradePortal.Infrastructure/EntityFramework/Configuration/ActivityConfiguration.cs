@@ -17,6 +17,7 @@ internal class ActivityEntityConfiguration : IEntityTypeConfiguration<Activity>
         builder.Property(u => u.UpdatedOn);
 
         builder.HasMany(u => u.SolvedActivities).WithOne(c => c.Activity);
+        builder.HasMany(u => u.ActivityDocuments).WithOne(c => c.Activity);
         builder.HasOne(u => u.Course).WithMany(c => c.Activities);
     }
 }

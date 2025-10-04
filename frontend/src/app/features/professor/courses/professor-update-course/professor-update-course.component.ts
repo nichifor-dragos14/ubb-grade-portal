@@ -4,7 +4,6 @@ import {
   Component,
   Input,
   OnChanges,
-  OnInit,
   inject,
 } from '@angular/core';
 
@@ -12,7 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -47,7 +46,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 export class ProfessorUpdateCourseComponent implements OnChanges {
   private formBuilder = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
-  private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private courseService = inject(CourseService);
 
@@ -61,10 +59,10 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
   });
 
   submitting = false;
-  redirecting = false;
+  courseLoading = false;
 
   get isLoading(): boolean {
-    return this.submitting || this.redirecting;
+    return this.submitting || this.courseLoading;
   }
 
   get name() {
@@ -80,6 +78,10 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
   }
 
   ngOnChanges() {
+    this.resetForm();
+  }
+
+  resetForm() {
     this.updateCourseFormGroup.reset({
       name: this.course?.name,
       description: this.course?.description,
@@ -91,18 +93,47 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
     this.updateCourseFormGroup.get('courseDomainName')?.disable();
   }
 
+  async getCourse() {
+    const courseId = this.course.id;
+
+    if (courseId == null) {
+      return;
+    }
+
+    if (this.isLoading) {
+      return;
+    }
+
+    try {
+      this.courseLoading = true;
+
+      this.course = await this.courseService.apiCourseIdGetAsync({
+        id: courseId,
+      });
+    } catch (message: any) {
+      this.snackBar.open(message.error, 'Close', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    } finally {
+      this.courseLoading = false;
+      this.resetForm();
+      this.cdr.detectChanges();
+    }
+  }
+
   async updateCourse() {
     this.updateCourseFormGroup.markAllAsTouched();
 
-    const courseId =
-      this.updateCourseFormGroup.controls.courseId.value?.toString();
+    const courseId = this.course.id;
     const description = this.updateCourseFormGroup.controls.description.value;
 
     if (courseId == null || description == null) {
       return;
     }
 
-    if (this.submitting || this.redirecting) {
+    if (this.isLoading) {
       return;
     }
 
@@ -116,12 +147,6 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
           id: courseId,
         },
       });
-
-      this.submitting = false;
-      this.redirecting = true;
-      this.cdr.detectChanges();
-
-      await this.router.navigateByUrl('/main/professor/courses');
     } catch (message: any) {
       this.snackBar.open(message.error, 'Close', {
         duration: 4000,
@@ -130,7 +155,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
       });
     } finally {
       this.submitting = false;
-      this.redirecting = false;
+      this.getCourse();
       this.cdr.detectChanges();
     }
   }

@@ -13,5 +13,8 @@ public class Activity
     public Course Course { get; set; }
 
     // The solvings of the activity
-    public List<SolvedActivity> SolvedActivities { get; set; }
+    public List<SolvedActivity> SolvedActivities { get; set; } = [];
+
+    // The documents linked to the activity
+    public List<ActivityDocument> ActivityDocuments { get; set; } = [];
 }
