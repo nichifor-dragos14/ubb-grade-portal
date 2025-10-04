@@ -20,8 +20,14 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 
-import { CourseDetailsDto, CourseService } from '$backend/services';
+import {
+  ActivityDto,
+  CourseDetailsDto,
+  CourseService,
+} from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-professor-update-course',
@@ -40,6 +46,9 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatSlideToggleModule,
     CommonModule,
     MatProgressSpinner,
+    MatCardModule,
+    RouterModule,
+    MatDialogModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -158,5 +167,32 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
       this.getCourse();
       this.cdr.detectChanges();
     }
+  }
+
+  openCreateActivityDialog(): void {
+    // const ref = this.dialog.open(ProfessorAddCourseActivityComponent, {
+    //   width: '720px',
+    //   disableClose: true,
+    //   data: { mode: 'create', courseId: this.courseId },
+    // });
+    // ref.afterClosed().subscribe((result) => {
+    //   if (result) {
+    //     // if the dialog actually created something, refresh the list
+    //     this.loadActivities();
+    //   }
+    // });
+  }
+
+  openUpdateActivityDialog(activity: ActivityDto): void {
+    // const ref = this.dialog.open(ProfessorAddCourseActivityComponent, {
+    //   width: '720px',
+    //   disableClose: true,
+    //   data: { mode: 'update', activityId: activity.id },
+    // });
+    // ref.afterClosed().subscribe((result) => {
+    //   if (result) {
+    //     this.loadActivities();
+    //   }
+    // });
   }
 }

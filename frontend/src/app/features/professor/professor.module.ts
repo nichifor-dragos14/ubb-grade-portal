@@ -9,8 +9,11 @@ import { ProfessorCoursesComponent } from './courses/professor-courses/professor
 import { ProfessorAddCourseComponent } from './courses/professor-add-course/professor-add-course.component';
 import { ProfessorUpdateCourseComponent } from './courses/professor-update-course/professor-update-course.component';
 import { inject, NgModule } from '@angular/core';
-import { CourseService } from '$backend/services';
+import { ActivityService, CourseService } from '$backend/services';
 import { CourseDummyComponent } from './courses/course.dummy.component';
+import { DialogPageComponent } from '$shared/dialog-page';
+import { ProfessorAddActivityComponent } from './courses/professor-add-activity,component';
+import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
 
 const PROFESSOR_ROUTES: Routes = [
   {
@@ -56,6 +59,74 @@ const PROFESSOR_ROUTES: Routes = [
                 }
               },
             },
+            children: [
+              {
+                path: 'activities',
+                component: DialogPageComponent,
+                children: [
+                  {
+                    path: 'add',
+                    component: ProfessorAddActivityComponent,
+                    resolve: {
+                      course: async ({ parent }: ActivatedRouteSnapshot) => {
+                        const router = inject(Router);
+                        const courseService = inject(CourseService);
+
+                        const id = parent?.parent?.params['id'];
+
+                        try {
+                          return await courseService.apiCourseIdGetAsync({
+                            id,
+                          });
+                        } catch (error) {
+                          router.navigate(['/error']);
+
+                          return null;
+                        }
+                      },
+                    },
+                  },
+                  {
+                    path: ':id',
+                    component: ProfessorUpdateActivityComponent,
+                    resolve: {
+                      course: async ({ parent }: ActivatedRouteSnapshot) => {
+                        const router = inject(Router);
+                        const courseService = inject(CourseService);
+
+                        const id = parent?.parent?.params['id'];
+
+                        try {
+                          return await courseService.apiCourseIdGetAsync({
+                            id,
+                          });
+                        } catch (error) {
+                          router.navigate(['/error']);
+
+                          return null;
+                        }
+                      },
+                      activity: async ({ params }: ActivatedRouteSnapshot) => {
+                        const router = inject(Router);
+                        const activityService = inject(ActivityService);
+
+                        const id = params['id'];
+
+                        try {
+                          return await activityService.apiActivityIdGetAsync({
+                            id,
+                          });
+                        } catch (error) {
+                          router.navigate(['/error']);
+
+                          return null;
+                        }
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

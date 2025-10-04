@@ -1,9 +1,12 @@
-﻿namespace UBBGradePortal.Application.DTOs.Course;
+﻿using UBBGradePortal.Application.DTOs.Activity;
+
+namespace UBBGradePortal.Application.DTOs.Course;
 
 public record CourseDetailsDto(
     Guid Id,
     string Name,
     string? Description,
-    string CourseDomainName
+    string CourseDomainName,
+    List<ActivityDto> Activities
 );
 

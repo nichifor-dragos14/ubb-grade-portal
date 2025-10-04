@@ -3,6 +3,7 @@ using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using Microsoft.Extensions.Logging;
+using UBBGradePortal.Application.DTOs.Activity;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -104,7 +105,18 @@ public class CourseService : ICourseService
                 course.Id,
                 course.Name,
                 course.Description,
-                course.CourseDomain.Name
+                course.CourseDomain.Name,
+                course.Activities
+                    .OrderByDescending(c => c.CreatedOn)
+                    .Select(
+                        activity => new ActivityDto(
+                            activity.Id,
+                            activity.Name,
+                            activity.Description,
+                            activity.ActivityDocuments.Count
+                        )
+                    )
+                    .ToList()
             );
     }
 

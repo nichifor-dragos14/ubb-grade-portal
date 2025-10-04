@@ -67,8 +67,8 @@ public class ActivityController : ControllerBase
 
         return activity switch
         {
-            null => (Results<Ok<ActivityDetailsDto>, BadRequest<string>, NotFound<string>>)TypedResults.NotFound("The activity was not found"),
-            _ => (Results<Ok<ActivityDetailsDto>, BadRequest<string>, NotFound<string>>)TypedResults.Ok(activity),
+            null => TypedResults.NotFound("The activity was not found"),
+            _ => TypedResults.Ok(activity),
         };
         ;
     }
@@ -88,8 +88,8 @@ public class ActivityController : ControllerBase
 
         return result switch
         {
-            false => (Results<Ok<string>, BadRequest<string>>)TypedResults.BadRequest("Could not create activity"),
-            _ => (Results<Ok<string>, BadRequest<string>>)TypedResults.Ok("Succesfully created activity"),
+            false => TypedResults.BadRequest("Could not create activity"),
+            _ => TypedResults.Ok("Succesfully created activity"),
         };
     }
 
@@ -109,8 +109,8 @@ public class ActivityController : ControllerBase
 
         return result switch
         {
-            false => (Results<Ok<string>, BadRequest<string>>)TypedResults.BadRequest("Could not create activity"),
-            _ => (Results<Ok<string>, BadRequest<string>>)TypedResults.Ok("Succesfully created activity"),
+            false => TypedResults.BadRequest("Could not update activity"),
+            _ => TypedResults.Ok("Succesfully created activity"),
         };
     }
 
@@ -130,8 +130,8 @@ public class ActivityController : ControllerBase
 
         return result switch
         {
-            false => (Results<Ok<string>, BadRequest<string>>)TypedResults.BadRequest("Could not add document to the activity"),
-            _ => (Results<Ok<string>, BadRequest<string>>)TypedResults.Ok("Succesfully added document to the activity"),
+            false => TypedResults.BadRequest("Could not add document to the activity"),
+            _ => TypedResults.Ok("Succesfully added document to the activity"),
         };
     }
 }

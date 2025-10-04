@@ -3,7 +3,7 @@
     <mat-icon>close</mat-icon>
   </a>
 
-  <button mat-button color="primary" type="submit" routerLink="activities/new">
+  <button mat-button color="primary" [routerLink]="['activities', 'add']">
     ADD ACTIVITY
   </button>
 
@@ -43,3 +43,34 @@
     <textarea matInput formControlName="description"> </textarea>
   </mat-form-field>
 </form>
+
+<section *ngIf="!isLoading" class="activities-section" aria-label="Activities">
+  <div *ngIf="course.activities.length === 0">
+    <div class="activities-empty">
+      <h3>No activities yet 😟</h3>
+      <p>You haven't added any activities for this course.</p>
+    </div>
+  </div>
+
+  <div *ngIf="course.activities.length !== 0">
+    <h3>Activities 📝</h3>
+
+    <mat-nav-list>
+      <a
+        mat-list-item
+        *ngFor="let activity of course.activities"
+        [routerLink]="['activities', activity.id]"
+      >
+        <div matListItemTitle>{{ activity.name }}</div>
+        <div matListItemLine class="muted">
+          {{ activity.numberOfDocuments }} doc{{
+            activity.numberOfDocuments === 1 ? '' : 's'
+          }}
+        </div>
+        <mat-icon matListItemIcon>book</mat-icon>
+      </a>
+    </mat-nav-list>
+  </div>
+</section>
+
+<router-outlet />

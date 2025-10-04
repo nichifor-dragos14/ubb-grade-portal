@@ -37,7 +37,7 @@ public class ActivityService : IActivityService
         var activities = await _activityRepository.GetAllByCourseId(courseId, cancellationToken);
 
         return activities
-            .Select(c => new ActivityDto(c.Id, c.Name, c.Description))
+            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.ActivityDocuments.Count))
             .ToList();
     }
 
@@ -117,7 +117,7 @@ public class ActivityService : IActivityService
             return false;
         }
 
-        var course = await _courseRepository.GetById(activity.CourseId, cancellationToken);
+        var course = await _courseRepository.GetById(activity.Course.Id, cancellationToken);
 
         if (course == null)
         {

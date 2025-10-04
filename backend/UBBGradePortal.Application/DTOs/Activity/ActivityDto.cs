@@ -3,5 +3,6 @@
 public record ActivityDto(
     Guid Id,
     string Name,
-    string? Description
+    string? Description,
+    int NumberOfDocuments
 );

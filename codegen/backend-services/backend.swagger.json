@@ -758,7 +758,8 @@
       "ActivityDto": {
         "required": [
           "id",
-          "name"
+          "name",
+          "numberOfDocuments"
         ],
         "type": "object",
         "properties": {
@@ -772,6 +773,10 @@
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "numberOfDocuments": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -865,6 +870,7 @@
       },
       "CourseDetailsDto": {
         "required": [
+          "activities",
           "courseDomainName",
           "id",
           "name"
@@ -884,6 +890,12 @@
           },
           "courseDomainName": {
             "type": "string"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityDto"
+            }
           }
         },
         "additionalProperties": false

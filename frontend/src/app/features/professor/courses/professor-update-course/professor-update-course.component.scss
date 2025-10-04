@@ -27,3 +27,21 @@ section[role='course-actions'] {
 textarea {
   min-height: 150px;
 }
+
+.activities-section {
+  margin-top: 24px;
+}
+
+.activities-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+h3 {
+  margin-bottom: 0;
+}

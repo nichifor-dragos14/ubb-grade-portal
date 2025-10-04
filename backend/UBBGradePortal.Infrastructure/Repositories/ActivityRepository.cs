@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Data.Entity;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
