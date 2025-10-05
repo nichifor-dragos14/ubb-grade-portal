@@ -11,17 +11,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 
 import { CourseDomainDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ProfessorCoursesEventService } from '../professor-courses-event.service';
+import { AppToastService } from '$shared/toast';
 
 @Component({
   selector: 'app-professor-add-course',
@@ -36,7 +35,6 @@ import { ProfessorCoursesEventService } from '../professor-courses-event.service
     MatIconModule,
     RouterModule,
     MatSelectModule,
-    MatSlideToggleModule,
     CommonModule,
     MatProgressSpinner,
   ],
@@ -44,14 +42,16 @@ import { ProfessorCoursesEventService } from '../professor-courses-event.service
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfessorAddCourseComponent implements OnInit {
-  private formBuilder = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
-  private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
-  private snackBar = inject(MatSnackBar);
-  private courseService = inject(CourseService);
-  private professorCoursesEventService = inject(ProfessorCoursesEventService);
+  private readonly toastService = inject(AppToastService);
+  private readonly courseService = inject(CourseService);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
 
   addCourseFormGroup = this.formBuilder.group({
     name: ['', Validators.required],
@@ -83,17 +83,13 @@ export class ProfessorAddCourseComponent implements OnInit {
 
     try {
       this.courseDomains = await this.courseService.apiCourseDomainsGetAsync();
-    } catch {
-      this.snackBar.open(
-        'Something went wrong while searching for subject areas.',
-        'Close',
-        {
-          duration: 4000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-        }
-      );
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+
       this.courseDomains = [];
+      this.cdr.detectChanges();
     } finally {
       this.loadingDomains = false;
       this.cdr.detectChanges();
@@ -112,7 +108,7 @@ export class ProfessorAddCourseComponent implements OnInit {
       return;
     }
 
-    if (this.submitting || this.redirecting) {
+    if (this.isLoading) {
       return;
     }
 
@@ -136,15 +132,15 @@ export class ProfessorAddCourseComponent implements OnInit {
       this.redirecting = true;
       this.cdr.detectChanges();
 
+      this.toastService.open(`Successfully created ${name}`);
+
       await this.router.navigate(['..', courseId], {
         relativeTo: this.activatedRoute,
       });
-    } catch (message: any) {
-      this.snackBar.open(message.error, 'Close', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
     } finally {
       this.submitting = false;
       this.redirecting = false;

@@ -9,7 +9,11 @@
 
 <mat-nav-list *ngIf="!isLoading">
   @for (course of courses; track course.courseId) {
-    <a mat-list-item [routerLink]="[course.courseId]" routerLinkActive="active">
+    <a
+      mat-list-item
+      [routerLink]="['/main/professor/courses', course.courseId]"
+      routerLinkActive="isActive"
+    >
       <span
         matListItemIcon
         [matBadge]="course.numberOfActivities"
@@ -37,7 +41,7 @@
   [pageIndex]="pageIndex"
   [pageSize]="pageSize"
   showFirstLastButtons
-  (page)="onPage($event)"
+  (page)="onPageChange($event)"
 >
 </mat-paginator>
 

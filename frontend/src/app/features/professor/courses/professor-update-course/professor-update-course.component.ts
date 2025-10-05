@@ -5,6 +5,7 @@ import {
   DestroyRef,
   Input,
   OnChanges,
+  OnInit,
   inject,
 } from '@angular/core';
 
@@ -13,7 +14,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
@@ -21,16 +21,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 
-import {
-  ActivityDto,
-  CourseDetailsDto,
-  CourseService,
-} from '$backend/services';
+import { CourseDetailsDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ProfessorCoursesEventService } from '../professor-courses-event.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppToastService } from '$shared/toast';
 
 @Component({
   selector: 'app-professor-update-course',
@@ -55,14 +52,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfessorUpdateCourseComponent implements OnChanges {
-  private formBuilder = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
+export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
-  private snackBar = inject(MatSnackBar);
-  private courseService = inject(CourseService);
-  private professorCoursesEventService = inject(ProfessorCoursesEventService);
+  private readonly toastService = inject(AppToastService);
+  private readonly courseService = inject(CourseService);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
 
   @Input() course!: CourseDetailsDto;
 
@@ -133,12 +132,10 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
       this.course = await this.courseService.apiCourseIdGetAsync({
         id: courseId,
       });
-    } catch (message: any) {
-      this.snackBar.open(message.error, 'Close', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
     } finally {
       this.courseLoading = false;
       this.resetForm();
@@ -170,12 +167,15 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
           description: description,
         },
       });
-    } catch (message: any) {
-      this.snackBar.open(message.error, 'Close', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-      });
+
+      this.toastService.open(
+        `Successfully updated ${this.course.name}`,
+        'info'
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
     } finally {
       this.submitting = false;
       this.getCourse();

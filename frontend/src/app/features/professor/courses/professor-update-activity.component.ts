@@ -6,24 +6,25 @@ import {
   OnChanges,
   inject,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppPageHeaderComponent } from '$shared/page-header';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+
+import { AppPageHeaderComponent } from '$shared/page-header';
 import {
   ActivityDetailsDto,
   ActivityService,
   CourseDetailsDto,
 } from '$backend/services';
 import { AppToastService } from '$shared/toast';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-
 @Component({
-  selector: 'app-professor-add-activity',
+  selector: 'app-professor-update-activity',
   standalone: true,
   template: `
     <app-page-header
@@ -52,11 +53,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     <form [formGroup]="updateActivityFormGroup" *ngIf="!isLoading">
       <mat-form-field>
         <mat-label>Activity name</mat-label>
-        <input
-          matInput
-          formControlName="name"
-          placeholder="Ex: First assignment"
-        />
+        <input matInput formControlName="name" />
 
         <mat-error *ngIf="name.touched && name.hasError('required')">
           The activity name is required.
@@ -65,7 +62,12 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
       <mat-form-field>
         <mat-label>Activity description</mat-label>
-        <textarea matInput formControlName="description"> </textarea>
+        <textarea
+          matInput
+          formControlName="description"
+          placeholder="Add information to guide students solve the activity"
+        >
+        </textarea>
       </mat-form-field>
     </form>
   `,
@@ -106,10 +108,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfessorUpdateActivityComponent implements OnChanges {
-  private formBuilder = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
-  readonly router = inject(Router);
-  readonly activatedRoute = inject(ActivatedRoute);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly toastService = inject(AppToastService);
   readonly activityService = inject(ActivityService);
@@ -121,6 +121,37 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
     description: [''],
     name: ['', Validators.required],
   });
+
+  submitting = false;
+  redirecting = false;
+  loadingActivity = false;
+  loadingDocuments = false;
+
+  get isLoading(): boolean {
+    return (
+      this.loadingActivity ||
+      this.loadingDocuments ||
+      this.submitting ||
+      this.redirecting
+    );
+  }
+
+  get name() {
+    return this.updateActivityFormGroup.controls.name;
+  }
+
+  ngOnChanges() {
+    this.resetForm();
+  }
+
+  resetForm() {
+    this.updateActivityFormGroup.reset({
+      name: this.activity?.name,
+      description: this.activity?.description,
+    });
+
+    this.updateActivityFormGroup.get('name')?.disable();
+  }
 
   async getActivity() {
     const activityId = this.activity.id;
@@ -148,37 +179,6 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.resetForm();
       this.cdr.detectChanges();
     }
-  }
-
-  ngOnChanges() {
-    this.resetForm();
-  }
-
-  resetForm() {
-    this.updateActivityFormGroup.reset({
-      name: this.activity?.name,
-      description: this.activity?.description,
-    });
-
-    this.updateActivityFormGroup.get('name')?.disable();
-  }
-
-  submitting = false;
-  redirecting = false;
-  loadingActivity = false;
-  loadingDocuments = false;
-
-  get isLoading(): boolean {
-    return (
-      this.loadingActivity ||
-      this.loadingDocuments ||
-      this.submitting ||
-      this.redirecting
-    );
-  }
-
-  get name() {
-    return this.updateActivityFormGroup.controls.name;
   }
 
   async updateActivity() {
@@ -209,7 +209,11 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.submitting = false;
       this.redirecting = true;
       this.cdr.detectChanges();
-      this.toastService.open('Succesfully updated activity', 'info');
+
+      this.toastService.open(
+        `Succesfully updated ${this.activity.name}`,
+        'info'
+      );
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');
@@ -218,6 +222,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.submitting = false;
       this.redirecting = false;
       this.cdr.detectChanges();
+
       this.getActivity();
     }
   }

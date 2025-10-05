@@ -60,6 +60,7 @@
         mat-list-item
         *ngFor="let activity of course.activities"
         [routerLink]="['activities', activity.id]"
+        routerLinkActive="isActive"
       >
         <div matListItemTitle>{{ activity.name }}</div>
         <div matListItemLine class="muted">

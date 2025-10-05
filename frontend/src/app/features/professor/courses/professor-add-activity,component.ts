@@ -5,17 +5,19 @@ import {
   Input,
   inject,
 } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppPageHeaderComponent } from '$shared/page-header';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+
+import { AppPageHeaderComponent } from '$shared/page-header';
 import { ActivityService, CourseDetailsDto } from '$backend/services';
 import { AppToastService } from '$shared/toast';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ProfessorCoursesEventService } from './professor-courses-event.service';
 
 @Component({
@@ -47,7 +49,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
         <input
           matInput
           formControlName="name"
-          placeholder="Ex: First assignment"
+          placeholder="Ex: First activity"
         />
 
         <mat-error *ngIf="name.touched && name.hasError('required')">
@@ -57,7 +59,12 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
 
       <mat-form-field>
         <mat-label>Activity description</mat-label>
-        <textarea matInput formControlName="description"> </textarea>
+        <textarea
+          matInput
+          formControlName="description"
+          placeholder="Add information to guide students solve the activity"
+        >
+        </textarea>
       </mat-form-field>
     </form>
   `,
@@ -98,14 +105,16 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfessorAddActivityComponent {
-  private formBuilder = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
-  readonly router = inject(Router);
-  readonly toastService = inject(AppToastService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
-  readonly activatedRoute = inject(ActivatedRoute);
-  readonly activityService = inject(ActivityService);
-  readonly professorCoursesEventService = inject(ProfessorCoursesEventService);
+  private readonly toastService = inject(AppToastService);
+  private readonly activityService = inject(ActivityService);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
 
   @Input() course!: CourseDetailsDto;
 
@@ -130,6 +139,7 @@ export class ProfessorAddActivityComponent {
     this.addActivityFormGroup.markAllAsTouched();
 
     const courseId = this.course.id;
+
     const name = this.addActivityFormGroup.controls.name.value;
     const description = this.addActivityFormGroup.controls.description.value;
 
@@ -162,7 +172,8 @@ export class ProfessorAddActivityComponent {
         activityId: activityId,
       });
 
-      this.toastService.open('Succesfully created activity', 'info');
+      this.toastService.open(`Succesfully created ${name}`, 'info');
+
       await this.router.navigate(['..', activityId], {
         relativeTo: this.activatedRoute,
       });

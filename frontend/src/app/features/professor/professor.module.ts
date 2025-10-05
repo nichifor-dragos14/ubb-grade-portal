@@ -10,7 +10,6 @@ import { ProfessorAddCourseComponent } from './courses/professor-add-course/prof
 import { ProfessorUpdateCourseComponent } from './courses/professor-update-course/professor-update-course.component';
 import { inject, NgModule } from '@angular/core';
 import { ActivityService, CourseService } from '$backend/services';
-import { CourseDummyComponent } from './courses/course.dummy.component';
 import { DialogPageComponent } from '$shared/dialog-page';
 import { ProfessorAddActivityComponent } from './courses/professor-add-activity,component';
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
@@ -19,12 +18,6 @@ const PROFESSOR_ROUTES: Routes = [
   {
     path: '',
     children: [
-      {
-        path: 'reinit-courses',
-        canActivate: [roleGuard],
-        data: { roles: ['Professor'] },
-        component: CourseDummyComponent,
-      },
       {
         path: 'courses',
         canActivate: [roleGuard],

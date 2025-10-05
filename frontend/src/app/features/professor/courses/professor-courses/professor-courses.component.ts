@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -19,9 +19,9 @@ import { DateConverterModule } from '$shared/date-converter';
 import { CourseService, ProfessorCreatedCourseDto } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProfessorCoursesEventService } from '../professor-courses-event.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppToastService } from '$shared/toast';
 
 @Component({
   selector: 'app-professor-courses',
@@ -43,11 +43,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfessorCoursesComponent implements OnInit {
-  private snackBar = inject(MatSnackBar);
-  private cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  private courseService = inject(CourseService);
+  private readonly toastService = inject(AppToastService);
+  private readonly courseService = inject(CourseService);
   private readonly professorCoursesEventService = inject(
     ProfessorCoursesEventService
   );
@@ -89,19 +89,17 @@ export class ProfessorCoursesComponent implements OnInit {
       this.courses = result.courses;
       this.courseCount = result.count;
       this.cdr.detectChanges();
-    } catch (message: any) {
-      this.snackBar.open(message.error, 'Close', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
   }
 
-  async onPage(e: PageEvent) {
+  async onPageChange(e: PageEvent) {
     this.pageIndex = e.pageIndex;
     this.pageSize = e.pageSize;
 
