@@ -22,33 +22,15 @@ public class CourseDomainRepository : ICourseDomainRepository
 
     public async Task<List<CourseDomain>> GetAll(CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .CourseDomains
-                .ToListAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return [];
-        }
+        return await _dbContext
+            .CourseDomains
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<CourseDomain?> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .CourseDomains
-                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
-        }
-        catch(Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return null;
-        }
+        return await _dbContext
+            .CourseDomains
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken: cancellationToken);
     }
 }

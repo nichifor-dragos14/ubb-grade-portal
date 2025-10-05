@@ -20,40 +20,22 @@ public class UserRepository : IUserRepository
         _logger = logger;
     }
 
-    public async Task<bool> Add(User user, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _dbContext.Users.AddAsync(user, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return false;
-        }
-        
-    }
 
     public async Task<User?> GetById(Guid userId, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .Users
-                .Include(u => u.CourseEnrollments)
-                .Include(u => u.CreatedCourses)
-                .Include(u => u.SolvedActivities)
-                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
+        return await _dbContext
+            .Users
+            .Include(u => u.CourseEnrollments)
+            .Include(u => u.CreatedCourses)
+            .Include(u => u.SolvedActivities)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    }
 
-            return null;
-        }
+    public async Task<Guid> Add(User user, CancellationToken cancellationToken)
+    {
+        await _dbContext.Users.AddAsync(user, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        
+        return user.Id;
     }
 }

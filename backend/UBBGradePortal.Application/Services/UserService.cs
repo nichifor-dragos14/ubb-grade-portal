@@ -26,7 +26,7 @@ public class UserService : IUserService
         _logger = logger;
     }
 
-    public async Task<bool> Add(AddUserDto addUserDto, CancellationToken cancellationToken)
+    public async Task<Guid> Add(AddUserDto addUserDto, CancellationToken cancellationToken)
     {
         var user = new User
         {

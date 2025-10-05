@@ -29,7 +29,7 @@ public class AccountController : ControllerBase
         _userService = userService;
     }
 
-    /// <summary> User registration. </summary>
+    /// <summary> User registration </summary>
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Register(
@@ -82,7 +82,7 @@ public class AccountController : ControllerBase
         return Ok(new RegisterResponse(user.Id));
     }
 
-    /// <summary> User login. </summary>
+    /// <summary> User login </summary>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Login(

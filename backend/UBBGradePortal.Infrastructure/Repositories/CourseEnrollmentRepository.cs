@@ -21,19 +21,9 @@ public class CourseEnrollmentRepository : ICourseEnrollmentRepository
 
     public async Task<bool> Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _dbContext.CourseEnrollments.AddRangeAsync(courseEnrollments, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.CourseEnrollments.AddRangeAsync(courseEnrollments, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return false;
-        }
-
+        return true;
     }
 }
