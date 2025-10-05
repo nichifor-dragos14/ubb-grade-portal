@@ -7,7 +7,7 @@ namespace UBBGradePortal.WebApi.Development;
 
 public static class HotReloadManager
 {
-    internal static SwaggerExportService SwaggerExportService { get; set; }
+    internal static SwaggerExportService SwaggerExportService { get; set; } = default!;
 
     public static void ClearCache(Type[]? updatedTypes)
     {
@@ -15,6 +15,6 @@ public static class HotReloadManager
 
     public static void UpdateApplication(Type[]? updatedTypes)
     {
-        SwaggerExportService.StartAsync(CancellationToken.None);
+        _ = SwaggerExportService.StartAsync(CancellationToken.None);
     }
 }

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Upload;
 
@@ -12,6 +12,7 @@ namespace UBBGradePortal.WebApi.Controllers
     public class UploadController : ControllerBase
     {
         private readonly IUploadPresignService _uploadPresignService;
+
         public UploadController(
             IUploadPresignService uploadPresignService
         )
@@ -20,8 +21,11 @@ namespace UBBGradePortal.WebApi.Controllers
         }
 
         [HttpPost("presign")]
-        //[Authorize(Roles = "Professor")]
-        public async Task<Results<Ok<PresignResponseDto>, BadRequest<string>>> Presign(
+        [Authorize(Roles = "Professor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<Results<Ok<PresignResponseDto>, BadRequest<string>, ForbidHttpResult>> Presign(
             [FromBody] PresignRequestDto request,
             CancellationToken cancellationToken
         )
@@ -31,12 +35,17 @@ namespace UBBGradePortal.WebApi.Controllers
                 return TypedResults.BadRequest("Filename is required.");
             }
 
-            var loggedUserId = User.Identity.GetUserId();
+            var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+            {
+                return TypedResults.Forbid();
+            }
 
             var (url, key) = await _uploadPresignService.PresignPutAsync(
                 request.Filename,
                 request.ContentType,
-                loggedUserId,
+                loggedUserIdValue,
                 request.TenantId,
                 cancellationToken
             );
@@ -45,7 +54,9 @@ namespace UBBGradePortal.WebApi.Controllers
         }
 
         [HttpPost("presign-get")]
-        [Authorize]
+        [Authorize(Roles = "Student,Professor,Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<Results<Ok<string>, BadRequest<string>>> PresignGet(
             [FromBody] string key,
             CancellationToken cancellationToken

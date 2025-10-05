@@ -42,7 +42,7 @@ public class SwaggerExportService : IHostedService
 
             swagger.SerializeAsV3(openApiJsonWriter);
         }
-        catch (Exception _)
+        catch
         {
             logger.LogWarning("Writing swagger file: ({path})", path);
         }

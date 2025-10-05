@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Application.Exceptions;
@@ -21,9 +21,11 @@ public class CourseController : ControllerBase
         _courseService = courseService;
     }
 
-    /// <summary> Get all courses. </summary>
+    /// <summary> Get all courses </summary>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<Ok<List<CourseDto>>, BadRequest>> GetAllCoursesByDomainIds(
         [FromQuery] List<Guid> courseDomainIds,
         CancellationToken cancellationToken
@@ -34,9 +36,11 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(courses);
     }
 
-    /// <summary> Get all course domains. </summary>
+    /// <summary> Get all course domains </summary>
     [HttpGet("domains")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<Ok<List<CourseDomainDto>>, BadRequest>> GetAllCourseDomains(
         CancellationToken cancellationToken
     )
@@ -46,27 +50,36 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(courseDomains);
     }
 
-    /// <summary> Get all the courses created by professor. </summary>
+    /// <summary> Get all the courses created by professor </summary>
     [HttpGet("created")]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<PaginatedProfessorCreatedCourseDto>, BadRequest>> GetAllProfessorCreated(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<PaginatedProfessorCreatedCourseDto>, BadRequest, ForbidHttpResult>> GetAllProfessorCreated(
         CancellationToken cancellationToken,
         [FromQuery] int pageNumber,
         [FromQuery] int pageSize
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
         var paginatedResponse = await _courseService.GetAllProfessorCreated(pageNumber, pageSize, loggedUserId, cancellationToken);
 
         return TypedResults.Ok(paginatedResponse);
     }
 
-    /// <summary> Get course by id. </summary>
+    /// <summary> Get course by id </summary>
     [HttpGet("{id}")]
+    [Authorize(Roles = "Student,Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<Results<Ok<CourseDetailsDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
@@ -89,18 +102,23 @@ public class CourseController : ControllerBase
         }
     }
 
-    /// <summary> Add a course. </summary>
+    /// <summary> Add a course </summary>
     [HttpPost]
-    [Authorize(Roles = "Professor,Admin")]
+    [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<Ok<Guid>, NotFound<string>>> AddCourse(
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> AddCourse(
         [FromBody] AddCourseDto course,
         CancellationToken cancellationToken
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
 
         try
         {
@@ -114,7 +132,7 @@ public class CourseController : ControllerBase
         }
     }
 
-    /// <summary> Update a course. </summary>
+    /// <summary> Update a course </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -126,7 +144,12 @@ public class CourseController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
 
         if (id == Guid.Empty)
         {

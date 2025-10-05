@@ -12,12 +12,21 @@ public static class WebApplicationBuilderExtensions
         {
             var environment = context.HostingEnvironment.EnvironmentName;
 
+            var elasticSearchUri = context.Configuration["ElasticConfiguration:Uri"];
+            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+
+            if (elasticSearchUri is null || assemblyName is null)
+            {
+                return;
+            }
+
+            var elasticSearchIndexFormat = $"{assemblyName.ToLower().Replace(".", "-")}-{environment.ToLower()}-{DateTime.UtcNow:yyyy-MM}";
+
             configuration.Enrich.FromLogContext()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(context.Configuration["ElasticConfiguration:Uri"]))
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticSearchUri))
                 {
                     AutoRegisterTemplate = true,
-                    IndexFormat =
-                        $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace(".", "-")}-{environment.ToLower()}-{DateTime.UtcNow:yyyy-MM}",
+                    IndexFormat = elasticSearchIndexFormat,
                     NumberOfReplicas = 1,
                     NumberOfShards = 2
                 })

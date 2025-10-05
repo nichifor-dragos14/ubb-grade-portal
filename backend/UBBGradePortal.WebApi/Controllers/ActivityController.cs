@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.Exceptions;
@@ -21,7 +21,7 @@ public class ActivityController : ControllerBase
         _activityService = activityService;
     }
 
-    /// <summary> Get all activities. </summary>
+    /// <summary> Get all activities </summary>
     [HttpGet("course/{courseId}")]
     [Authorize(Roles = "Student,Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,7 +48,7 @@ public class ActivityController : ControllerBase
         }
     }
 
-    /// <summary> Get activity by id. </summary>
+    /// <summary> Get activity by id </summary>
     [HttpGet("{id}")]
     [Authorize(Roles = "Student,Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -75,7 +75,7 @@ public class ActivityController : ControllerBase
         }
     }
 
-    /// <summary> Add an activity. </summary>
+    /// <summary> Add an activity </summary>
     [HttpPost]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -86,7 +86,12 @@ public class ActivityController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
 
         try
         {
@@ -116,7 +121,12 @@ public class ActivityController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
 
         try
         {
@@ -146,7 +156,12 @@ public class ActivityController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var loggedUserId = new Guid(User.Identity.GetUserId());
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
 
         try
         {

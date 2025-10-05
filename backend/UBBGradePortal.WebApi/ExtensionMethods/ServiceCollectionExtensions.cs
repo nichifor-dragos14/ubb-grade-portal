@@ -52,9 +52,14 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
 
             services.AddOpenApiDocument();
 
-            services.AddHealthChecks()
-                    .AddElasticsearch(configuration["ElasticConfiguration:Uri"], "UBBGradePortal:Elasticsearch");
+            var elasticSearchUri = configuration["ElasticConfiguration:Uri"];
 
+            if (elasticSearchUri is not null)
+            {
+                services.AddHealthChecks()
+                   .AddElasticsearch(elasticSearchUri, "UBBGradePortal:Elasticsearch");
+            }
+           
             if (env.IsDevelopment())
             {
                 services.AddHostedService<SwaggerExportService>();
