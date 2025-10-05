@@ -41,7 +41,7 @@ const PROFESSOR_ROUTES: Routes = [
             path: ':id',
             canActivate: [roleGuard],
             data: { roles: ['Professor'] },
-            runGuardsAndResolvers: 'always',
+            runGuardsAndResolvers: 'paramsChange',
             component: ProfessorUpdateCourseComponent,
             resolve: {
               course: async ({ params }: ActivatedRouteSnapshot) => {

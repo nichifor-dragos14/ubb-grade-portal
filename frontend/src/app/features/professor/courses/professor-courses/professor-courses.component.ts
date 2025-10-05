@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   OnInit,
   inject,
 } from '@angular/core';
@@ -19,6 +20,8 @@ import { CourseService, ProfessorCreatedCourseDto } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ProfessorCoursesEventService } from '../professor-courses-event.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-professor-courses',
@@ -42,8 +45,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ProfessorCoursesComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   private courseService = inject(CourseService);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
 
   courses: ProfessorCreatedCourseDto[] = [];
   courseCount = 0;
@@ -55,9 +62,21 @@ export class ProfessorCoursesComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPage();
+
+    this.professorCoursesEventService.activityCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        this.loadPage();
+      });
+
+    this.professorCoursesEventService.courseCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        this.loadPage();
+      });
   }
 
-  private async loadPage(): Promise<void> {
+  private async loadPage() {
     try {
       this.isLoading = true;
       this.cdr.detectChanges();

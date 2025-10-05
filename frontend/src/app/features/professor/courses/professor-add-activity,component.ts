@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ActivityService, CourseDetailsDto } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ProfessorCoursesEventService } from './professor-courses-event.service';
 
 @Component({
   selector: 'app-professor-add-activity',
@@ -104,6 +105,7 @@ export class ProfessorAddActivityComponent {
 
   readonly activatedRoute = inject(ActivatedRoute);
   readonly activityService = inject(ActivityService);
+  readonly professorCoursesEventService = inject(ProfessorCoursesEventService);
 
   @Input() course!: CourseDetailsDto;
 
@@ -143,7 +145,7 @@ export class ProfessorAddActivityComponent {
     this.cdr.detectChanges();
 
     try {
-      await this.activityService.apiActivityPostAsync({
+      var activityId = await this.activityService.apiActivityPostAsync({
         body: {
           name: name,
           description: description,
@@ -155,8 +157,15 @@ export class ProfessorAddActivityComponent {
       this.redirecting = true;
       this.cdr.detectChanges();
 
+      this.professorCoursesEventService.emitCreatedActivity({
+        courseId: courseId,
+        activityId: activityId,
+      });
+
       this.toastService.open('Succesfully created activity', 'info');
-      await this.router.navigate(['..', '']);
+      await this.router.navigate(['..', activityId], {
+        relativeTo: this.activatedRoute,
+      });
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');

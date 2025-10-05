@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Input,
   OnChanges,
   inject,
@@ -28,6 +29,8 @@ import {
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
+import { ProfessorCoursesEventService } from '../professor-courses-event.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-professor-update-course',
@@ -55,8 +58,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 export class ProfessorUpdateCourseComponent implements OnChanges {
   private formBuilder = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+
   private snackBar = inject(MatSnackBar);
   private courseService = inject(CourseService);
+  private professorCoursesEventService = inject(ProfessorCoursesEventService);
 
   @Input() course!: CourseDetailsDto;
 
@@ -84,6 +90,14 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
 
   get courseDomainName() {
     return this.updateCourseFormGroup.controls.courseDomainName;
+  }
+
+  async ngOnInit() {
+    this.professorCoursesEventService.activityCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        this.getCourse();
+      });
   }
 
   ngOnChanges() {
@@ -150,10 +164,10 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
     this.cdr.detectChanges();
 
     try {
-      await this.courseService.apiCoursePutAsync({
+      await this.courseService.apiCourseIdPutAsync({
+        id: courseId,
         body: {
           description: description,
-          id: courseId,
         },
       });
     } catch (message: any) {
@@ -167,32 +181,5 @@ export class ProfessorUpdateCourseComponent implements OnChanges {
       this.getCourse();
       this.cdr.detectChanges();
     }
-  }
-
-  openCreateActivityDialog(): void {
-    // const ref = this.dialog.open(ProfessorAddCourseActivityComponent, {
-    //   width: '720px',
-    //   disableClose: true,
-    //   data: { mode: 'create', courseId: this.courseId },
-    // });
-    // ref.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     // if the dialog actually created something, refresh the list
-    //     this.loadActivities();
-    //   }
-    // });
-  }
-
-  openUpdateActivityDialog(activity: ActivityDto): void {
-    // const ref = this.dialog.open(ProfessorAddCourseActivityComponent, {
-    //   width: '720px',
-    //   disableClose: true,
-    //   data: { mode: 'update', activityId: activity.id },
-    // });
-    // ref.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     this.loadActivities();
-    //   }
-    // });
   }
 }

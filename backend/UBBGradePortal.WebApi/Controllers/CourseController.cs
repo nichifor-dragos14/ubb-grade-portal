@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Course;
+using UBBGradePortal.Application.Exceptions;
 
 namespace UBBGradePortal.WebApi.Controllers;
 
@@ -31,28 +32,6 @@ public class CourseController : ControllerBase
         var courses = await _courseService.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
         return TypedResults.Ok(courses);
-    }
-
-    /// <summary> Get course by id. </summary>
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<CourseDetailsDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
-        [FromRoute] Guid id,
-        CancellationToken cancellationToken
-    )
-    {
-        if (id == Guid.Empty)
-        {
-            return TypedResults.BadRequest("Something went wrong");
-        }
-
-        var course = await _courseService.GetById(id, cancellationToken);
-
-        return course is null
-            ? TypedResults.NotFound("The course was not found")
-            : TypedResults.Ok(course);
     }
 
     /// <summary> Get all course domains. </summary>
@@ -83,32 +62,90 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(paginatedResponse);
     }
 
+    /// <summary> Get course by id. </summary>
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<Results<Ok<CourseDetailsDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
+        try
+        {
+            var course = await _courseService.GetById(id, cancellationToken);
+
+            return TypedResults.Ok(course);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+    }
+
     /// <summary> Add a course. </summary>
     [HttpPost]
     [Authorize(Roles = "Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<bool>, BadRequest>> AddCourse(
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>>> AddCourse(
         [FromBody] AddCourseDto course,
         CancellationToken cancellationToken
     )
     {
         var loggedUserId = new Guid(User.Identity.GetUserId());
-        var result = await _courseService.Add(course, loggedUserId, cancellationToken);
 
-        return TypedResults.Ok(result);
+        try
+        {
+            var courseId = await _courseService.Add(course, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(courseId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
     }
 
     /// <summary> Update a course. </summary>
-    [HttpPut]
-    [Authorize(Roles = "Professor,Admin")]
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<bool>, BadRequest>> UpdateCourse(
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult, BadRequest<string>>> UpdateCourse(
+        [FromRoute] Guid id,
         [FromBody] UpdateCourseDto course,
         CancellationToken cancellationToken
     )
     {
-        var result = await _courseService.Update(course, cancellationToken);
+        var loggedUserId = new Guid(User.Identity.GetUserId());
 
-        return TypedResults.Ok(result);
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
+        try
+        {
+            var courseId = await _courseService.Update(course, id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(courseId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
     }
 }

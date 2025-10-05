@@ -8,6 +8,6 @@ public interface ICourseService
     public Task<CourseDetailsDto?> GetById(Guid id, CancellationToken cancellationToken);
     public Task<PaginatedProfessorCreatedCourseDto> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<List<CourseDomainDto>> GetAllCourseDomains(CancellationToken cancellationToken);
-    public Task<bool> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken);
-    public Task<bool> Update(UpdateCourseDto updateCourseDto, CancellationToken cancellationToken);
+    public Task<Guid> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken);
+    public Task<Guid> Update(UpdateCourseDto updateCourseDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
 }

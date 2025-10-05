@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
+using UBBGradePortal.Application.Exceptions;
 
 namespace UBBGradePortal.WebApi.Controllers;
 
@@ -24,26 +25,26 @@ public class ActivityController : ControllerBase
     [HttpGet("course/{courseId}")]
     [Authorize(Roles = "Student,Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<List<ActivityDto>>, BadRequest<string>>> GetAllByCourseId(
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<List<ActivityDto>>, NotFound<string>, BadRequest<string>>> GetAllByCourseId(
         [FromRoute] Guid courseId,
         CancellationToken cancellationToken
     )
     {
+        if (courseId == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
         try
         {
-            if (courseId == Guid.Empty)
-            {
-                return TypedResults.BadRequest("No course id was specified");
-            }
-
             var activities = await _activityService.GetAllByCourseId(courseId, cancellationToken);
 
             return TypedResults.Ok(activities);
         }
-        catch (Exception ex)
+        catch (NotFoundException ex)
         {
-            return TypedResults.BadRequest(ex.Message.ToString());
+            return TypedResults.NotFound(ex.Message);
         }
     }
 
@@ -52,8 +53,7 @@ public class ActivityController : ControllerBase
     [Authorize(Roles = "Student,Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<ActivityDetailsDto>, BadRequest<string>, NotFound<string>>> GetActivityById(
+    public async Task<Results<Ok<ActivityDetailsDto>, NotFound<string>, BadRequest<string>>> GetActivityById(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
@@ -63,75 +63,104 @@ public class ActivityController : ControllerBase
             return TypedResults.BadRequest("No activity id was specified");
         }
 
-        var activity = await _activityService.GetById(id, cancellationToken);
-
-        return activity switch
+        try
         {
-            null => TypedResults.NotFound("The activity was not found"),
-            _ => TypedResults.Ok(activity),
-        };
-        ;
+            var activity = await _activityService.GetById(id, cancellationToken);
+
+            return TypedResults.Ok(activity);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
     }
 
     /// <summary> Add an activity. </summary>
     [HttpPost]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<string>, BadRequest<string>>> AddActivity(
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> AddActivity(
         [FromBody] AddActivityDto activity,
         CancellationToken cancellationToken
     )
     {
         var loggedUserId = new Guid(User.Identity.GetUserId());
-        var result = await _activityService.Add(activity, loggedUserId, cancellationToken);
 
-        return result switch
+        try
         {
-            false => TypedResults.BadRequest("Could not create activity"),
-            _ => TypedResults.Ok("Succesfully created activity"),
-        };
+            var activityId = await _activityService.Add(activity, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(activityId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
     }
 
     /// <summary> Update an activity. </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<string>, BadRequest<string>>> UpdateActivity(
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> UpdateActivity(
         [FromBody] UpdateActivityDto activity,
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
         var loggedUserId = new Guid(User.Identity.GetUserId());
-        var result = await _activityService.Update(activity, id, loggedUserId, cancellationToken);
 
-        return result switch
+        try
         {
-            false => TypedResults.BadRequest("Could not update activity"),
-            _ => TypedResults.Ok("Succesfully created activity"),
-        };
+            var activityId = await _activityService.Update(activity, id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(activityId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
     }
 
     /// <summary> Add a document for an activity. </summary>
     [HttpPost("{id}/document")]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<Ok<string>, BadRequest<string>>> AddActivityDocument(
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> AddActivityDocument(
         [FromBody] AddActivityDocumentDto activityDocument,
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
         var loggedUserId = new Guid(User.Identity.GetUserId());
-        var result = await _activityService.AddDocument(activityDocument, id, loggedUserId, cancellationToken);
 
-        return result switch
+        try
         {
-            false => TypedResults.BadRequest("Could not add document to the activity"),
-            _ => TypedResults.Ok("Succesfully added document to the activity"),
-        };
+            var documentId = await _activityService.AddDocument(activityDocument, id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(documentId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
     }
 }

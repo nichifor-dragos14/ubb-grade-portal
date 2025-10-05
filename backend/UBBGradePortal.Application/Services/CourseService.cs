@@ -1,9 +1,10 @@
-﻿using UBBGradePortal.Application.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Course;
+using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
-using Microsoft.Extensions.Logging;
-using UBBGradePortal.Application.DTOs.Activity;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -22,33 +23,6 @@ public class CourseService : ICourseService
         _courseRepository = courseRepository;
         _courseDomainRepository = courseDomainRepository;
         _logger = logger;
-    }
-
-    public async Task<bool> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var courseDomain = await _courseDomainRepository.GetById(addCourseDto.CourseDomainId, cancellationToken);
-
-        if (courseDomain == null)
-        {
-            _logger.LogInformation("The course domain is not available");
-
-            return false;
-        }
-
-        var courseId = Guid.NewGuid();
-
-        var course = new Course
-        {
-            Id = courseId,
-            Name = addCourseDto.Name,
-            Description = addCourseDto.Description,
-            CreatedByUserId = loggedUserId,
-            CourseDomainId = courseDomain.Id,
-            CreatedOn = DateTime.UtcNow,
-            UpdatedOn = DateTime.UtcNow,
-        };
-
-       return await _courseRepository.Add(course, cancellationToken);
     }
 
     public async Task<List<CourseDto>> GetAllByCourseDomainIds(List<Guid> courseDomainIds, CancellationToken cancellationToken)
@@ -95,9 +69,9 @@ public class CourseService : ICourseService
 
         if (course == null)
         {
-            _logger.LogInformation("The course is not available");
+            _logger.LogInformation($"The course {id} is not available");
 
-            return null;
+            throw new NotFoundException("The course does not exist");
         }
 
         return
@@ -120,15 +94,50 @@ public class CourseService : ICourseService
             );
     }
 
-    public async Task<bool> Update(UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)
+    public async Task<Guid> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken)
     {
-        var course = await _courseRepository.GetById(updateCourseDto.Id, cancellationToken);
+        var courseDomain = await _courseDomainRepository.GetById(addCourseDto.CourseDomainId, cancellationToken);
+
+        if (courseDomain == null)
+        {
+            _logger.LogInformation($"The course domain {addCourseDto.CourseDomainId} does not exist");
+
+            throw new NotFoundException("The course domain does not exist");
+        }
+
+        var courseId = Guid.NewGuid();
+
+        var course = new Course
+        {
+            Id = courseId,
+            Name = addCourseDto.Name,
+            Description = addCourseDto.Description,
+            CreatedByUserId = loggedUserId,
+            CourseDomainId = courseDomain.Id,
+            CreatedOn = DateTime.UtcNow,
+            UpdatedOn = DateTime.UtcNow,
+        };
+
+        return await _courseRepository.Add(course, cancellationToken);
+    }
+
+    public async Task<Guid> Update(UpdateCourseDto updateCourseDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var course = await _courseRepository.GetById(id, cancellationToken);
 
         if (course == null)
         {
-            _logger.LogInformation("The course is not available");
+            _logger.LogInformation($"The course {id} does not exist");
 
-            return false;
+            throw new NotFoundException("The course does not exist");
+        }
+
+
+        if (loggedUserId != course.CreatedByUserId)
+        {
+            _logger.LogInformation($"The user {loggedUserId} cannot update the course {course.Id}");
+
+            throw new NotFoundException("You cannot update this course");
         }
 
         course.Description = updateCourseDto.Description;

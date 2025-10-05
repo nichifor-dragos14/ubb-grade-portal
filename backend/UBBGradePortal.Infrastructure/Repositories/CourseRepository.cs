@@ -20,128 +20,75 @@ public class CourseRepository : ICourseRepository
         _logger = logger;
     }
 
-    public async Task<bool> Add(Course course, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _dbContext.AddAsync(course, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return false;
-        }
-    }
-
     public async Task<List<Course>> GetAll(CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .Courses
-                .Include(c => c.CourseDomain)
-                .Include(c => c.CourseEnrollments)
-                .Include (c => c.Activities)
-                .Include(c => c.CreatedByUser)
-                .ToListAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return [];
-        }
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Include(c => c.CourseEnrollments)
+            .Include (c => c.Activities)
+            .Include(c => c.CreatedByUser)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<Course>> GetAllByCourseDomainIds(List<Guid> courseDomainIds, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .Courses
-                .Include(c => c.CourseDomain)
-                .Where(c => courseDomainIds.Contains(c.CourseDomainId))
-                .ToListAsync(cancellationToken);
-        }
-        catch(Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return [];
-        }
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Where(c => courseDomainIds.Contains(c.CourseDomainId))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<(int Count, List<Course> Courses)> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var courses = await _dbContext
-                .Courses
-                .Include(c => c.CourseDomain)
-                .Include(c => c.CourseEnrollments)
-                .Include(c => c.Activities)
-                .Include(c => c.CreatedByUser)
-                .Where(c => c.CreatedByUserId == loggedUserId)
-                .OrderByDescending(c => c.UpdatedOn)
-                .ToListAsync(cancellationToken);
+        var courses = await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Include(c => c.CourseEnrollments)
+            .Include(c => c.Activities)
+            .Include(c => c.CreatedByUser)
+            .Where(c => c.CreatedByUserId == loggedUserId)
+            .OrderByDescending(c => c.UpdatedOn)
+            .ToListAsync(cancellationToken);
 
-            var count = courses.Count;
+        var count = courses.Count;
 
-            return (
-                count, 
-                courses
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList()
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return (0, []);
-        }
+        return (
+            count,
+            courses
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList()
+        );
     }
 
     public async Task<Course?> GetById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await _dbContext
-                .Courses
-                .Include(c => c.CreatedByUser)
-                .Include(c => c.CourseDomain)
-                .Include(c => c.CourseEnrollments)
-                .Include(c => c.Activities)
-                .ThenInclude(c => c.ActivityDocuments)
-                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
-
-            return null;
-        }
+        return await _dbContext
+            .Courses
+            .Include(c => c.CreatedByUser)
+            .Include(c => c.CourseDomain)
+            .Include(c => c.CourseEnrollments)
+            .Include(c => c.Activities)
+            .ThenInclude(c => c.ActivityDocuments)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
-    public async Task<bool> Update(Course course, CancellationToken cancellationToken)
+    public async Task<Guid> Add(Course course, CancellationToken cancellationToken)
     {
-        try
-        {
-            _dbContext.Update(course);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.AddAsync(course, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex.Message.ToString());
+        return course.Id;
+}
 
-            return false;
-        }
+
+    public async Task<Guid> Update(Course course, CancellationToken cancellationToken)
+    {
+        _dbContext.Update(course);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return course.Id;
     }
 }

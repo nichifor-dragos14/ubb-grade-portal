@@ -10,7 +10,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common';
 
 import { CourseDomainDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ProfessorCoursesEventService } from '../professor-courses-event.service';
 
 @Component({
   selector: 'app-professor-add-course',
@@ -46,8 +47,11 @@ export class ProfessorAddCourseComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   private snackBar = inject(MatSnackBar);
   private courseService = inject(CourseService);
+  private professorCoursesEventService = inject(ProfessorCoursesEventService);
 
   addCourseFormGroup = this.formBuilder.group({
     name: ['', Validators.required],
@@ -116,7 +120,7 @@ export class ProfessorAddCourseComponent implements OnInit {
     this.cdr.detectChanges();
 
     try {
-      await this.courseService.apiCoursePostAsync({
+      var courseId = await this.courseService.apiCoursePostAsync({
         body: {
           name: name,
           description: description,
@@ -124,11 +128,17 @@ export class ProfessorAddCourseComponent implements OnInit {
         },
       });
 
+      this.professorCoursesEventService.emitCreatedCourse({
+        courseId: courseId,
+      });
+
       this.submitting = false;
       this.redirecting = true;
       this.cdr.detectChanges();
 
-      await this.router.navigateByUrl('/main/professor/reinit-courses');
+      await this.router.navigate(['..', courseId], {
+        relativeTo: this.activatedRoute,
+      });
     } catch (message: any) {
       this.snackBar.open(message.error, 'Close', {
         duration: 4000,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
+using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 
@@ -29,9 +30,9 @@ public class ActivityService : IActivityService
 
         if (course == null)
         {
-            _logger.LogInformation("The course is not available");
+            _logger.LogInformation($"The course {courseId} is not available");
 
-            throw new Exception("The course is not available");
+            throw new NotFoundException("The course does not exist");
         }
 
         var activities = await _activityRepository.GetAllByCourseId(courseId, cancellationToken);
@@ -47,9 +48,9 @@ public class ActivityService : IActivityService
 
         if (activity == null)
         {
-            _logger.LogInformation("The activity is not available");
+            _logger.LogInformation($"The activity {id} does not exist");
 
-            return null;
+            throw new NotFoundException("The activity does not exist");
         }
 
         return
@@ -73,22 +74,22 @@ public class ActivityService : IActivityService
             );
     }
 
-    public async Task<bool> Add(AddActivityDto addActivityDto, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<Guid> Add(AddActivityDto addActivityDto, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(addActivityDto.CourseId, cancellationToken);
 
         if (course == null)
         {
-            _logger.LogInformation("The course is not available");
+            _logger.LogInformation($"The course {addActivityDto.CourseId} is not available");
 
-            return false;
+            throw new NotFoundException("The course does not exist");
         }
 
         if (loggedUserId != course.CreatedByUserId)
         {
-            _logger.LogInformation("The user cannot update this activity");
+            _logger.LogInformation($"The user {loggedUserId} cannot add an activity to course {addActivityDto.CourseId}");
 
-            return false;
+            throw new NotFoundException("You cannot add activities to this course");
         }
 
         var activityId = Guid.NewGuid();
@@ -106,31 +107,31 @@ public class ActivityService : IActivityService
         return await _activityRepository.Add(activity, cancellationToken);
     }
 
-    public async Task<bool> Update(UpdateActivityDto updateActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<Guid> Update(UpdateActivityDto updateActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var activity = await _activityRepository.GetById(id, cancellationToken);
 
         if (activity == null)
         {
-            _logger.LogInformation("The activity is not available");
+            _logger.LogInformation($"The activity {id} does not exist");
 
-            return false;
+            throw new NotFoundException("The activity does not exist");
         }
 
         var course = await _courseRepository.GetById(activity.Course.Id, cancellationToken);
 
         if (course == null)
         {
-            _logger.LogInformation("The activity is not linked to an available course");
+            _logger.LogInformation($"The activity {id} is not linked to an available course");
 
-            return false;
+            throw new NotFoundException("The activity is not linked to an available course");
         }
 
         if (loggedUserId != course.CreatedByUserId)
         {
-            _logger.LogInformation("The user cannot update this activity");
+            _logger.LogInformation($"The user {loggedUserId} cannot update the activity {id}");
 
-            return false;
+            throw new NotFoundException("You cannot update this activity");
         }
 
         activity.Description = updateActivityDto.Description;
@@ -139,31 +140,31 @@ public class ActivityService : IActivityService
         return await _activityRepository.Update(activity, cancellationToken);
     }
 
-    public async Task<bool> AddDocument(AddActivityDocumentDto addActivityDocumentDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<Guid> AddDocument(AddActivityDocumentDto addActivityDocumentDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var activity = await _activityRepository.GetById(id, cancellationToken);
 
         if (activity == null)
         {
-            _logger.LogInformation("The activity is not available");
+            _logger.LogInformation($"The activity {id} does not exist");
 
-            return false;
+            throw new NotFoundException("The activity does not exist");
         }
 
         var course = await _courseRepository.GetById(activity.CourseId, cancellationToken);
 
         if (course == null)
         {
-            _logger.LogInformation("The activity is not linked to an available course");
+            _logger.LogInformation($"The activity {id} is not linked to an available course");
 
-            return false;
+            throw new NotFoundException("The activity is not linked to an available course");
         }
 
         if (loggedUserId != course.CreatedByUserId)
         {
-            _logger.LogInformation("The user cannot update this activity");
+            _logger.LogInformation($"The user {loggedUserId} cannot update the activity {id}");
 
-            return false;
+            throw new NotFoundException("You cannot update this activity");
         }
 
         var documentActivityId = Guid.NewGuid();

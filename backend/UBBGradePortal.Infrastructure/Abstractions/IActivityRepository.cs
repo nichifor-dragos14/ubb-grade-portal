@@ -6,8 +6,7 @@ public interface IActivityRepository
 {
     Task<List<Activity>> GetAllByCourseId(Guid couseId, CancellationToken cancellationToken);
     Task<Activity?> GetById(Guid id, CancellationToken cancellationToken);
-    Task<bool> Add(Activity activity, CancellationToken cancellationToken);
-    Task<bool> Update(Activity activity, CancellationToken cancellationToken);
-    Task<bool> AddDocument(ActivityDocument activityDocument, CancellationToken cancellationToken);
-
+    Task<Guid> Add(Activity activity, CancellationToken cancellationToken);
+    Task<Guid> Update(Activity activity, CancellationToken cancellationToken);
+    Task<Guid> AddDocument(ActivityDocument activityDocument, CancellationToken cancellationToken);
 }
