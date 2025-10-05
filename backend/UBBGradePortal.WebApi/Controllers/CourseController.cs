@@ -57,9 +57,9 @@ public class CourseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<Results<Ok<PaginatedProfessorCreatedCourseDto>, BadRequest, ForbidHttpResult>> GetAllProfessorCreated(
-        CancellationToken cancellationToken,
         [FromQuery] int pageNumber,
-        [FromQuery] int pageSize
+        [FromQuery] int pageSize,
+        CancellationToken cancellationToken
     )
     {
         var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);

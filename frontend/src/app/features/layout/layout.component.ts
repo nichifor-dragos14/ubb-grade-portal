@@ -32,8 +32,8 @@ import { AuthService } from '../../core/auth/auth.service';
 export class LayoutComponent {
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
 
-  authService = inject(AuthService);
-  router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   get roles(): string[] {
     return this.authService.roles();

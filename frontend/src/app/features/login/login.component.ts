@@ -7,8 +7,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AccountService } from '$backend/services';
-import { AuthService } from '../../core/auth/auth.service';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,7 +14,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+
+import { AppToastService } from '$shared/toast';
+import { AccountService } from '$backend/services';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -32,21 +33,21 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  private formBuilder = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
 
-  private accountService = inject(AccountService);
-  private authService = inject(AuthService);
+  private readonly toastService = inject(AppToastService);
+  private readonly accountService = inject(AccountService);
+  private readonly authService = inject(AuthService);
 
   hide = true;
+
   submitting = false;
   redirecting = false;
 
@@ -63,6 +64,10 @@ export class LoginComponent implements OnInit {
     return this.loginFormGroup.controls.password;
   }
 
+  get isLoading() {
+    return this.submitting || this.redirecting;
+  }
+
   async ngOnInit(): Promise<void> {
     if (this.authService.isAuthenticated()) {
       await this.router.navigateByUrl('/main');
@@ -72,7 +77,7 @@ export class LoginComponent implements OnInit {
   async onSubmitForm() {
     this.loginFormGroup.markAllAsTouched();
 
-    if (this.loginFormGroup.invalid || this.submitting || this.redirecting) {
+    if (this.isLoading) {
       return;
     }
 
@@ -87,18 +92,17 @@ export class LoginComponent implements OnInit {
       });
 
       this.authService.setToken(res.accessToken);
+      this.toastService.open('Successfully logged in');
 
       this.submitting = false;
       this.redirecting = true;
       this.cdr.detectChanges();
 
       await this.router.navigateByUrl('/main');
-    } catch (message: any) {
-      this.snackBar.open(message.error, 'Close', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'warning');
+      }
     } finally {
       this.submitting = false;
       this.redirecting = false;

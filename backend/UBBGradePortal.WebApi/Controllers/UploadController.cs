@@ -37,7 +37,7 @@ namespace UBBGradePortal.WebApi.Controllers
 
             var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+            if (!Guid.TryParse(loggedUserIdValue, out _))
             {
                 return TypedResults.Forbid();
             }

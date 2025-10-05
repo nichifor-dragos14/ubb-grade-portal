@@ -10,7 +10,7 @@
         <p>Log in to resume your journey!</p>
       </header>
 
-      <div class="overlay" *ngIf="submitting || redirecting">
+      <div class="overlay" *ngIf="isLoading">
         <mat-progress-spinner mode="indeterminate" diameter="48">
         </mat-progress-spinner>
       </div>
@@ -76,7 +76,7 @@
           color="primary"
           class="submit"
           type="submit"
-          [disabled]="loginFormGroup.invalid || submitting || redirecting"
+          [disabled]="loginFormGroup.invalid || isLoading"
         >
           <span>Log in</span>
         </button>
