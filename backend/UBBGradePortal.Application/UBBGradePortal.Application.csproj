@@ -13,10 +13,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\UBBGradePortal.Infrastructure\UBBGradePortal.Infrastructure.csproj" />
   </ItemGroup>
 
