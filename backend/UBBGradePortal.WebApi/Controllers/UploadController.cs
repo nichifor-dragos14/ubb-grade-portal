@@ -5,71 +5,98 @@ using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Upload;
 
-namespace UBBGradePortal.WebApi.Controllers
+namespace UBBGradePortal.WebApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UploadController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UploadController : ControllerBase
+    private readonly IUploadPresignService _uploadPresignService;
+
+    public UploadController(
+        IUploadPresignService uploadPresignService
+    )
     {
-        private readonly IUploadPresignService _uploadPresignService;
+        _uploadPresignService = uploadPresignService;
+    }
 
-        public UploadController(
-            IUploadPresignService uploadPresignService
-        )
+    [HttpPost("presign")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<PresignResponseDto>, BadRequest<string>, ForbidHttpResult>> Presign(
+        [FromBody] PresignRequestDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        if (string.IsNullOrWhiteSpace(request.Filename))
         {
-            _uploadPresignService = uploadPresignService;
+            return TypedResults.BadRequest("Filename is required.");
         }
 
-        [HttpPost("presign")]
-        [Authorize(Roles = "Professor")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<Results<Ok<PresignResponseDto>, BadRequest<string>, ForbidHttpResult>> Presign(
-            [FromBody] PresignRequestDto request,
-            CancellationToken cancellationToken
-        )
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out _))
         {
-            if (string.IsNullOrWhiteSpace(request.Filename))
-            {
-                return TypedResults.BadRequest("Filename is required.");
-            }
-
-            var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (!Guid.TryParse(loggedUserIdValue, out _))
-            {
-                return TypedResults.Forbid();
-            }
-
-            var (url, key) = await _uploadPresignService.PresignPutAsync(
-                request.Filename,
-                request.ContentType,
-                loggedUserIdValue,
-                request.TenantId,
-                cancellationToken
-            );
-
-            return TypedResults.Ok(new PresignResponseDto(url,key));
+            return TypedResults.Forbid();
         }
 
-        [HttpPost("presign-get")]
-        [Authorize(Roles = "Student,Professor,Admin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<Results<Ok<string>, BadRequest<string>>> PresignGet(
-            [FromBody] string key,
-            CancellationToken cancellationToken
-        )
-        {
-            if (string.IsNullOrWhiteSpace(key))
-            { 
-                return TypedResults.BadRequest("Key is required."); 
-            }
+        var (url, key) = await _uploadPresignService.PresignPutAsync(
+            request.Filename,
+            request.ContentType,
+            loggedUserIdValue,
+            request.TenantId,
+            cancellationToken
+        );
 
-            var url = await _uploadPresignService.PresignGetAsync(key, cancellationToken);
+        return TypedResults.Ok(new PresignResponseDto(url,key));
+    }
 
-            return TypedResults.Ok(url);
+    [HttpPost("presign-get")]
+    [Authorize(Roles = "Student,Professor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<Results<Ok<string>, BadRequest<string>>> PresignGet(
+        [FromBody] string key,
+        CancellationToken cancellationToken
+    )
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        { 
+            return TypedResults.BadRequest("Key is required."); 
         }
+
+        var url = await _uploadPresignService.PresignGetAsync(key, cancellationToken);
+
+        return TypedResults.Ok(url);
+    }
+
+    [HttpPost("presign-delete")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<string>, BadRequest<string>, ForbidHttpResult>> PresignDelete(
+        [FromBody] PresignDeleteRequestDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        if (string.IsNullOrWhiteSpace(request.Key))
+        {
+            return TypedResults.BadRequest("Key is required.");
+        }
+
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        // TODO: verify user can delete this
+        if (!Guid.TryParse(loggedUserIdValue, out _))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var url = await _uploadPresignService.PresignDeleteAsync(request.Key, cancellationToken);
+
+        return TypedResults.Ok(url);
     }
 }

@@ -57,6 +57,13 @@ public class ActivityRepository : IActivityRepository
 
         return activity.Id;
     }
+    public async Task<ActivityDocument?> GetDocument(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .ActivityDocuments
+            .Include(a => a.Activity)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
 
     public async Task<Guid> AddDocument(ActivityDocument activityDocument, CancellationToken cancellationToken)
     {
@@ -64,5 +71,11 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return activityDocument.Id;
+    }
+
+    public async Task DeleteDocument(ActivityDocument activityDocument, CancellationToken cancellationToken)
+    {
+        _dbContext.Remove(activityDocument);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

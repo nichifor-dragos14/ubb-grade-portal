@@ -185,4 +185,43 @@ public class ActivityService : IActivityService
 
         return await _activityRepository.AddDocument(activityDocument, cancellationToken);
     }
+
+    public async Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var activityDocument = await _activityRepository.GetDocument(id, cancellationToken);
+
+        if (activityDocument == null)
+        {
+            _logger.LogInformation($"The document {id} does not exist");
+
+            throw new NotFoundException("The document does not exist");
+        }
+
+        var activity = await _activityRepository.GetById(activityDocument.ActivityId, cancellationToken);
+
+        if (activity == null)
+        {
+            _logger.LogInformation($"The document {id} is not linked to an available activity");
+
+            throw new NotFoundException("The document is not linked to an available activity");
+        }
+
+        var course = await _courseRepository.GetById(activity.CourseId, cancellationToken);
+
+        if (course == null)
+        {
+            _logger.LogInformation($"The activity {activityDocument.ActivityId} is not linked to an available course");
+
+            throw new NotFoundException("The activity is not linked to an available course");
+        }
+
+        if (loggedUserId != course.CreatedByUserId)
+        {
+            _logger.LogInformation($"The user {loggedUserId} cannot update the activity {id}");
+
+            throw new NotFoundException("You cannot delete this document");
+        }
+
+        await _activityRepository.DeleteDocument(activityDocument, cancellationToken);
+    }
 }

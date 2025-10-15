@@ -59,6 +59,22 @@ public class S3UploadPresignService : IUploadPresignService
         return Task.FromResult(_amazonS3.GetPreSignedURL(presigned));
     }
 
+    public Task<string> PresignDeleteAsync(string key, CancellationToken cancellationToken)
+    {
+        var presigned = new GetPreSignedUrlRequest
+        {
+            BucketName = _minioOptions.Bucket,
+            Key = key,
+            Verb = HttpVerb.DELETE,
+            Expires = DateTime.UtcNow.AddMinutes(Math.Max(1, _minioOptions.PresignMinutes))
+        };
+
+        var url = _amazonS3.GetPreSignedURL(presigned);
+        url = ForceHttp(url);
+
+        return Task.FromResult(url);
+    }
+
     private static string ForceHttp(string url)
     {
         if (url.StartsWith("https://localhost:9000", StringComparison.OrdinalIgnoreCase))

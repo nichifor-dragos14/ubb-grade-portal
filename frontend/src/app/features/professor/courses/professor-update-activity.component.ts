@@ -172,6 +172,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       sizeBytes: document.sizeBytes,
       previewUrl: document.contentType?.startsWith('image/') ? null : null,
       status: 'alreadyUploaded',
+      key: document.key,
       error: null,
       xhr: null,
       progress: 100,

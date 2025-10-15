@@ -9,4 +9,5 @@ public interface IActivityService
     public Task<Guid> Add(AddActivityDto addActivityDto, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Update(UpdateActivityDto updateActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> AddDocument(AddActivityDocumentDto addCourseDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
+    public Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
 }

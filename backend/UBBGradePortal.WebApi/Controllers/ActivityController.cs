@@ -178,4 +178,38 @@ public class ActivityController : ControllerBase
             return TypedResults.Forbid();
         }
     }
+
+    /// <summary> Delete a document for an activity. </summary>
+    [HttpDelete("document/{id}")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok, NotFound<string>, ForbidHttpResult>> DeleteActivityDocument(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        try
+        {
+            await _activityService.DeleteDocument(id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok();
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
+    }
 }

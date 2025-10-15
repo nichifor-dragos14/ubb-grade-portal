@@ -21,6 +21,7 @@ import {
   UploadResult,
 } from '$shared/activity-upload/activity-docs.service';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
+import { ActivityService } from '$backend/services';
 
 @Component({
   selector: 'app-activity-docs-dropzone',
@@ -240,10 +241,10 @@ import { QueuedFile } from '$shared/activity-upload/queued-file.model';
           <button
             mat-button
             color="warn"
-            (click)="remove(item)"
+            (click)="delete(item)"
             [disabled]="item.status === 'uploading'"
           >
-            Remove
+            Delete
           </button>
         </div>
       </div>
@@ -254,12 +255,12 @@ export class ActivityDocsDropzoneComponent {
   @Input({ required: true }) activityId!: string;
   @Input() tenantId = 'default';
   @Input() set queue(value: QueuedFile[]) {
-    const incoming = (value ?? []).map((v) => ({ ...v, xhr: null }));
+    const incoming = (value ?? []).map((item) => ({ ...item, xhr: null }));
 
     if (!this._queue.length) {
       this._queue = incoming;
     } else {
-      const existingKeys = new Set(this._queue.map((file) => file.id));
+      const existingKeys = new Set(this._queue.map((document) => document.id));
 
       for (const file of incoming) {
         const key = file.id;
@@ -285,6 +286,7 @@ export class ActivityDocsDropzoneComponent {
 
   private _queue: QueuedFile[] = [];
   private activityDocsService = inject(ActivityDocsService);
+  private activityService = inject(ActivityService);
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
 
@@ -298,11 +300,8 @@ export class ActivityDocsDropzoneComponent {
     return this.queue.some((file) => file.status === 'queued' && !!file.file);
   }
 
-  trackByItem = (_: number, file: QueuedFile) =>
-    file.id ||
-    file.file?.name ||
-    file.originalName ||
-    Math.random().toString(36);
+  trackByItem = (index: number, file: QueuedFile) =>
+    file.id ?? file.key ?? index;
 
   displayNameOf(file: QueuedFile) {
     return file.file?.name ?? file.originalName ?? 'document';
@@ -376,7 +375,6 @@ export class ActivityDocsDropzoneComponent {
       input.value = '';
     }
   }
-
   private enqueue(files: File[]) {
     const accepted = this.filterByAccept(files);
     const validated = this.filterBySize(accepted);
@@ -459,7 +457,6 @@ export class ActivityDocsDropzoneComponent {
       (x) => x.status === 'queued' && x.file
     )) {
       const r = await this.uploadOne(q).catch(() => null);
-
       if (r) {
         results.push(r);
       }
@@ -507,17 +504,30 @@ export class ActivityDocsDropzoneComponent {
         this.error.emit(q.error ?? undefined);
         this.cdr.markForCheck();
       });
+
       return null;
     }
   }
 
-  async remove(file: QueuedFile) {
-    if (file.previewUrl) {
-      URL.revokeObjectURL(file.previewUrl);
-    }
+  async delete(file: QueuedFile) {
+    try {
+      if (file.id && this.activityId) {
+        await this.activityService.apiActivityDocumentIdDeleteAsync({
+          id: file.id,
+        });
+      }
 
-    //await this.activityDocsService.deleteDocumentAsync(file, this.activityId);
-    this._queue = this._queue.filter((item) => item !== file);
-    this.cdr.markForCheck();
+      if (file.key) {
+        await this.activityDocsService.deleteObjectByKeyAsync(
+          file.key,
+          file.bucket || 'uploads'
+        );
+      }
+
+      this._queue = this._queue.filter((f) => f !== file);
+      this.cdr.markForCheck();
+    } catch (e: any) {
+      this.error.emit(e?.message || 'Delete failed');
+    }
   }
 }

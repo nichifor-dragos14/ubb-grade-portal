@@ -8,6 +8,7 @@ import {
 
 export interface UploadResult {
   key: string;
+  id: string;
   etag?: string | null;
 }
 
@@ -44,6 +45,7 @@ export class ActivityDocsService {
 
     if (!putResponse.ok) {
       const text = await putResponse.text().catch(() => '');
+
       throw new Error(
         `Upload failed (${putResponse.status}): ${text || putResponse.statusText}`
       );
@@ -53,7 +55,7 @@ export class ActivityDocsService {
       putResponse.headers.get('ETag') || putResponse.headers.get('Etag');
     const etag = etagHeader ? etagHeader.replace(/"/g, '') : null;
 
-    await this.activityService.apiActivityIdDocumentPostAsync({
+    var id = await this.activityService.apiActivityIdDocumentPostAsync({
       id: activityId,
       body: {
         key: presignedResponse.key,
@@ -65,16 +67,23 @@ export class ActivityDocsService {
       } as any,
     });
 
-    return { key: presignedResponse.key, etag };
+    return { id: id, key: presignedResponse.key, etag };
   }
 
-  async deleteDocumentAsync(
-    activityId: string,
-    documentId: string
-  ): Promise<void> {
-    // return this.activityService.apiActivityIdDocumentDocumentIdDeleteAsync({
-    //   id: activityId,
-    //   documentId,
-    // } as any);
+  async deleteObjectByKeyAsync(key: string, bucket = 'uploads'): Promise<void> {
+    const presignedUrl =
+      await this.uploadService.apiUploadPresignDeletePostAsync({
+        body: { key },
+      });
+
+    const resp = await fetch(presignedUrl, { method: 'DELETE' });
+
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+
+      throw new Error(
+        `Delete failed (${resp.status}): ${text || resp.statusText}`
+      );
+    }
   }
 }
