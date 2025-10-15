@@ -1,19 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-
 import {
   ActivityService,
   PresignRequestDto,
   PresignResponseDto,
   UploadService,
 } from '$backend/services';
-
-export interface LinkPayload {
-  key: string;
-  originalName: string;
-  contentType: string;
-  size: number;
-  etag?: string | null;
-}
 
 export interface UploadResult {
   key: string;
@@ -22,10 +13,10 @@ export interface UploadResult {
 
 @Injectable({ providedIn: 'root' })
 export class ActivityDocsService {
-  private uploadService = inject(UploadService);
-  private activityService = inject(ActivityService);
+  private readonly uploadService = inject(UploadService);
+  private readonly activityService = inject(ActivityService);
 
-  async uploadOneAndLinkAsync(
+  async uploadOneAsync(
     activityId: string,
     tenantId: string,
     file: File
@@ -41,9 +32,13 @@ export class ActivityDocsService {
         body: presignRequest,
       });
 
-    const putResponse = await fetch(presignedResponse.url, {
+    const url = presignedResponse.url;
+
+    const putResponse = await fetch(url, {
       method: 'PUT',
-      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+      },
       body: file,
     });
 
@@ -54,45 +49,32 @@ export class ActivityDocsService {
       );
     }
 
-    const etag =
-      (
-        putResponse.headers.get('ETag') || putResponse.headers.get('Etag')
-      )?.replace(/"/g, '') ?? null;
-
-    const body = {
-      key: presignedResponse.key,
-      originalName: file.name,
-      contentType: file.type || 'application/octet-stream',
-      sizeBytes: file.size,
-      bucket: 'uploads',
-      etag,
-    };
+    const etagHeader =
+      putResponse.headers.get('ETag') || putResponse.headers.get('Etag');
+    const etag = etagHeader ? etagHeader.replace(/"/g, '') : null;
 
     await this.activityService.apiActivityIdDocumentPostAsync({
       id: activityId,
-      body,
+      body: {
+        key: presignedResponse.key,
+        originalName: file.name,
+        contentType: file.type || 'application/octet-stream',
+        sizeBytes: file.size,
+        bucket: 'uploads',
+        etag,
+      } as any,
     });
 
     return { key: presignedResponse.key, etag };
   }
 
-  async uploadManyAndLinkAsync(
+  async deleteDocumentAsync(
     activityId: string,
-    tenantId: string,
-    files: File[]
-  ): Promise<UploadResult[]> {
-    const results: UploadResult[] = [];
-
-    for (const file of files) {
-      const result = await this.uploadOneAndLinkAsync(
-        activityId,
-        tenantId,
-        file
-      );
-
-      results.push(result);
-    }
-
-    return results;
+    documentId: string
+  ): Promise<void> {
+    // return this.activityService.apiActivityIdDocumentDocumentIdDeleteAsync({
+    //   id: activityId,
+    //   documentId,
+    // } as any);
   }
 }

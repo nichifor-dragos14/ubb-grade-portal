@@ -180,6 +180,7 @@ public class ActivityService : IActivityService
             Etag = addActivityDocumentDto.Etag,
             IsDeleted = false,
             CreatedOn = DateTime.UtcNow,
+            ActivityId = activity.Id,
         };
 
         return await _activityRepository.AddDocument(activityDocument, cancellationToken);

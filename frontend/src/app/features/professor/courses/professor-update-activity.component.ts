@@ -23,6 +23,9 @@ import {
   CourseDetailsDto,
 } from '$backend/services';
 import { AppToastService } from '$shared/toast';
+import { ActivityDocsDropzoneComponent } from '$shared/activity-upload/activity-docs-uploader.component';
+import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
+
 @Component({
   selector: 'app-professor-update-activity',
   standalone: true,
@@ -69,6 +72,23 @@ import { AppToastService } from '$shared/toast';
         >
         </textarea>
       </mat-form-field>
+
+      <app-activity-docs-dropzone
+        *ngIf="!isLoading && activity.id"
+        [activityId]="activity.id"
+        [tenantId]="'default'"
+        [accept]="
+          '.pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed'
+        "
+        [maxSizeMB]="10"
+        [multiple]="true"
+        (uploaded)="
+          toastService.open('Uploaded ' + $event.length + ' file(s)', 'info')
+        "
+        (error)="toastService.open($event, 'error')"
+        [queue]="mapExistingToQueue(activity.activityDocuments || [])"
+      >
+      </app-activity-docs-dropzone>
     </form>
   `,
   styles: `
@@ -104,6 +124,7 @@ import { AppToastService } from '$shared/toast';
     MatInputModule,
     MatFormFieldModule,
     MatProgressSpinner,
+    ActivityDocsDropzoneComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -138,6 +159,23 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
 
   get name() {
     return this.updateActivityFormGroup.controls.name;
+  }
+
+  mapExistingToQueue(
+    docs: NonNullable<ActivityDetailsDto['activityDocuments']>
+  ): QueuedFile[] {
+    return (docs || []).map((document) => ({
+      id: document.id,
+      file: null,
+      originalName: document.originalName,
+      contentType: document.contentType,
+      sizeBytes: document.sizeBytes,
+      previewUrl: document.contentType?.startsWith('image/') ? null : null,
+      status: 'alreadyUploaded',
+      error: null,
+      xhr: null,
+      progress: 100,
+    }));
   }
 
   ngOnChanges() {
