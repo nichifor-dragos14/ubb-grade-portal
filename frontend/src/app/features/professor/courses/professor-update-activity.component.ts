@@ -82,10 +82,6 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
         "
         [maxSizeMB]="10"
         [multiple]="true"
-        (uploaded)="
-          toastService.open('Uploaded ' + $event.length + ' file(s)', 'info')
-        "
-        (error)="toastService.open($event, 'error')"
         [queue]="mapExistingToQueue(activity.activityDocuments || [])"
       >
       </app-activity-docs-dropzone>

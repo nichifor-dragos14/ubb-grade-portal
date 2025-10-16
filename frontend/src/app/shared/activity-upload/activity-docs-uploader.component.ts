@@ -3,9 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   Input,
-  Output,
   ViewChild,
   inject,
   NgZone,
@@ -22,6 +20,8 @@ import {
 } from '$shared/activity-upload/activity-docs.service';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { ActivityService } from '$backend/services';
+import { AppToastService } from '$shared/toast';
+import { ProfessorCoursesEventService } from '$features/professor/courses/professor-courses-event.service';
 
 @Component({
   selector: 'app-activity-docs-dropzone',
@@ -139,7 +139,7 @@ import { ActivityService } from '$backend/services';
     <div
       class="dropzone"
       [class.dragover]="dragOver"
-      (click)="browse()"
+      (click)="onDropzoneClick($event)"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
@@ -211,7 +211,7 @@ import { ActivityService } from '$backend/services';
               <span *ngSwitchCase="'queued'">Queued</span>
               <span *ngSwitchCase="'uploading'">Uploading…</span>
               <span *ngSwitchCase="'done'">Uploaded ✓</span>
-              <span *ngSwitchCase="'alreadyUploaded'">Already uploaded ✓</span>
+              <span *ngSwitchCase="'alreadyUploaded'">Saved</span>
               <span *ngSwitchCase="'error'">Error: {{ item.error }}</span>
             </ng-container>
           </div>
@@ -228,11 +228,9 @@ import { ActivityService } from '$backend/services';
           <button
             mat-button
             (click)="uploadOne(item)"
-            [disabled]="
-              disabled ||
-              item.status === 'uploading' ||
-              item.status === 'done' ||
-              !item.file
+            [disabled]="disabled || item.status === 'uploading' || !item.file"
+            [hidden]="
+              item.status === 'alreadyUploaded' || item.status === 'done'
             "
           >
             Upload
@@ -257,15 +255,22 @@ export class ActivityDocsDropzoneComponent {
   @Input() set queue(value: QueuedFile[]) {
     const incoming = (value ?? []).map((item) => ({ ...item, xhr: null }));
 
+    const filtered = incoming.filter(
+      (d) =>
+        !this.deletedIds.has(d?.id ?? '') && !this.deletedKeys.has(d?.key ?? '')
+    );
+
     if (!this._queue.length) {
-      this._queue = incoming;
+      this._queue = filtered;
     } else {
-      const existingKeys = new Set(this._queue.map((document) => document.id));
+      const existingKeys = new Set(
+        this._queue.map((document) => document.id ?? document.key)
+      );
 
-      for (const file of incoming) {
-        const key = file.id;
+      for (const file of filtered) {
+        const key = file.id ?? file.key;
 
-        if (!existingKeys.has(key)) {
+        if (key && !existingKeys.has(key)) {
           this._queue.push(file);
           existingKeys.add(key);
         }
@@ -279,16 +284,21 @@ export class ActivityDocsDropzoneComponent {
   @Input() multiple = true;
   @Input() disabled = false;
 
-  @Output() uploaded = new EventEmitter<UploadResult[]>();
-  @Output() error = new EventEmitter<string>();
-
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+  private readonly activityDocsService = inject(ActivityDocsService);
+  private readonly activityService = inject(ActivityService);
+  private readonly appToastService = inject(AppToastService);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly zone = inject(NgZone);
+
   private _queue: QueuedFile[] = [];
-  private activityDocsService = inject(ActivityDocsService);
-  private activityService = inject(ActivityService);
-  private cdr = inject(ChangeDetectorRef);
-  private zone = inject(NgZone);
+
+  private deletedIds = new Set<string>();
+  private deletedKeys = new Set<string>();
 
   dragOver = false;
 
@@ -336,6 +346,20 @@ export class ActivityDocsDropzoneComponent {
     if (!this.disabled) {
       this.fileInput?.nativeElement?.click();
     }
+  }
+
+  onDropzoneClick(event: MouseEvent) {
+    if (this.disabled) {
+      return;
+    }
+
+    const target = event.target as HTMLElement | null;
+
+    if (target && target.closest('.controls')) {
+      return;
+    }
+
+    this.browse(event);
   }
 
   onDragOver(event: DragEvent) {
@@ -429,8 +453,9 @@ export class ActivityDocsDropzoneComponent {
     const rejected = files.filter((f) => !ok(f));
 
     if (rejected.length)
-      this.error.emit(
-        `Some files were rejected by type: ${rejected.map((f) => f.name).join(', ')}`
+      this.appToastService.open(
+        `Some files were rejected by type: ${rejected.map((f) => f.name).join(', ')}`,
+        'error'
       );
 
     return accepted;
@@ -442,8 +467,9 @@ export class ActivityDocsDropzoneComponent {
     const rejected = files.filter((f) => f.size > max);
 
     if (rejected.length) {
-      this.error.emit(
-        `Some files exceed ${this.maxSizeMB} MB: ${rejected.map((f) => f.name).join(', ')}`
+      this.appToastService.open(
+        `Some files exceed ${this.maxSizeMB} MB: ${rejected.map((f) => f.name).join(', ')}`,
+        'error'
       );
     }
 
@@ -462,8 +488,14 @@ export class ActivityDocsDropzoneComponent {
       }
     }
     if (results.length) {
-      this.uploaded.emit(results);
+      this.appToastService.open(
+        `Successfully uploaded ${results.length} files`
+      );
     }
+
+    this.professorCoursesEventService.emitUpdatedActivityCount({
+      activityId: this.activityId,
+    });
 
     this.cdr.markForCheck();
   }
@@ -498,12 +530,14 @@ export class ActivityDocsDropzoneComponent {
 
       return result;
     } catch (error: any) {
-      this.zone.run(() => {
-        q.status = 'error';
-        q.error = error?.message || 'Upload failed';
-        this.error.emit(q.error ?? undefined);
-        this.cdr.markForCheck();
-      });
+      if (error instanceof Error) {
+        this.zone.run(() => {
+          q.status = 'error';
+          q.error = error?.message || 'Upload failed';
+          this.appToastService.open(error.message, 'error');
+          this.cdr.markForCheck();
+        });
+      }
 
       return null;
     }
@@ -524,10 +558,28 @@ export class ActivityDocsDropzoneComponent {
         );
       }
 
+      if (file.id) {
+        this.deletedIds.add(file.id);
+      }
+      if (file.key) {
+        this.deletedKeys.add(file.key);
+      }
+      if (file.previewUrl) {
+        URL.revokeObjectURL(file.previewUrl);
+      }
+
+      this.appToastService.open(
+        `Successfully deleted ${file.originalName ?? 'document'}`
+      );
+
+      this.professorCoursesEventService.emitUpdatedActivityCount({
+        activityId: this.activityId,
+      });
+
       this._queue = this._queue.filter((f) => f !== file);
       this.cdr.markForCheck();
     } catch (e: any) {
-      this.error.emit(e?.message || 'Delete failed');
+      this.appToastService.open(e?.message || 'Delete failed', 'error');
     }
   }
 }

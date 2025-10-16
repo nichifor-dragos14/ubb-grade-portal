@@ -97,6 +97,12 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
       .subscribe(async () => {
         this.getCourse();
       });
+
+    this.professorCoursesEventService.updateActivityCount$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        this.getCourse();
+      });
   }
 
   ngOnChanges() {
