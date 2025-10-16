@@ -6,7 +6,7 @@ import {
   OnChanges,
   inject,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -31,9 +31,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
   standalone: true,
   template: `
     <app-page-header
-      title="Update activity {{ activity.name }} from course {{
-        course.name
-      }} 📝"
+      title="Update {{ activity.name }} from course {{ course.name }} 🧠"
     >
       <button
         mat-button
@@ -54,15 +52,6 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
     </div>
 
     <form [formGroup]="updateActivityFormGroup" *ngIf="!isLoading">
-      <mat-form-field>
-        <mat-label>Activity name</mat-label>
-        <input matInput formControlName="name" />
-
-        <mat-error *ngIf="name.touched && name.hasError('required')">
-          The activity name is required.
-        </mat-error>
-      </mat-form-field>
-
       <mat-form-field>
         <mat-label>Activity description</mat-label>
         <textarea
@@ -102,12 +91,17 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
       flex-direction: column;
       gap: 8px;
       padding: 0 64px;
+      overflow-y: auto;
     }
 
     .form-loader {
       min-height: 50vh;
       display: grid;
       place-items: center;
+    }
+
+    textarea {
+      min-height: 200px;
     }
   `,
   imports: [
@@ -127,6 +121,8 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
 export class ProfessorUpdateActivityComponent implements OnChanges {
   private readonly formBuilder = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   readonly toastService = inject(AppToastService);
   readonly activityService = inject(ActivityService);
@@ -249,6 +245,10 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
         `Succesfully updated ${this.activity.name}`,
         'info'
       );
+
+      await this.router.navigate(['../../'], {
+        relativeTo: this.activatedRoute,
+      });
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');

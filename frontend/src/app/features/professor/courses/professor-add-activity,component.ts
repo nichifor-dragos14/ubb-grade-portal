@@ -24,7 +24,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   selector: 'app-professor-add-activity',
   standalone: true,
   template: `
-    <app-page-header title="Add a new activity to {{ course.name }} 📝">
+    <app-page-header title="Add a new activity to {{ course.name }} 🧠">
       <button
         mat-button
         color="primary"
@@ -66,6 +66,10 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
         >
         </textarea>
       </mat-form-field>
+
+      <h3 class="muted-text">
+        Documents can be added after the activity was created 📄
+      </h3>
     </form>
   `,
   styles: `
@@ -89,6 +93,14 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
       min-height: 50vh;
       display: grid;
       place-items: center;
+    }
+
+    .muted-text {
+      color: grey;
+    }
+
+    textarea {
+      min-height: 200px;
     }
   `,
   imports: [

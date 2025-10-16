@@ -208,10 +208,14 @@ import { ProfessorCoursesEventService } from '$features/professor/courses/profes
 
           <div class="status" [class.error]="item.status === 'error'">
             <ng-container [ngSwitch]="item.status">
-              <span *ngSwitchCase="'queued'">Queued</span>
+              <span *ngSwitchCase="'queued'">Ready</span>
               <span *ngSwitchCase="'uploading'">Uploading…</span>
-              <span *ngSwitchCase="'done'">Uploaded ✓</span>
-              <span *ngSwitchCase="'alreadyUploaded'">Saved</span>
+              <span *ngSwitchCase="'done'" style="color: green">
+                Uploaded
+              </span>
+              <span *ngSwitchCase="'alreadyUploaded'" style="color: green">
+                Saved
+              </span>
               <span *ngSwitchCase="'error'">Error: {{ item.error }}</span>
             </ng-container>
           </div>
@@ -227,7 +231,7 @@ import { ProfessorCoursesEventService } from '$features/professor/courses/profes
 
           <button
             mat-button
-            (click)="uploadOne(item)"
+            (click)="uploadOne(item, true)"
             [disabled]="disabled || item.status === 'uploading' || !item.file"
             [hidden]="
               item.status === 'alreadyUploaded' || item.status === 'done'
@@ -500,7 +504,7 @@ export class ActivityDocsDropzoneComponent {
     this.cdr.markForCheck();
   }
 
-  async uploadOne(q: QueuedFile) {
+  async uploadOne(q: QueuedFile, toast: boolean = false) {
     if (
       this.disabled ||
       q.status === 'uploading' ||
@@ -523,8 +527,18 @@ export class ActivityDocsDropzoneComponent {
         q.file
       );
 
+      if (toast === true) {
+        this.appToastService.open(`Successfully uploaded 1 file`);
+
+        this.professorCoursesEventService.emitUpdatedActivityCount({
+          activityId: this.activityId,
+        });
+      }
+
       this.zone.run(() => {
         q.status = 'done';
+        q.id = result.id;
+        q.key = result.key;
         this.cdr.markForCheck();
       });
 
@@ -545,6 +559,7 @@ export class ActivityDocsDropzoneComponent {
 
   async delete(file: QueuedFile) {
     try {
+      console.log(file);
       if (file.id && this.activityId) {
         await this.activityService.apiActivityDocumentIdDeleteAsync({
           id: file.id,
@@ -569,7 +584,7 @@ export class ActivityDocsDropzoneComponent {
       }
 
       this.appToastService.open(
-        `Successfully deleted ${file.originalName ?? 'document'}`
+        `Successfully deleted ${file.originalName ?? file.file?.name}`
       );
 
       this.professorCoursesEventService.emitUpdatedActivityCount({
