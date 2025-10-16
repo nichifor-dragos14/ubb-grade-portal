@@ -28,6 +28,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ProfessorCoursesEventService } from '../professor-courses-event.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppToastService } from '$shared/toast';
+import { DateConverterModule } from '$shared/date-converter';
 
 @Component({
   selector: 'app-professor-update-course',
@@ -49,6 +50,7 @@ import { AppToastService } from '$shared/toast';
     MatCardModule,
     RouterModule,
     MatDialogModule,
+    DateConverterModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

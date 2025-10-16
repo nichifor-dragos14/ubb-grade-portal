@@ -26,7 +26,7 @@
 >
   <mat-form-field>
     <mat-label>Name</mat-label>
-    <input matInput formControlName="name" />
+    <input matInput formControlName="name" placeholder="Ex: First Course" />
 
     <mat-error *ngIf="name.touched && name.hasError('required')">
       The name is required.
@@ -52,7 +52,12 @@
   </mat-selection-list>
 
   <mat-form-field>
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description"> </textarea>
+    <mat-label>Description (optional)</mat-label>
+    <textarea
+      matInput
+      formControlName="description"
+      placeholder="Add some basic and relevant course information"
+    >
+    </textarea>
   </mat-form-field>
 </form>

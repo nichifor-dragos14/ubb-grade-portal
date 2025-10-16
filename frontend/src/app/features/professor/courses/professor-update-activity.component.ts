@@ -31,7 +31,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
   standalone: true,
   template: `
     <app-page-header
-      title="Update {{ activity.name }} from course {{ course.name }} 🧠"
+      title="Update '{{ activity.name }}' from '{{ course.name }}' 🧠"
     >
       <button
         mat-button
@@ -53,7 +53,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
 
     <form [formGroup]="updateActivityFormGroup" *ngIf="!isLoading">
       <mat-form-field>
-        <mat-label>Activity description</mat-label>
+        <mat-label>Description (optional)</mat-label>
         <textarea
           matInput
           formControlName="description"

@@ -39,39 +39,52 @@
   </mat-form-field>
 
   <mat-form-field>
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description"> </textarea>
+    <mat-label>Description (optional)</mat-label>
+    <textarea
+      matInput
+      formControlName="description"
+      placeholder="Add some basic and relevant course information"
+    >
+    </textarea>
   </mat-form-field>
-</form>
 
-<section *ngIf="!isLoading" class="activities-section" aria-label="Activities">
-  <div *ngIf="course.activities.length === 0">
-    <div class="activities-empty">
-      <h3>No activities yet 😟</h3>
-      <p>You haven't added any activities for this course.</p>
+  <section class="activities-section" aria-label="Activities">
+    <div *ngIf="course.activities.length === 0">
+      <div class="activities-empty">
+        <span class="activities-title">No activities yet 😟</span>
+        <p class="text-muted">
+          You haven't added any activities for this course.
+        </p>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="course.activities.length !== 0">
-    <h3>Activities 📝</h3>
+    <div *ngIf="course.activities.length !== 0">
+      <span class="activities-title">Activities 👣</span>
 
-    <mat-nav-list>
-      <a
-        mat-list-item
-        *ngFor="let activity of course.activities"
-        [routerLink]="['activities', activity.id]"
-        routerLinkActive="isActive"
-      >
-        <div matListItemTitle>{{ activity.name }}</div>
-        <div matListItemLine class="muted">
-          {{ activity.numberOfDocuments }} doc{{
-            activity.numberOfDocuments === 1 ? '' : 's'
-          }}
-        </div>
-        <mat-icon matListItemIcon>book</mat-icon>
-      </a>
-    </mat-nav-list>
-  </div>
-</section>
+      <mat-nav-list>
+        <a
+          mat-list-item
+          *ngFor="let activity of course.activities"
+          [routerLink]="['activities', activity.id]"
+          routerLinkActive="isActive"
+        >
+          <div matListItemTitle>{{ activity.name }}</div>
+
+          <div matListItemLine class="muted">
+            {{ activity.numberOfDocuments }} attached document{{
+              activity.numberOfDocuments === 1 ? '' : 's'
+            }}
+          </div>
+
+          <span matListItemMeta
+            >Created {{ activity.createdOn | dateFormat }}</span
+          >
+
+          <mat-icon matListItemIcon>book</mat-icon>
+        </a>
+      </mat-nav-list>
+    </div>
+  </section>
+</form>
 
 <router-outlet />

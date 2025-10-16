@@ -24,7 +24,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   selector: 'app-professor-add-activity',
   standalone: true,
   template: `
-    <app-page-header title="Add a new activity to {{ course.name }} 🧠">
+    <app-page-header title="Add an activity to '{{ course.name }}' 🧠">
       <button
         mat-button
         color="primary"
@@ -45,7 +45,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
 
     <form [formGroup]="addActivityFormGroup" *ngIf="!isLoading">
       <mat-form-field>
-        <mat-label>Activity name</mat-label>
+        <mat-label>Name</mat-label>
         <input
           matInput
           formControlName="name"
@@ -58,7 +58,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
       </mat-form-field>
 
       <mat-form-field>
-        <mat-label>Activity description</mat-label>
+        <mat-label>Description (optional)</mat-label>
         <textarea
           matInput
           formControlName="description"

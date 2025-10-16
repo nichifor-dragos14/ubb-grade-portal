@@ -81,13 +81,14 @@ public class CourseService : ICourseService
                 course.Description,
                 course.CourseDomain.Name,
                 course.Activities
-                    .OrderByDescending(c => c.CreatedOn)
+                    .OrderBy(c => c.CreatedOn)
                     .Select(
                         activity => new ActivityDto(
                             activity.Id,
                             activity.Name,
                             activity.Description,
-                            activity.ActivityDocuments.Count
+                            activity.ActivityDocuments.Count,
+                            activity.CreatedOn
                         )
                     )
                     .ToList()

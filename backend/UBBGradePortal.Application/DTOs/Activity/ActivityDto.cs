@@ -4,5 +4,6 @@ public record ActivityDto(
     Guid Id,
     string Name,
     string? Description,
-    int NumberOfDocuments
+    int NumberOfDocuments,
+    DateTime? CreatedOn
 );

@@ -9,6 +9,8 @@ form {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .form-loader {
@@ -49,4 +51,13 @@ h3 {
 .isActive {
   background: rgba(0, 0, 0, 0.06);
   border-radius: 8px;
+}
+
+.activities-title {
+  font-weight: normal;
+  font-size: large;
+}
+
+.text-muted {
+  color: grey;
 }

@@ -38,7 +38,7 @@ public class ActivityService : IActivityService
         var activities = await _activityRepository.GetAllByCourseId(courseId, cancellationToken);
 
         return activities
-            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.ActivityDocuments.Count))
+            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.ActivityDocuments.Count, c.CreatedOn))
             .ToList();
     }
 

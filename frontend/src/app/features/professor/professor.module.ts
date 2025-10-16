@@ -11,7 +11,7 @@ import { ProfessorUpdateCourseComponent } from './courses/professor-update-cours
 import { inject, NgModule } from '@angular/core';
 import { ActivityService, CourseService } from '$backend/services';
 import { DialogPageComponent } from '$shared/dialog-page';
-import { ProfessorAddActivityComponent } from './courses/professor-add-activity,component';
+import { ProfessorAddActivityComponent } from './courses/professor-add-activity.component';
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
 
 const PROFESSOR_ROUTES: Routes = [
