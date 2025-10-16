@@ -554,6 +554,46 @@
         }
       }
     },
+    "/api/Course/enrollments": {
+      "get": {
+        "tags": [
+          "Course"
+        ],
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedStudentCourseEnrollmentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/api/Course/{id}": {
       "get": {
         "tags": [
@@ -1110,6 +1150,26 @@
         },
         "additionalProperties": false
       },
+      "PaginatedStudentCourseEnrollmentDto": {
+        "required": [
+          "count",
+          "enrollments"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enrollments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentEnrollmentDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "PresignDeleteRequestDto": {
         "required": [
           "key"
@@ -1265,6 +1325,42 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "StudentEnrollmentDto": {
+        "required": [
+          "courseDomainName",
+          "courseId",
+          "courseName",
+          "numberOfSolvedActivities",
+          "totalNumberOfActivities"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courseName": {
+            "type": "string"
+          },
+          "courseDomainName": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "totalNumberOfActivities": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfSolvedActivities": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateActivityDto": {
         "type": "object",

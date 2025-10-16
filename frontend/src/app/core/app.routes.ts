@@ -45,6 +45,15 @@ export const routes: Routes = [
             (m) => m.ProfessorModule
           ),
       },
+      {
+        path: 'student',
+        canActivate: [roleGuard],
+        data: { roles: ['Student'] },
+        loadChildren: () =>
+          import('../features/student/student.module').then(
+            (m) => m.StudentModule
+          ),
+      },
     ],
   },
 ];

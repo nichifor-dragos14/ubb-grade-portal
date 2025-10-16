@@ -63,6 +63,26 @@ public class CourseService : ICourseService
             );
     }
 
+    public async Task<PaginatedStudentCourseEnrollmentDto> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var (Count, Courses) = await _courseRepository.GetAllStudentCourseEnrollments(pageNumber, pageSize, loggedUserId, cancellationToken);
+
+        return
+            new PaginatedStudentCourseEnrollmentDto(
+                Count,
+                Courses
+                    .Select(c => new StudentEnrollmentDto(
+                        c.Id,
+                        c.Course.Name,
+                        c.Course.CourseDomain.Name,
+                        c.CreatedOn,
+                        c.Course.Activities.Count,
+                        c.User.SolvedActivities.Count // TODO: the activities should be filtered by status completed when implemented
+                    ))
+                    .ToList()
+            );
+    }
+
     public async Task<CourseDetailsDto?> GetById(Guid id, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(id, cancellationToken);

@@ -1,0 +1,63 @@
+<app-page-header title="Your enrollments ✍🏻">
+  <button mat-button button color="primary" [routerLink]="['find']">
+    FIND MORE COURSES
+  </button>
+</app-page-header>
+
+<div class="overlay" *ngIf="isLoading">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<mat-nav-list *ngIf="!isLoading">
+  @for (enrollment of enrollments; track enrollment.courseId) {
+    <a
+      mat-list-item
+      [routerLink]="['/main/student/enrollments/course', enrollment.courseId]"
+      routerLinkActive="isActive"
+    >
+      <span
+        class="completion-badge"
+        [ngClass]="
+          getCompletionClass(
+            getCompletionRate(
+              enrollment.totalNumberOfActivities,
+              enrollment.numberOfSolvedActivities
+            )
+          )
+        "
+        matListItemIcon
+      >
+        {{
+          getCompletionRate(
+            enrollment.totalNumberOfActivities,
+            enrollment.numberOfSolvedActivities
+          )
+        }}
+      </span>
+
+      <span matListItemTitle>{{ enrollment.courseName }}</span>
+
+      <span matListItemLine>
+        {{
+          enrollment.totalNumberOfActivities -
+            enrollment.numberOfSolvedActivities
+        }}
+        activities left to complete
+      </span>
+
+      <span matListItemMeta> {{ enrollment.courseDomainName }}</span>
+    </a>
+  }
+</mat-nav-list>
+
+<mat-paginator
+  [length]="enrollmentsCount"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  showFirstLastButtons
+  (page)="onPageChange($event)"
+>
+</mat-paginator>
+
+<router-outlet hidden />

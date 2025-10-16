@@ -1,0 +1,90 @@
+:host {
+  display: grid !important;
+  grid-template-areas:
+    'header right'
+    'list   right'
+    'pager  right';
+  grid-template-rows: min-content 1fr min-content;
+  grid-template-columns: 2fr 3fr;
+  grid-gap: 0 16px;
+  height: 100%;
+  position: relative;
+}
+
+app-page-header {
+  grid-area: header;
+  height: min-content;
+  position: sticky;
+  top: 14.5px;
+}
+
+mat-nav-list {
+  grid-area: list;
+}
+
+mat-paginator {
+  grid-area: pager;
+  align-self: end;
+  margin-top: 8px;
+}
+
+.overlay {
+  grid-area: list;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  z-index: 3;
+}
+
+:host router-outlet {
+  display: none;
+
+  & ::ng-deep + * {
+    grid-area: right;
+    height: min-content;
+    position: sticky;
+    top: 8px;
+    overflow-y: scroll;
+    max-height: 80vh;
+    margin-right: 1px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+  }
+}
+
+mat-paginator {
+  background-color: #fafafa;
+}
+
+.isActive {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.completion-red {
+  color: #d32f2f;
+}
+
+.completion-yellow {
+  color: #fbc02d;
+}
+
+.completion-green {
+  color: #388e3c;
+}

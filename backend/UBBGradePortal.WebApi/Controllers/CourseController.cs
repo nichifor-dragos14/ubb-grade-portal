@@ -74,6 +74,30 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(paginatedResponse);
     }
 
+    /// <summary> Get all course enrollments of a student </summary>
+    [HttpGet("enrollments")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<PaginatedStudentCourseEnrollmentDto>, BadRequest, ForbidHttpResult>> GetAllStudentCourseEnrollments(
+        [FromQuery] int pageNumber,
+        [FromQuery] int pageSize,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var paginatedResponse = await _courseService.GetAllStudentCourseEnrollments(pageNumber, pageSize, loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(paginatedResponse);
+    }
+
     /// <summary> Get course by id </summary>
     [HttpGet("{id}")]
     [Authorize(Roles = "Student,Professor,Admin")]

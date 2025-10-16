@@ -63,6 +63,31 @@ public class CourseRepository : ICourseRepository
         );
     }
 
+    public async Task<(int Count, List<CourseEnrollment> CourseEnrollments)> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var courseEnrollments = await _dbContext
+            .CourseEnrollments
+            .Include(c => c.Course)
+            .ThenInclude(c => c.Activities)
+            .Include(c => c.Course)
+            .ThenInclude(c => c.CourseDomain)
+            .Include(c => c.User)
+            .ThenInclude(c => c.SolvedActivities)
+            .Where(c => c.UserId == loggedUserId)
+            .OrderByDescending(c => c.CreatedOn)
+            .ToListAsync(cancellationToken);
+
+        var count = courseEnrollments.Count;
+
+        return (
+            count,
+            courseEnrollments
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList()
+        );
+    }
+
     public async Task<Course?> GetById(Guid id, CancellationToken cancellationToken)
     {
         return await _dbContext
