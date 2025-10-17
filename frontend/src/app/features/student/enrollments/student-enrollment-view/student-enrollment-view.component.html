@@ -1,1 +1,36 @@
-<p>student-enrollment-view works!</p>
+<div class="header">
+  <h3>{{ course.name }}</h3>
+  <div class="legend">
+    <span class="dot done"></span> Completed
+    <span class="dot ready"></span> Unlocked
+    <span class="dot locked"></span> Locked
+  </div>
+</div>
+
+<div class="board">
+  <svg
+    #svg
+    class="map"
+    viewBox="0 0 800 600"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <path #roadPath [attr.d]="roadD" class="guide" />
+
+    <defs>
+      <!-- glossy overlay for coins -->
+      <radialGradient id="coinGloss" cx="30%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="white" stop-opacity="0.7" />
+        <stop offset="45%" stop-color="white" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <g
+      *ngFor="let cp of positions; trackBy: trackById"
+      [attr.transform]="'translate(' + cp.x + ',' + cp.y + ')'"
+    >
+      <circle r="20" class="coin" [ngClass]="cp.state"></circle>
+      <circle r="20" fill="url(#coinGloss)"></circle>
+      <text class="coin-label">{{ cp.idx + 1 }}</text>
+    </g>
+  </svg>
+</div>

@@ -27,18 +27,18 @@ const STUDENT_ROUTES: Routes = [
             runGuardsAndResolvers: 'paramsChange',
             component: StudentEnrollmentViewComponent,
             resolve: {
-              //   course: async ({ params }: ActivatedRouteSnapshot) => {
-              //     const router = inject(Router);
-              //     const courseService = inject(CourseService);
-              //     try {
-              //       return await courseService.apiCourseIdGetAsync({
-              //         id: params['id'],
-              //       });
-              //     } catch (error) {
-              //       router.navigate(['/error']);
-              //       return null;
-              //     }
-              //   },
+              course: async ({ params }: ActivatedRouteSnapshot) => {
+                const router = inject(Router);
+                const courseService = inject(CourseService);
+                try {
+                  return await courseService.apiCourseIdGetAsync({
+                    id: params['id'],
+                  });
+                } catch (error) {
+                  router.navigate(['/error']);
+                  return null;
+                }
+              },
             },
           },
         ],

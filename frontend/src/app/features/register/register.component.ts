@@ -24,6 +24,7 @@ import {
 } from '$backend/services';
 import { AuthService } from '../../core/auth/auth.service';
 import { AppToastService } from '$shared/toast';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -223,8 +224,8 @@ export class RegisterComponent implements OnInit {
 
       await this.router.navigateByUrl('/main');
     } catch (error) {
-      if (error instanceof Error) {
-        this.toastService.open(error.message, 'warning');
+      if (error instanceof HttpErrorResponse) {
+        this.toastService.open(error.error.split(';')[1], 'warning');
       }
     } finally {
       this.submitting = false;

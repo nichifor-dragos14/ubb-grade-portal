@@ -72,7 +72,7 @@ public class CourseService : ICourseService
                 Count,
                 Courses
                     .Select(c => new StudentEnrollmentDto(
-                        c.Id,
+                        c.Course.Id,
                         c.Course.Name,
                         c.Course.CourseDomain.Name,
                         c.CreatedOn,
