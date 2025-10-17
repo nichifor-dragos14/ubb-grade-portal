@@ -1,46 +1,30 @@
-/* ============================
-   🟡 HEADER + LEGEND
-============================ */
-.header {
+.legend {
   display: flex;
+  flex-direction: row-reverse;
+  gap: 12px;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  font-size: 12px;
+  color: #6b7b8c;
 
-  h3 {
-    margin: 0;
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
   }
 
-  .legend {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    font-size: 12px;
-    color: #6b7b8c;
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-    }
-
-    .done {
-      background: #2e7d32;
-    }
-    .ready {
-      background: #f9a825;
-    }
-    .locked {
-      background: #b0bec5;
-    }
+  .done {
+    background: #2e7d32;
+  }
+  .ready {
+    background: #f9a825;
+  }
+  .locked {
+    background: #b0bec5;
   }
 }
 
-/* ============================
-   🧭 MAP WRAPPER
-============================ */
 .board {
   width: 100%;
   min-height: 520px;
@@ -52,12 +36,9 @@
   overflow: visible;
 }
 
-/* ============================
-   🟣 DOTTED GUIDE LINE
-============================ */
 .guide {
   fill: none;
-  stroke: #3a4657;
+  stroke: rgb(94, 53, 177);
   stroke-width: 8;
   stroke-linecap: round;
   stroke-dasharray: 0.1 16; /* dot spacing */
@@ -65,9 +46,6 @@
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
 }
 
-/* ============================
-   🟢 COIN NODES
-============================ */
 .coin {
   stroke-width: 0;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25))
@@ -87,34 +65,11 @@
   animation: pulse 1.5s infinite ease-in-out;
 }
 
-/* 🟤 locked coins now fully opaque */
 .coin.locked {
   fill: #cfd8dc;
   opacity: 1;
 }
 
-/* ✨ hover effect for all */
-.coin:hover {
-  transform: scale(1.1) translateY(-4px);
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25))
-    drop-shadow(0 8px 14px rgba(0, 0, 0, 0.2));
-  z-index: 5;
-}
-
-/* Optional: disable hover for locked */
-/*
-.coin.locked:hover {
-  transform: none;
-  filter:
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25))
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-  cursor: default;
-}
-*/
-
-/* ============================
-   🔢 COIN LABELS
-============================ */
 .coin-label {
   font:
     800 14px/1 Inter,
@@ -133,9 +88,6 @@
   fill: #2d2d2d;
 }
 
-/* ============================
-   ✨ ANIMATIONS
-============================ */
 @keyframes pulse {
   0%,
   100% {
@@ -144,4 +96,23 @@
   50% {
     transform: scale(1.12);
   }
+}
+
+section[role='course-actions'] {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px !important;
+  gap: 16px;
+}
+
+h1 {
+  padding: 0;
+  margin: 0;
 }
