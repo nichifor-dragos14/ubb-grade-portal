@@ -1,40 +1,113 @@
-<section role="course-actions">
-  <h1>Your roadmap for '{{ course.name }}' 🗺️</h1>
-
-  <a mat-icon-button routerLink="../../" color="accent">
+<app-page-header title="Your roadmap for '{{ course.name }}' 🗺️">
+  <a mat-icon-button button routerLink="../../" color="accent">
     <mat-icon>close</mat-icon>
   </a>
-</section>
+</app-page-header>
 
-<div class="legend">
-  <span class="dot done"></span> Completed
-  <span class="dot ready"></span> Unlocked
-  <span class="dot locked"></span> Locked
+<div class="legend" *ngIf="course.activities.length">
+  <span><span class="dot done"></span> Completed</span>
+  <span><span class="dot ready"></span> Unlocked</span>
+  <span><span class="dot locked"></span> Locked</span>
 </div>
 
-<div class="board">
+<div class="board" *ngIf="course.activities.length; else noActivities">
   <svg
     #svg
     class="map"
     viewBox="0 0 800 600"
     preserveAspectRatio="xMidYMid meet"
   >
-    <path #roadPath [attr.d]="roadD" class="guide" />
-
     <defs>
-      <radialGradient id="coinGloss" cx="30%" cy="30%" r="80%">
-        <stop offset="0%" stop-color="white" stop-opacity="0.7" />
-        <stop offset="45%" stop-color="white" stop-opacity="0" />
+      <filter id="glow-done">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+        <feMerge>
+          <feMergeNode in="coloredBlur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <filter id="glow-ready">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+        <feMerge>
+          <feMergeNode in="coloredBlur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <linearGradient id="doneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4caf50" />
+        <stop offset="100%" stop-color="#2e7d32" />
+      </linearGradient>
+
+      <linearGradient id="readyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffd54f" />
+        <stop offset="100%" stop-color="#f9a825" />
+      </linearGradient>
+
+      <linearGradient id="lockedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#e0e0e0" />
+        <stop offset="100%" stop-color="#b0bec5" />
+      </linearGradient>
+
+      <radialGradient id="coinGloss" cx="35%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="white" stop-opacity="0.6" />
+        <stop offset="50%" stop-color="white" stop-opacity="0.2" />
+        <stop offset="100%" stop-color="white" stop-opacity="0" />
       </radialGradient>
     </defs>
+
+    <path #roadPath [attr.d]="roadD" class="guide" />
 
     <g
       *ngFor="let cp of positions; trackBy: trackById"
       [attr.transform]="'translate(' + cp.x + ',' + cp.y + ')'"
     >
-      <circle r="20" class="coin" [ngClass]="cp.state"></circle>
-      <circle r="20" fill="url(#coinGloss)"></circle>
-      <text class="coin-label">{{ cp.idx + 1 }}</text>
+      <circle r="24" class="coin-shadow" [ngClass]="cp.state"></circle>
+
+      <g
+        class="activity-node"
+        [class.clickable]="cp.state !== 'locked'"
+        (click)="onActivityClick(cp.a, cp.state)"
+      >
+        <circle
+          r="22"
+          class="coin"
+          [ngClass]="cp.state"
+          [attr.filter]="
+            cp.state === 'ready'
+              ? 'url(#glow-ready)'
+              : cp.state === 'done'
+                ? 'url(#glow-done)'
+                : ''
+          "
+        ></circle>
+
+        <circle r="22" fill="url(#coinGloss)"></circle>
+
+        <text class="coin-label" [ngClass]="cp.state">
+          {{ cp.idx + 1 }}
+        </text>
+
+        <g *ngIf="cp.state === 'done'" class="checkmark">
+          <circle r="10" fill="#fff" opacity="0.95" cy="12"></circle>
+          <path
+            d="M -3 12 L -1 14 L 4 9"
+            stroke="#2e7d32"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </g>
+      </g>
     </g>
   </svg>
 </div>
+
+<ng-template #noActivities>
+  <div class="empty-state">
+    <mat-icon class="empty-icon">explore_off</mat-icon>
+    <h2>No activities yet</h2>
+    <p>Activities will appear here once they're added to this course.</p>
+  </div>
+</ng-template>

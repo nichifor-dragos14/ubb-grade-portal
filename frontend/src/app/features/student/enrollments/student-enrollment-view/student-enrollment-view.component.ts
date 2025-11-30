@@ -13,16 +13,32 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { ActivityDto, CourseDetailsDto } from '$backend/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AppPageHeaderComponent } from '$shared/page-header';
 
 type CPState = 'done' | 'ready' | 'locked';
+
+interface RoadmapPosition {
+  x: number;
+  y: number;
+  idx: number;
+  a: ActivityDto;
+  state: CPState;
+}
 
 @Component({
   selector: 'app-student-enrollment-view',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    AppPageHeaderComponent,
+    RouterModule,
+  ],
   templateUrl: './student-enrollment-view.component.html',
   styleUrls: ['./student-enrollment-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,10 +48,11 @@ export class StudentEnrollmentViewComponent
 {
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
 
-  @ViewChild('roadPath', { static: true })
-  roadPath!: ElementRef<SVGPathElement>;
-  @ViewChild('svg', { static: true }) svgRef!: ElementRef<SVGSVGElement>;
+  @ViewChild('roadPath', { static: false })
+  roadPath?: ElementRef<SVGPathElement>;
+  @ViewChild('svg', { static: false }) svgRef?: ElementRef<SVGSVGElement>;
 
   @Input() course!: CourseDetailsDto;
 
@@ -45,23 +62,20 @@ export class StudentEnrollmentViewComponent
   readonly roadD =
     'M 80 520 C 220 420, 540 560, 700 500 S 600 260, 420 260 S 220 200, 300 120';
 
-  positions: Array<{
-    x: number;
-    y: number;
-    idx: number;
-    a: ActivityDto;
-    state: CPState;
-  }> = [];
+  positions: RoadmapPosition[] = [];
 
   private resizeObs?: ResizeObserver;
 
   ngAfterViewInit(): void {
     this.svgReady = true;
-    const svg = this.svgRef.nativeElement;
 
-    if ('ResizeObserver' in window) {
-      this.resizeObs = new ResizeObserver(() => this.safeComputeWithRetry());
-      this.resizeObs.observe(svg);
+    if (this.svgRef?.nativeElement) {
+      const svg = this.svgRef.nativeElement;
+
+      if ('ResizeObserver' in window) {
+        this.resizeObs = new ResizeObserver(() => this.safeComputeWithRetry());
+        this.resizeObs.observe(svg);
+      }
     }
 
     if (this.course) {
@@ -89,9 +103,18 @@ export class StudentEnrollmentViewComponent
     this.resizeObs?.disconnect();
   }
 
-  trackById = (_: number, cp: any) => cp.a.id;
+  trackById = (_: number, cp: RoadmapPosition) => cp.a.id;
 
-  private safeComputeWithRetry(maxRetries = 6) {
+  onActivityClick(activity: ActivityDto, state: CPState): void {
+    if (state === 'locked') {
+      return;
+    }
+
+    // Navigate to activity details - adjust route as needed
+    this.router.navigate(['/activities', activity.id]);
+  }
+
+  private safeComputeWithRetry(maxRetries = 6): void {
     if (!this.courseReady || !this.svgReady) {
       return;
     }
@@ -143,7 +166,7 @@ export class StudentEnrollmentViewComponent
     const steps = Math.min(acts.length, 10);
     const unlockedIdx = this.getUnlockedIndex(acts);
 
-    const newPos: typeof this.positions = [];
+    const newPos: RoadmapPosition[] = [];
 
     for (let i = 0; i < steps; i++) {
       const t = steps === 1 ? 0.05 : i / (steps - 1);
@@ -168,7 +191,7 @@ export class StudentEnrollmentViewComponent
     return true;
   }
 
-  private getUnlockedIndex(acts: ActivityDto[]) {
+  private getUnlockedIndex(acts: ActivityDto[]): number {
     const lastDone = Math.max(
       -1,
       ...acts.map((a, i) => {
