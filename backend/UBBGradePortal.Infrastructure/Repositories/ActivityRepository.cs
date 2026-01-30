@@ -78,4 +78,20 @@ public class ActivityRepository : IActivityRepository
         _dbContext.Remove(activityDocument);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<Guid> AddSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
+    {
+        await _dbContext.AddAsync(solvedActivity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return solvedActivity.Id;
+    }
+
+    public async Task<Guid> AddSolvedActivityDocument(SolvedActivityDocument solvedActivityDocument, CancellationToken cancellationToken)
+    {
+        await _dbContext.AddAsync(solvedActivityDocument, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return solvedActivityDocument.Id;
+    }
 }

@@ -1,6 +1,6 @@
 ﻿namespace UBBGradePortal.Domain.Entities;
 
-public class ActivityDocument
+public class SolvedActivityDocument
 {
     public Guid Id { get; set; }
     public string Bucket { get; set; } = "uploads";
@@ -12,7 +12,7 @@ public class ActivityDocument
     public DateTime CreatedOn { get; set; } = DateTime.Now;
     public bool IsDeleted { get; set; } = false;
 
-    // The activity the document is linked to
-    public Guid ActivityId { get; set; }
-    public Activity Activity { get; set; }
+    // The submission the document is linked to
+    public Guid SolvedActivityId { get; set; }
+    public SolvedActivity SolvedActivity { get; set; }
 }

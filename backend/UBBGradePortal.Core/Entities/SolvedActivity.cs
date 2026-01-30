@@ -13,4 +13,7 @@ public class SolvedActivity
     // The user that solved the activity
     public Guid UserId { get; set; }
     public User User { get; set; }
+
+    // The documents linked to the submission
+    public List<SolvedActivityDocument> SolvedActivityDocuments { get; set; } = [];
 }

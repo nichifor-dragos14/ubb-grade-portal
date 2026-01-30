@@ -16,7 +16,7 @@ import {
 } from '$backend/services';
 
 @Component({
-  selector: 'app-activity-docs-viewer',
+  selector: 'app-document-viewer',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule, MatTooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -158,12 +158,12 @@ import {
         >
           description
         </mat-icon>
-        <div>No documents provided for this activity</div>
+        <div>No documents provided</div>
       </div>
     </div>
   `,
 })
-export class ActivityDocsViewerComponent {
+export class DocumentViewerComponent {
   @Input() documents: ActivityDocumentDto[] | null = [];
 
   private readonly uploadService = inject(UploadService);
@@ -209,7 +209,14 @@ export class ActivityDocsViewerComponent {
           body: { key: doc.key },
         });
 
-      const response = await fetch(presignedUrl);
+      // Force HTTP for localhost:9000 due to SSL certificate issues
+      let fetchUrl = presignedUrl;
+      if (presignedUrl.startsWith('https://localhost:9000')) {
+        fetchUrl = presignedUrl.replace('https://', 'http://');
+      }
+
+      // Fetch the file as a blob
+      const response = await fetch(fetchUrl);
 
       if (!response.ok) {
         throw new Error(
@@ -219,6 +226,7 @@ export class ActivityDocsViewerComponent {
 
       const blob = await response.blob();
 
+      // Create blob URL and trigger download
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -227,6 +235,7 @@ export class ActivityDocsViewerComponent {
       link.click();
       document.body.removeChild(link);
 
+      // Clean up the blob URL
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Failed to download document:', error);

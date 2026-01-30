@@ -77,7 +77,9 @@ public class CourseService : ICourseService
                         c.Course.CourseDomain.Name,
                         c.CreatedOn,
                         c.Course.Activities.Count,
-                        c.User.SolvedActivities.Count // TODO: the activities should be filtered by status completed when implemented
+                        c.User.SolvedActivities
+                            .Where(s => c.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
+                            .Count()
                     ))
                     .ToList()
             );

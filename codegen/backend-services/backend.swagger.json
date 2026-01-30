@@ -404,6 +404,55 @@
         }
       }
     },
+    "/api/Activity/solved": {
+      "post": {
+        "tags": [
+          "Activity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Course": {
       "get": {
         "tags": [
@@ -1028,6 +1077,64 @@
           "courseDomainId": {
             "type": "string",
             "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddSolvedActivityDocumentDto": {
+        "required": [
+          "bucket",
+          "contentType",
+          "key",
+          "originalName",
+          "sizeBytes"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bucket": {
+            "type": "string"
+          },
+          "etag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddSolvedActivityDto": {
+        "required": [
+          "activityId",
+          "solvedActivityDocuments",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "activityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "solvedActivityDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddSolvedActivityDocumentDto"
+            }
           }
         },
         "additionalProperties": false

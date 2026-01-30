@@ -212,4 +212,38 @@ public class ActivityController : ControllerBase
             return TypedResults.Forbid();
         }
     }
+
+    /// <summary> Add an activity submission (solved activity) </summary>
+    [HttpPost("solved")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> AddSolvedActivity(
+        [FromBody] AddSolvedActivityDto solvedActivity,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        try
+        {
+            var solvedActivityId = await _activityService.AddSolvedActivity(solvedActivity, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(solvedActivityId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
+    }
 }

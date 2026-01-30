@@ -68,12 +68,12 @@ public class CourseRepository : ICourseRepository
         var courseEnrollments = await _dbContext
             .CourseEnrollments
             .Include(c => c.Course)
-            .ThenInclude(c => c.Activities)
+                .ThenInclude(c => c.Activities)
             .Include(c => c.Course)
-            .ThenInclude(c => c.CourseDomain)
+                .ThenInclude(c => c.CourseDomain)
             .Include(c => c.User)
-            .ThenInclude(c => c.SolvedActivities)
-            .Where(c => c.UserId == loggedUserId)
+                .ThenInclude(c => c.SolvedActivities)
+                .Where(c => c.UserId == loggedUserId)
             .OrderByDescending(c => c.CreatedOn)
             .ToListAsync(cancellationToken);
 

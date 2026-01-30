@@ -224,4 +224,53 @@ public class ActivityService : IActivityService
 
         await _activityRepository.DeleteDocument(activityDocument, cancellationToken);
     }
+
+    public async Task<Guid> AddSolvedActivity(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var activity = await _activityRepository.GetById(addSolvedActivityDto.ActivityId, cancellationToken);
+
+        if (activity == null)
+        {
+            _logger.LogInformation($"The activity {addSolvedActivityDto.ActivityId} is not available");
+
+            throw new NotFoundException("The activity does not exist");
+        }
+
+        var creationDate = DateTime.UtcNow;
+        var solvedActivityId = Guid.NewGuid();
+
+        var solvedActivity = new SolvedActivity
+        {
+            Id = solvedActivityId,
+            UserId = loggedUserId,
+            ActivityId = activity.Id,
+            CreatedOn = creationDate,
+            UpdatedOn = creationDate,
+        };
+        
+        solvedActivity.Id = await _activityRepository.AddSolvedActivity(solvedActivity, cancellationToken);
+
+        foreach (var document in addSolvedActivityDto.SolvedActivityDocuments)
+        {
+            var solvedActivityDocumentId = Guid.NewGuid();
+
+            var solvedActivityDocument = new SolvedActivityDocument
+            {
+                Id = solvedActivityDocumentId,
+                Key = document.Key,
+                OriginalName = document.OriginalName,
+                ContentType = document.ContentType,
+                SizeBytes = document.SizeBytes,
+                Bucket = document.Bucket,
+                Etag = document.Etag,
+                IsDeleted = false,
+                CreatedOn = DateTime.UtcNow,
+                SolvedActivityId = solvedActivity.Id,
+            };
+
+            await _activityRepository.AddSolvedActivityDocument(solvedActivityDocument, cancellationToken);
+        }
+
+        return solvedActivity.Id;
+    }
 }

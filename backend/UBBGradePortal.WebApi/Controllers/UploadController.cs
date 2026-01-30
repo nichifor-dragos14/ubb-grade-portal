@@ -21,7 +21,7 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost("presign")]
-    [Authorize(Roles = "Professor")]
+    [Authorize(Roles = "Student,Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

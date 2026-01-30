@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ViewChild,
   inject,
   OnInit,
 } from '@angular/core';
@@ -14,8 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { ActivityDetailsDto, ActivityService } from '$backend/services';
-import { ActivityDocsDropzoneComponent } from '$shared/activity-upload/activity-docs-uploader.component';
-import { ActivityDocsViewerComponent } from '$shared/activity-upload/activity-docs-viewer.component';
+import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
+import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
 
 @Component({
@@ -37,17 +38,18 @@ import { AppToastService } from '$shared/toast';
     <div *ngIf="!isLoading && activity" class="content">
       <p *ngIf="activity.description">{{ activity.description }}</p>
 
-      <app-activity-docs-viewer [documents]="activity.activityDocuments">
-      </app-activity-docs-viewer>
+      <app-document-viewer [documents]="activity.activityDocuments">
+      </app-document-viewer>
 
-      <app-activity-docs-dropzone
-        [activityId]="activity.id"
+      <app-submission-docs-dropzone
+        #dropzone
+        [solvedActivityId]="activity.id"
         [tenantId]="'default'"
         accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
         [maxSizeMB]="15"
         [multiple]="true"
       >
-      </app-activity-docs-dropzone>
+      </app-submission-docs-dropzone>
     </div>
   `,
   styles: [
@@ -84,8 +86,8 @@ import { AppToastService } from '$shared/toast';
     MatIconModule,
     MatProgressSpinnerModule,
     AppPageHeaderComponent,
-    ActivityDocsDropzoneComponent,
-    ActivityDocsViewerComponent,
+    SubmissionDocsDropzoneComponent,
+    DocumentViewerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -96,6 +98,9 @@ export class SolveActivityComponent implements OnInit {
 
   readonly toast = inject(AppToastService);
   readonly activityService = inject(ActivityService);
+
+  @ViewChild('dropzone')
+  dropzone?: SubmissionDocsDropzoneComponent;
 
   activity: ActivityDetailsDto | null = null;
   loading = false;
@@ -135,11 +140,19 @@ export class SolveActivityComponent implements OnInit {
     }
   }
 
-  done() {
-    this.toast.open(
-      `A new submission was added for ${this.activity?.name}`,
-      'info'
-    );
-    void this.router.navigate(['../../../'], { relativeTo: this.route });
+  async done() {
+    try {
+      const solvedId = await this.dropzone?.submitAll?.();
+
+      if (solvedId) {
+        this.toast.open(`Submission saved`, 'info');
+      } else {
+        this.toast.open(`No files submitted`, 'info');
+      }
+
+      await this.router.navigate(['../../../'], { relativeTo: this.route });
+    } catch (e: any) {
+      this.toast.open(e?.message || 'Submit failed', 'error');
+    }
   }
 }
