@@ -58,10 +58,12 @@ public class UploadController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<Ok<string>, BadRequest<string>>> PresignGet(
-        [FromBody] string key,
+        [FromBody] PresignGetRequestDto request,
         CancellationToken cancellationToken
     )
     {
+        var key = request.Key;
+
         if (string.IsNullOrWhiteSpace(key))
         { 
             return TypedResults.BadRequest("Key is required."); 

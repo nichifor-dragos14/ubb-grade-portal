@@ -6,9 +6,11 @@ import {
   Routes,
 } from '@angular/router';
 import { inject, NgModule } from '@angular/core';
-import { CourseService } from '$backend/services';
+import { CourseService, ActivityService } from '$backend/services';
 import { StudentEnrollmentsComponent } from './enrollments/student-enrollments/student-enrollments.component';
 import { StudentEnrollmentViewComponent } from './enrollments/student-enrollment-view/student-enrollment-view.component';
+import { DialogPageComponent } from '$shared/dialog-page';
+import { SolveActivityComponent } from './activities/solve-activity.component';
 
 const STUDENT_ROUTES: Routes = [
   {
@@ -30,6 +32,7 @@ const STUDENT_ROUTES: Routes = [
               course: async ({ params }: ActivatedRouteSnapshot) => {
                 const router = inject(Router);
                 const courseService = inject(CourseService);
+
                 try {
                   return await courseService.apiCourseIdGetAsync({
                     id: params['id'],
@@ -40,6 +43,34 @@ const STUDENT_ROUTES: Routes = [
                 }
               },
             },
+            children: [
+              {
+                path: 'activities',
+                component: DialogPageComponent,
+                children: [
+                  {
+                    path: ':id/solve',
+                    component: SolveActivityComponent,
+                    resolve: {
+                      activity: async ({ params }: ActivatedRouteSnapshot) => {
+                        const router = inject(Router);
+                        const activityService = inject(ActivityService);
+                        const id = params['id'];
+
+                        try {
+                          return await activityService.apiActivityIdGetAsync({
+                            id,
+                          });
+                        } catch (error) {
+                          router.navigate(['/error']);
+                          return null;
+                        }
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -52,3 +83,4 @@ const STUDENT_ROUTES: Routes = [
   exports: [RouterModule],
 })
 export class StudentModule {}
+

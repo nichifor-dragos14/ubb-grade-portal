@@ -56,7 +56,10 @@ public class S3UploadPresignService : IUploadPresignService
             Expires = DateTime.UtcNow.AddMinutes(Math.Max(1, _minioOptions.PresignMinutes))
         };
 
-        return Task.FromResult(_amazonS3.GetPreSignedURL(presigned));
+        var url = _amazonS3.GetPreSignedURL(presigned);
+        url = ForceHttp(url);
+
+        return Task.FromResult(url);
     }
 
     public Task<string> PresignDeleteAsync(string key, CancellationToken cancellationToken)

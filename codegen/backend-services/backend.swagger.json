@@ -769,17 +769,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/PresignGetRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/PresignGetRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/PresignGetRequestDto"
               }
             }
           }
@@ -1171,6 +1171,18 @@
         "additionalProperties": false
       },
       "PresignDeleteRequestDto": {
+        "required": [
+          "key"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PresignGetRequestDto": {
         "required": [
           "key"
         ],

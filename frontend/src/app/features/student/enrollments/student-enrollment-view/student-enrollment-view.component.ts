@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ActivityDto, CourseDetailsDto } from '$backend/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,6 +49,7 @@ export class StudentEnrollmentViewComponent
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   @ViewChild('roadPath', { static: false })
   roadPath?: ElementRef<SVGPathElement>;
@@ -110,8 +111,9 @@ export class StudentEnrollmentViewComponent
       return;
     }
 
-    // Navigate to activity details - adjust route as needed
-    this.router.navigate(['/activities', activity.id]);
+    void this.router.navigate(['activities', activity.id, 'solve'], {
+      relativeTo: this.route,
+    });
   }
 
   private safeComputeWithRetry(maxRetries = 6): void {
