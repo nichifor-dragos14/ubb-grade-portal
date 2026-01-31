@@ -11,6 +11,7 @@ import { StudentEnrollmentsComponent } from './enrollments/student-enrollments/s
 import { StudentEnrollmentViewComponent } from './enrollments/student-enrollment-view/student-enrollment-view.component';
 import { DialogPageComponent } from '$shared/dialog-page';
 import { SolveActivityComponent } from './activities/solve-activity.component';
+import { SolvedActivityUpdateComponent } from './activities/solved-activity-update.component';
 
 const STUDENT_ROUTES: Routes = [
   {
@@ -48,6 +49,30 @@ const STUDENT_ROUTES: Routes = [
                 path: 'activities',
                 component: DialogPageComponent,
                 children: [
+                  {
+                    path: ':id/view',
+                    component: SolvedActivityUpdateComponent,
+                    resolve: {
+                      solvedActivity: async ({
+                        params,
+                      }: ActivatedRouteSnapshot) => {
+                        const router = inject(Router);
+                        const activityService = inject(ActivityService);
+                        const id = params['id'];
+
+                        try {
+                          return await activityService.apiActivityIdLastSolvedGetAsync(
+                            {
+                              id,
+                            }
+                          );
+                        } catch (error) {
+                          router.navigate(['/error']);
+                          return null;
+                        }
+                      },
+                    },
+                  },
                   {
                     path: ':id/solve',
                     component: SolveActivityComponent,

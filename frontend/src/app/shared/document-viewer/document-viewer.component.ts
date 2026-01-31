@@ -158,7 +158,7 @@ import {
         >
           description
         </mat-icon>
-        <div>No documents provided</div>
+        <div>No resources provided</div>
       </div>
     </div>
   `,

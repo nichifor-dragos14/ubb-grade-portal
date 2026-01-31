@@ -79,6 +79,18 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<Activity?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Activities
+            .Include(a => a.ActivityDocuments)
+            .Include(a => a.SolvedActivities
+                .Where(s => s.UserId == loggedUserId)
+                .OrderByDescending(s => s.CreatedOn)
+                .Take(1))
+                .ThenInclude(s => s.SolvedActivityDocuments)
+            .FirstOrDefaultAsync(a => a.Id == activityId, cancellationToken);
+    }
+
     public async Task<Guid> AddSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
     {
         await _dbContext.AddAsync(solvedActivity, cancellationToken);
@@ -87,11 +99,24 @@ public class ActivityRepository : IActivityRepository
         return solvedActivity.Id;
     }
 
+    public async Task<SolvedActivityDocument?> GetSolvedActivityDocument(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .SolvedActivityDocuments
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
+
     public async Task<Guid> AddSolvedActivityDocument(SolvedActivityDocument solvedActivityDocument, CancellationToken cancellationToken)
     {
         await _dbContext.AddAsync(solvedActivityDocument, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return solvedActivityDocument.Id;
+    }
+
+    public async Task DeleteSolvedActivityDocument(SolvedActivityDocument solvedActivityDocument, CancellationToken cancellationToken)
+    {
+        _dbContext.Remove(solvedActivityDocument);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

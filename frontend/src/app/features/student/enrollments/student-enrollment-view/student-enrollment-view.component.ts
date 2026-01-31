@@ -153,7 +153,9 @@ export class StudentEnrollmentViewComponent
       return;
     }
 
-    void this.router.navigate(['activities', activity.id, 'solve'], {
+    const route = state === 'done' ? `view` : 'solve';
+
+    void this.router.navigate(['activities', activity.id, route], {
       relativeTo: this.route,
     });
   }
