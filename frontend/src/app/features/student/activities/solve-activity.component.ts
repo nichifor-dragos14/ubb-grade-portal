@@ -1,10 +1,9 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ViewChild,
   inject,
-  OnInit,
+  Input,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -18,14 +17,13 @@ import { ActivityDetailsDto, ActivityService } from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
-import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
 import { StudentSolvedActivityEventService } from '../student-enrollment-event.service';
 
 @Component({
   selector: 'app-solve-activity',
   standalone: true,
   template: `
-    <app-page-header title="Solve '{{ activity?.name }}' 🧩">
+    <app-page-header title="Solve '{{ activity.name }}' 🧩">
       <button
         mat-button
         color="primary"
@@ -35,9 +33,7 @@ import { StudentSolvedActivityEventService } from '../student-enrollment-event.s
       >
         SUBMIT
       </button>
-      <button mat-button color="warn" routerLink="../../../" button>
-        CLOSE
-      </button>
+      <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
 
     <div *ngIf="isLoading" class="form-loader">
@@ -46,7 +42,7 @@ import { StudentSolvedActivityEventService } from '../student-enrollment-event.s
     </div>
 
     <div *ngIf="!isLoading && activity" class="content">
-      <p *ngIf="activity.description">{{ activity.description }}</p>
+      <p>{{ activity.description }}</p>
 
       <app-document-viewer [documents]="activity.activityDocuments">
       </app-document-viewer>
@@ -101,94 +97,85 @@ import { StudentSolvedActivityEventService } from '../student-enrollment-event.s
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SolveActivityComponent implements OnInit {
+export class SolveActivityComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly toast = inject(AppToastService);
 
-  readonly toast = inject(AppToastService);
-  readonly activityService = inject(ActivityService);
+  private readonly activityService = inject(ActivityService);
   private readonly studentSolvedActivityEventService = inject(
     StudentSolvedActivityEventService
   );
-  private readonly submissionDocsService = inject(SubmissionDocsService);
+
+  @Input() activity!: ActivityDetailsDto;
 
   @ViewChild('dropzone')
   dropzone?: SubmissionDocsDropzoneComponent;
 
-  activity: ActivityDetailsDto | null = null;
-  loading = false;
+  submitting = false;
 
   get isLoading() {
-    return this.loading;
-  }
-
-  async ngOnInit(): Promise<void> {
-    const data = this.route.snapshot.data as { activity?: ActivityDetailsDto };
-
-    if (data.activity) {
-      this.activity = data.activity;
-
-      return;
-    }
-
-    const id = this.route.snapshot.params['id'];
-
-    if (!id) {
-      return;
-    }
-
-    try {
-      this.loading = true;
-      this.activity = await this.activityService.apiActivityIdGetAsync({ id });
-    } catch (err) {
-      this.toast.open(
-        (err as Error)?.message ?? 'Failed to load activity',
-        'error'
-      );
-
-      await this.router.navigate(['../../../'], { relativeTo: this.route });
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
+    return this.submitting;
   }
 
   async done() {
-    const activityId = this.activity?.id;
+    const activityId = this.activity.id;
 
     if (!activityId) {
-      this.toast.open('Activity ID not found', 'error');
+      this.toast.open('Something went wrong', 'error');
       return;
     }
 
     if (!this.dropzone?.hasUploadedFiles) {
       this.toast.open(
-        'Please upload at least one file before submitting',
+        'Please upload at least one file before submitting your activity',
         'error'
       );
+
       return;
     }
 
     try {
-      const docs = this.dropzone?.getUploadedDocuments() ?? [];
+      const documents = this.dropzone?.getUploadedDocuments();
 
-      const solvedId =
-        await this.submissionDocsService.createSolvedActivityAsync(
-          activityId,
-          docs
-        );
+      if (!documents || documents.length === 0) {
+        this.toast.open('Something went wrong', 'error');
+        return;
+      }
 
-      if (solvedId) {
-        this.toast.open(`Submission saved`, 'info');
+      const solvedActivityId =
+        await this.activityService.apiActivitySolvedPostAsync({
+          body: { activityId: activityId, solvedActivityDocuments: documents },
+        });
+
+      if (solvedActivityId) {
+        this.toast.open(`Your submission was saved succesfully`, 'info');
         this.studentSolvedActivityEventService.emitAddedSolvedActivity({
           activityId,
         });
 
         await this.router.navigate(['../../../'], { relativeTo: this.route });
       }
-    } catch (e: any) {
-      this.toast.open(e?.message || 'Submit failed', 'error');
+    } catch (error: any) {
+      this.toast.open(error?.message || 'Submit failed', 'error');
+    }
+  }
+
+  async close() {
+    try {
+      if (this.dropzone?.hasUploadedFiles) {
+        const confirmed = window.confirm(
+          'You have uploaded files that are not submitted yet. Closing will discard them. Are you sure you want to close?'
+        );
+
+        if (!confirmed) {
+          return;
+        }
+      }
+
+      await this.router.navigate(['../../../'], { relativeTo: this.route });
+    } catch (error: any) {
+      this.toast.open(error?.message || 'Failed to navigate', 'error');
     }
   }
 }

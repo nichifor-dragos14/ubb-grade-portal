@@ -9,7 +9,6 @@ import {
 @Injectable({ providedIn: 'root' })
 export class SubmissionDocsService {
   private readonly uploadService = inject(UploadService);
-  private readonly activityService = inject(ActivityService);
 
   async submitSolvedActivityAsync(
     activityId: string,
@@ -89,31 +88,7 @@ export class SubmissionDocsService {
       });
     }
 
-    // Return uploaded documents information only. Do NOT create the solved activity here.
     return uploadedDocs as any;
-  }
-
-  async createSolvedActivityAsync(
-    activityId: string,
-    solvedActivityDocuments: Array<{
-      key: string;
-      originalName: string;
-      contentType: string;
-      sizeBytes: number;
-      bucket: string;
-      etag?: string | null;
-    }>
-  ): Promise<string> {
-    const payload = {
-      activityId: activityId,
-      solvedActivityDocuments: solvedActivityDocuments,
-    } as any;
-
-    const solvedId = await this.activityService.apiActivitySolvedPostAsync({
-      body: payload as any,
-    });
-
-    return solvedId;
   }
 
   async deleteObjectByKeyAsync(key: string, bucket = 'uploads'): Promise<void> {

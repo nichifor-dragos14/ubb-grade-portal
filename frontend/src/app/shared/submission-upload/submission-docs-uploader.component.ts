@@ -508,7 +508,6 @@ export class SubmissionDocsDropzoneComponent {
           uploadedFiles
         );
 
-      // Map returned uploaded docs back to queued items (preserve order)
       for (let i = 0; i < toUpload.length; i++) {
         const q = toUpload[i];
         const doc = uploadedDocs[i];
@@ -520,13 +519,15 @@ export class SubmissionDocsDropzoneComponent {
           q.contentType = doc.contentType ?? q.file?.type;
           q.sizeBytes = doc.sizeBytes ?? q.file?.size;
           q.bucket = doc.bucket ?? 'uploads';
-          // store etag if available
           (q as any).etag = doc.etag ?? null;
           this.cdr.markForCheck();
         });
       }
 
-      this.appToastService.open('Files uploaded', 'info');
+      this.appToastService.open(
+        `${uploadedDocs.length} files were uploaded successfully`,
+        'info'
+      );
 
       return uploadedDocs;
     } catch (e: any) {
