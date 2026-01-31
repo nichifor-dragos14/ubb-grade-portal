@@ -18,6 +18,7 @@ import { ActivityDetailsDto, ActivityService } from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
+import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
 import { StudentSolvedActivityEventService } from '../student-enrollment-event.service';
 
 @Component({
@@ -25,7 +26,15 @@ import { StudentSolvedActivityEventService } from '../student-enrollment-event.s
   standalone: true,
   template: `
     <app-page-header title="Solve '{{ activity?.name }}' 🧩">
-      <button mat-button color="primary" (click)="done()" button>SUBMIT</button>
+      <button
+        mat-button
+        color="primary"
+        (click)="done()"
+        [disabled]="!dropzone?.hasUploadedFiles"
+        button
+      >
+        SUBMIT
+      </button>
       <button mat-button color="warn" routerLink="../../../" button>
         CLOSE
       </button>
@@ -102,6 +111,7 @@ export class SolveActivityComponent implements OnInit {
   private readonly studentSolvedActivityEventService = inject(
     StudentSolvedActivityEventService
   );
+  private readonly submissionDocsService = inject(SubmissionDocsService);
 
   @ViewChild('dropzone')
   dropzone?: SubmissionDocsDropzoneComponent;
@@ -152,20 +162,30 @@ export class SolveActivityComponent implements OnInit {
       return;
     }
 
+    if (!this.dropzone?.hasUploadedFiles) {
+      this.toast.open(
+        'Please upload at least one file before submitting',
+        'error'
+      );
+      return;
+    }
+
     try {
-      const solvedId = await this.dropzone?.submitAll?.();
+      const docs = this.dropzone?.getUploadedDocuments() ?? [];
+
+      const solvedId =
+        await this.submissionDocsService.createSolvedActivityAsync(
+          activityId,
+          docs
+        );
 
       if (solvedId) {
         this.toast.open(`Submission saved`, 'info');
-
-        // Always emit the event when submission is successful
         this.studentSolvedActivityEventService.emitAddedSolvedActivity({
           activityId,
         });
 
         await this.router.navigate(['../../../'], { relativeTo: this.route });
-      } else {
-        this.toast.open(`No files submitted`, 'info');
       }
     } catch (e: any) {
       this.toast.open(e?.message || 'Submit failed', 'error');

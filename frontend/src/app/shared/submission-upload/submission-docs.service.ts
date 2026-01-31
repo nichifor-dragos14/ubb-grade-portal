@@ -15,7 +15,16 @@ export class SubmissionDocsService {
     activityId: string,
     tenantId: string,
     files: File[]
-  ): Promise<string> {
+  ): Promise<
+    Array<{
+      key: string;
+      originalName: string;
+      contentType: string;
+      sizeBytes: number;
+      bucket: string;
+      etag: string | null;
+    }>
+  > {
     const presignedDocs: Array<{
       file: File;
       presignedUrl: string;
@@ -80,9 +89,24 @@ export class SubmissionDocsService {
       });
     }
 
+    // Return uploaded documents information only. Do NOT create the solved activity here.
+    return uploadedDocs as any;
+  }
+
+  async createSolvedActivityAsync(
+    activityId: string,
+    solvedActivityDocuments: Array<{
+      key: string;
+      originalName: string;
+      contentType: string;
+      sizeBytes: number;
+      bucket: string;
+      etag?: string | null;
+    }>
+  ): Promise<string> {
     const payload = {
       activityId: activityId,
-      solvedActivityDocuments: uploadedDocs,
+      solvedActivityDocuments: solvedActivityDocuments,
     } as any;
 
     const solvedId = await this.activityService.apiActivitySolvedPostAsync({

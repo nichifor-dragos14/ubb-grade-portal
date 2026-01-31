@@ -24,6 +24,8 @@ import {
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppToastService } from '$shared/toast';
+import { StudentSolvedActivityEventService } from '$features/student/student-enrollment-event.service';
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-student-enrollments',
   standalone: true,
@@ -48,6 +50,11 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
+  private readonly enrollmentService = inject(
+    StudentSolvedActivityEventService
+  );
+
+  private readonly destroy$ = new Subject<void>();
 
   enrollments: StudentEnrollmentDto[] = [];
   enrollmentsCount = 0;
@@ -59,6 +66,12 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPage();
+
+    this.enrollmentService.addedSolvedActivity$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPage();
+      });
   }
 
   private async loadPage() {

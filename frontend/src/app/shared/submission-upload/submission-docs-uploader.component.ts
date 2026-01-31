@@ -297,6 +297,24 @@ export class SubmissionDocsDropzoneComponent {
     return this.queue.some((file) => file.status === 'queued' && !!file.file);
   }
 
+  get hasUploadedFiles() {
+    return this.queue.some((file) => file.status === 'done');
+  }
+
+  getUploadedDocuments() {
+    return this.queue
+      .filter((f) => f.status === 'done')
+      .map((f) => ({
+        key: f.key ?? '',
+        originalName: f.originalName ?? f.file?.name ?? '',
+        contentType:
+          f.contentType ?? f.file?.type ?? 'application/octet-stream',
+        sizeBytes: f.sizeBytes ?? f.file?.size ?? 0,
+        bucket: f.bucket ?? 'uploads',
+        etag: (f as any).etag ?? null,
+      }));
+  }
+
   trackByItem = (index: number, file: QueuedFile) =>
     file.id ?? file.key ?? index;
 
@@ -464,7 +482,7 @@ export class SubmissionDocsDropzoneComponent {
     return accepted;
   }
 
-  async submitAll(): Promise<string | null> {
+  async submitAll(): Promise<any[] | null> {
     const toUpload = this._queue.filter((x) => x.status === 'queued' && x.file);
 
     if (!toUpload.length) {
@@ -483,23 +501,34 @@ export class SubmissionDocsDropzoneComponent {
     }
 
     try {
-      const solvedId =
+      const uploadedDocs =
         await this.submissionDocsService.submitSolvedActivityAsync(
           this.solvedActivityId,
           this.tenantId,
           uploadedFiles
         );
 
-      for (const q of toUpload) {
+      // Map returned uploaded docs back to queued items (preserve order)
+      for (let i = 0; i < toUpload.length; i++) {
+        const q = toUpload[i];
+        const doc = uploadedDocs[i];
+
         this.zone.run(() => {
           q.status = 'done';
+          q.key = doc.key;
+          q.originalName = doc.originalName ?? q.file?.name;
+          q.contentType = doc.contentType ?? q.file?.type;
+          q.sizeBytes = doc.sizeBytes ?? q.file?.size;
+          q.bucket = doc.bucket ?? 'uploads';
+          // store etag if available
+          (q as any).etag = doc.etag ?? null;
           this.cdr.markForCheck();
         });
       }
 
-      this.appToastService.open('Submission successfully created', 'info');
+      this.appToastService.open('Files uploaded', 'info');
 
-      return solvedId;
+      return uploadedDocs;
     } catch (e: any) {
       for (const q of toUpload) {
         this.zone.run(() => {
