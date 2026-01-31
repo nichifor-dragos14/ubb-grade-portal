@@ -7,6 +7,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  OnInit,
   SimpleChanges,
   ViewChild,
   inject,
@@ -14,10 +15,17 @@ import {
 import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { ActivityDto, CourseDetailsDto } from '$backend/services';
+import {
+  ActivityDto,
+  CourseDetailsStudentDto,
+  CourseService,
+} from '$backend/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AppPageHeaderComponent } from '$shared/page-header';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { StudentSolvedActivityEventService } from '$features/student/student-enrollment-event.service';
 
 type CPState = 'done' | 'ready' | 'locked';
 
@@ -44,18 +52,23 @@ interface RoadmapPosition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudentEnrollmentViewComponent
-  implements AfterViewInit, OnChanges, OnDestroy
+  implements AfterViewInit, OnChanges, OnDestroy, OnInit
 {
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly enrollmentService = inject(
+    StudentSolvedActivityEventService
+  );
+  private readonly courseService = inject(CourseService);
+  private readonly destroy$ = new Subject<void>();
 
   @ViewChild('roadPath', { static: false })
   roadPath?: ElementRef<SVGPathElement>;
   @ViewChild('svg', { static: false }) svgRef?: ElementRef<SVGSVGElement>;
 
-  @Input() course!: CourseDetailsDto;
+  @Input() course!: CourseDetailsStudentDto;
 
   private courseReady = false;
   private svgReady = false;
@@ -66,6 +79,14 @@ export class StudentEnrollmentViewComponent
   positions: RoadmapPosition[] = [];
 
   private resizeObs?: ResizeObserver;
+
+  async ngOnInit() {
+    this.enrollmentService.addedSolvedActivity$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.refreshCourse();
+      });
+  }
 
   ngAfterViewInit(): void {
     this.svgReady = true;
@@ -85,7 +106,7 @@ export class StudentEnrollmentViewComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if ('course' in changes) {
       this.courseReady = !!this.course && !!this.course.activities?.length;
 
@@ -100,8 +121,29 @@ export class StudentEnrollmentViewComponent
     }
   }
 
+  private async refreshCourse() {
+    const courseId = this.course.id;
+
+    try {
+      const updated = await this.courseService.apiCourseIdStudentGetAsync({
+        id: courseId,
+      });
+
+      this.zone.run(() => {
+        this.course = updated;
+        this.courseReady = !!this.course && !!this.course.activities?.length;
+        this.safeComputeWithRetry();
+        this.cdr.markForCheck();
+      });
+    } catch (error) {
+      console.error('Failed to fetch course:', error);
+    }
+  }
+
   ngOnDestroy(): void {
     this.resizeObs?.disconnect();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   trackById = (_: number, cp: RoadmapPosition) => cp.a.id;

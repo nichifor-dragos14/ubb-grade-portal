@@ -96,7 +96,9 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
             .Include(c => c.Activities)
-            .ThenInclude(c => c.ActivityDocuments)
+                .ThenInclude(c => c.ActivityDocuments)
+            .Include(c => c.Activities)
+                .ThenInclude(c => c.SolvedActivities)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 

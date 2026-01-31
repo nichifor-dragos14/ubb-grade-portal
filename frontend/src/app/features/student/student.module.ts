@@ -34,7 +34,7 @@ const STUDENT_ROUTES: Routes = [
                 const courseService = inject(CourseService);
 
                 try {
-                  return await courseService.apiCourseIdGetAsync({
+                  return await courseService.apiCourseIdStudentGetAsync({
                     id: params['id'],
                   });
                 } catch (error) {

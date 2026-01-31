@@ -18,6 +18,7 @@ import { ActivityDetailsDto, ActivityService } from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
+import { StudentSolvedActivityEventService } from '../student-enrollment-event.service';
 
 @Component({
   selector: 'app-solve-activity',
@@ -98,6 +99,9 @@ export class SolveActivityComponent implements OnInit {
 
   readonly toast = inject(AppToastService);
   readonly activityService = inject(ActivityService);
+  private readonly studentSolvedActivityEventService = inject(
+    StudentSolvedActivityEventService
+  );
 
   @ViewChild('dropzone')
   dropzone?: SubmissionDocsDropzoneComponent;
@@ -141,16 +145,28 @@ export class SolveActivityComponent implements OnInit {
   }
 
   async done() {
+    const activityId = this.activity?.id;
+
+    if (!activityId) {
+      this.toast.open('Activity ID not found', 'error');
+      return;
+    }
+
     try {
       const solvedId = await this.dropzone?.submitAll?.();
 
       if (solvedId) {
         this.toast.open(`Submission saved`, 'info');
+
+        // Always emit the event when submission is successful
+        this.studentSolvedActivityEventService.emitAddedSolvedActivity({
+          activityId,
+        });
+
+        await this.router.navigate(['../../../'], { relativeTo: this.route });
       } else {
         this.toast.open(`No files submitted`, 'info');
       }
-
-      await this.router.navigate(['../../../'], { relativeTo: this.route });
     } catch (e: any) {
       this.toast.open(e?.message || 'Submit failed', 'error');
     }

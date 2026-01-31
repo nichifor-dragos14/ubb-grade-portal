@@ -2,5 +2,4 @@
 
 public record AddSolvedActivityDto(
     Guid ActivityId,
-    Guid UserId,
     List<AddSolvedActivityDocumentDto> SolvedActivityDocuments);

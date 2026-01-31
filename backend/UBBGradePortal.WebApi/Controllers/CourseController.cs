@@ -100,7 +100,7 @@ public class CourseController : ControllerBase
 
     /// <summary> Get course by id </summary>
     [HttpGet("{id}")]
-    [Authorize(Roles = "Student,Professor,Admin")]
+    [Authorize(Roles = "Professor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -117,6 +117,34 @@ public class CourseController : ControllerBase
         try
         {
             var course = await _courseService.GetById(id, cancellationToken);
+
+            return TypedResults.Ok(course);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+    }
+
+    /// <summary> Get course by id with student activities information</summary>
+    [HttpGet("{id}/student")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<CourseDetailsStudentDto>, BadRequest<string>, NotFound<string>>> GetCourseByIdStudent(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
+        try
+        {
+            var course = await _courseService.GetByIdStudent(id, cancellationToken);
 
             return TypedResults.Ok(course);
         }

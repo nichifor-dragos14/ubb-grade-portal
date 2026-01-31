@@ -79,6 +79,7 @@ public class CourseService : ICourseService
                         c.Course.Activities.Count,
                         c.User.SolvedActivities
                             .Where(s => c.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
+                            .DistinctBy(s => s.ActivityId)
                             .Count()
                     ))
                     .ToList()
@@ -166,5 +167,38 @@ public class CourseService : ICourseService
         course.Description = updateCourseDto.Description;
 
         return await _courseRepository.Update(course, cancellationToken);
+    }
+
+    public async Task<CourseDetailsStudentDto?> GetByIdStudent(Guid id, CancellationToken cancellationToken)
+    {
+        var course = await _courseRepository.GetById(id, cancellationToken);
+
+        if (course == null)
+        {
+            _logger.LogInformation($"The course {id} is not available");
+
+            throw new NotFoundException("The course does not exist");
+        }
+
+        return
+            new CourseDetailsStudentDto(
+                course.Id,
+                course.Name,
+                course.Description,
+                course.CourseDomain.Name,
+                course.Activities
+                    .OrderBy(c => c.CreatedOn)
+                    .Select(
+                        activity => new ActivityStudentDto(
+                            activity.Id,
+                            activity.Name,
+                            activity.Description,
+                            activity.ActivityDocuments.Count,
+                            activity.CreatedOn,
+                            activity.SolvedActivities.Count != 0
+                        )
+                    )
+                    .ToList()
+            );
     }
 }
