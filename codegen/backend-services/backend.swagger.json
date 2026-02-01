@@ -503,6 +503,66 @@
         }
       }
     },
+    "/api/Activity/solved/{id}": {
+      "put": {
+        "tags": [
+          "Activity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Activity/solved/document/{id}": {
       "delete": {
         "tags": [
@@ -1762,6 +1822,21 @@
         "properties": {
           "description": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSolvedActivityDto": {
+        "required": [
+          "solvedActivityDocuments"
+        ],
+        "type": "object",
+        "properties": {
+          "solvedActivityDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddSolvedActivityDocumentDto"
+            }
           }
         },
         "additionalProperties": false

@@ -75,7 +75,7 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost("presign-delete")]
-    [Authorize(Roles = "Professor")]
+    [Authorize(Roles = "Student,Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -91,7 +91,6 @@ public class UploadController : ControllerBase
 
         var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        // TODO: verify user can delete this
         if (!Guid.TryParse(loggedUserIdValue, out _))
         {
             return TypedResults.Forbid();

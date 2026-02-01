@@ -332,6 +332,43 @@ public class ActivityService : IActivityService
         return solvedActivity.Id;
     }
 
+    public async Task<Guid> UpdateSolvedActivity(UpdateSolvedActivityDto updateSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var solvedActivity = await _activityRepository.GetSolvedActivityById(id, cancellationToken);
+
+        if (solvedActivity == null)
+        {
+            _logger.LogInformation($"The solved activity {id} does not exist");
+
+            throw new NotFoundException("The solved activity does not exist");
+        }
+
+        solvedActivity.UpdatedOn = DateTime.UtcNow;
+
+        foreach (var document in updateSolvedActivityDto.SolvedActivityDocuments)
+        {
+            var solvedActivityDocumentId = Guid.NewGuid();
+
+            var solvedActivityDocument = new SolvedActivityDocument
+            {
+                Id = solvedActivityDocumentId,
+                Key = document.Key,
+                OriginalName = document.OriginalName,
+                ContentType = document.ContentType,
+                SizeBytes = document.SizeBytes,
+                Bucket = document.Bucket,
+                Etag = document.Etag,
+                IsDeleted = false,
+                CreatedOn = DateTime.UtcNow,
+                SolvedActivityId = solvedActivity.Id,
+            };
+
+            await _activityRepository.AddSolvedActivityDocument(solvedActivityDocument, cancellationToken);
+        }
+
+        return await _activityRepository.UpdateSolvedActivity(solvedActivity, cancellationToken);
+    }
+
     public async Task DeleteSolvedActivityDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var solvedActivityDocument = await _activityRepository.GetSolvedActivityDocument(id, cancellationToken);

@@ -91,9 +91,25 @@ public class ActivityRepository : IActivityRepository
             .FirstOrDefaultAsync(a => a.Id == activityId, cancellationToken);
     }
 
+    public async Task<SolvedActivity?> GetSolvedActivityById(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .SolvedActivities
+            .Include(s => s.SolvedActivityDocuments)
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    }
+
     public async Task<Guid> AddSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
     {
         await _dbContext.AddAsync(solvedActivity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return solvedActivity.Id;
+    }
+
+    public async Task<Guid> UpdateSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
+    {
+        _dbContext.Update(solvedActivity);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return solvedActivity.Id;

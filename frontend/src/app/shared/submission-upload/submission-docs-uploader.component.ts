@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   ViewChild,
   inject,
   NgZone,
@@ -17,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { AppToastService } from '$shared/toast';
+import { ActivityService } from '$backend/services';
 
 @Component({
   selector: 'app-submission-docs-dropzone',
@@ -279,6 +281,7 @@ export class SubmissionDocsDropzoneComponent {
 
   private readonly submissionDocsService = inject(SubmissionDocsService);
   private readonly appToastService = inject(AppToastService);
+  private readonly activityService = inject(ActivityService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
 
@@ -553,6 +556,13 @@ export class SubmissionDocsDropzoneComponent {
         );
       }
 
+      // If file has an ID, it means it was previously saved - delete from DB
+      if (file.id && file.status === 'alreadyUploaded') {
+        await this.activityService.apiActivitySolvedDocumentIdDeleteAsync({
+          id: file.id,
+        });
+      }
+
       if (file.id) {
         this.deletedIds.add(file.id);
       }
@@ -571,6 +581,31 @@ export class SubmissionDocsDropzoneComponent {
       this.cdr.markForCheck();
     } catch (e: any) {
       this.appToastService.open(e?.message || 'Delete failed', 'error');
+    }
+  }
+
+  async cleanupNewFiles(): Promise<void> {
+    const newFiles = this._queue.filter(
+      (f) => f.key && (f.status === 'done' || f.status === 'uploading')
+    );
+
+    const errors: string[] = [];
+
+    for (const file of newFiles) {
+      try {
+        if (file.key) {
+          await this.submissionDocsService.deleteObjectByKeyAsync(
+            file.key,
+            file.bucket || 'uploads'
+          );
+        }
+      } catch (e: any) {
+        errors.push(`${file.originalName}: ${e?.message}`);
+      }
+    }
+
+    if (errors.length > 0) {
+      console.warn('Failed to cleanup some files from Minio:', errors);
     }
   }
 }

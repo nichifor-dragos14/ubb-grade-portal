@@ -168,6 +168,8 @@ export class SolveActivityComponent {
           'You have uploaded files that are not submitted yet. Closing will discard them. Are you sure you want to close?'
         );
 
+        await this.dropzone?.cleanupNewFiles();
+
         if (!confirmed) {
           return;
         }

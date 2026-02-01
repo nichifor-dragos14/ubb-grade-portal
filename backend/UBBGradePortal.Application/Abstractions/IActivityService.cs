@@ -12,5 +12,6 @@ public interface IActivityService
     public Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<SolvedActivityDetailsDto?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> AddSolvedActivity(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken);
+    public Task<Guid> UpdateSolvedActivity(UpdateSolvedActivityDto updateSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task DeleteSolvedActivityDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
 }

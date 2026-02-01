@@ -282,6 +282,41 @@ public class ActivityController : ControllerBase
         }
     }
 
+    /// <summary> Update an activity submission (solved activity) </summary>
+    [HttpPut("solved/{id}")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> UpdateSolvedActivity(
+        [FromBody] UpdateSolvedActivityDto solvedActivity,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        try
+        {
+            var solvedActivityId = await _activityService.UpdateSolvedActivity(solvedActivity, id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(solvedActivityId);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
+    }
+
     /// <summary> Delete a document for a submission (solved activity). </summary>
     [HttpDelete("solved/document/{id}")]
     [Authorize(Roles = "Student")]

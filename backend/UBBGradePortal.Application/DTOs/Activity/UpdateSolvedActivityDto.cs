@@ -1,6 +1,5 @@
 ﻿namespace UBBGradePortal.Application.DTOs.Activity;
 
-public record AddSolvedActivityDto(
-    Guid ActivityId,
+public record UpdateSolvedActivityDto(
     List<AddSolvedActivityDocumentDto> SolvedActivityDocuments
 );

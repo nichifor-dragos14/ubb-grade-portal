@@ -36,9 +36,7 @@ import { StudentSolvedActivityEventService } from '../student-enrollment-event.s
       >
         RESUBMIT
       </button>
-      <button mat-button color="warn" routerLink="../../../" button>
-        CLOSE
-      </button>
+      <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
 
     <div *ngIf="isLoading" class="form-loader">
@@ -150,6 +148,60 @@ export class SolvedActivityUpdateComponent {
   }
 
   async done() {
-    // submit update
+    const solvedActivityId = this.solvedActivity.id;
+
+    if (!solvedActivityId) {
+      this.toast.open('Something went wrong', 'error');
+      return;
+    }
+
+    if (!this.dropzone?.hasUploadedFiles) {
+      this.toast.open(
+        'Please upload at least one file before resubmitting your activity',
+        'error'
+      );
+
+      return;
+    }
+
+    try {
+      const documents = this.dropzone?.getUploadedDocuments();
+
+      if (!documents || documents.length === 0) {
+        this.toast.open('Something went wrong', 'error');
+        return;
+      }
+
+      await this.activityService.apiActivitySolvedIdPutAsync({
+        id: solvedActivityId,
+        body: { solvedActivityDocuments: documents },
+      });
+
+      this.toast.open(`Your submission was updated succesfully`, 'info');
+
+      await this.router.navigate(['../../../'], { relativeTo: this.route });
+    } catch (error: any) {
+      this.toast.open(error?.message || 'Update submission failed', 'error');
+    }
+  }
+
+  async close() {
+    try {
+      if (this.dropzone?.hasUploadedFiles) {
+        const confirmed = window.confirm(
+          'You have uploaded files that are not resubmitted yet. Closing will discard them. Are you sure you want to close?'
+        );
+
+        await this.dropzone?.cleanupNewFiles();
+
+        if (!confirmed) {
+          return;
+        }
+      }
+
+      await this.router.navigate(['../../../'], { relativeTo: this.route });
+    } catch (error: any) {
+      this.toast.open(error?.message || 'Failed to navigate', 'error');
+    }
   }
 }
