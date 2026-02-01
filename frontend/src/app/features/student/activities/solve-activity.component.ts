@@ -24,7 +24,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
   selector: 'app-solve-activity',
   standalone: true,
   template: `
-    <app-page-header title="Solve '{{ activity.name }}' 🧩">
+    <app-page-header title="Solve '{{ activity.name }}' 📝">
       <button
         mat-button
         color="primary"

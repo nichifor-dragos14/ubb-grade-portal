@@ -1,4 +1,4 @@
-<app-page-header title="Your courses 📚">
+<app-page-header title="Your courses 🎓">
   <button mat-button button color="primary" [routerLink]="['new']">ADD</button>
 </app-page-header>
 
@@ -28,7 +28,13 @@
       <span matListItemTitle>{{ course.name }}</span>
 
       <span matListItemLine>
-        {{ course.numberOfEntrollments }} students have enrolled.
+        {{
+          course.numberOfEntrollments === 0
+            ? 'No students have enrolled yet'
+            : course.numberOfEntrollments === 1
+              ? '1 student has enrolled'
+              : course.numberOfEntrollments + ' students have enrolled'
+        }}
       </span>
 
       <span matListItemMeta>Created {{ course.createdOn | dateFormat }}</span>

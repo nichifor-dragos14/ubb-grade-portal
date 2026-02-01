@@ -9,29 +9,30 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     </section>
   `,
   styles: `
-      :host {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          text-align: center;
-          margin-bottom: 16px;
-          z-index: 1001;
-      }
+    :host {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 16px;
+      z-index: 1001;
+    }
 
-      h1 {
-          margin: 0;
-      }
+    h1 {
+      margin: 0;
+    }
 
-      section[role='buttons'] {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        justify-content: center;
-      }
-    `,
+    section[role='buttons'] {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: center;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })
 export class AppPageHeaderComponent {
   @Input() title: string = '';
 }
+

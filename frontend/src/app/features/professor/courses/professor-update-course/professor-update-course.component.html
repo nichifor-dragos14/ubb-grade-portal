@@ -7,15 +7,22 @@
     ADD ACTIVITY
   </button>
 
-  <button
-    mat-button
-    color="primary"
-    type="submit"
-    [disabled]="updateCourseFormGroup.invalid"
-    (click)="updateCourse()"
+  <span
+    class="update-tooltip"
+    [matTooltip]="!hasChanges ? 'No changes have been currently made' : ''"
+    [matTooltipDisabled]="hasChanges"
+    button
   >
-    UPDATE
-  </button>
+    <button
+      mat-button
+      color="primary"
+      type="submit"
+      [disabled]="updateCourseFormGroup.invalid || !hasChanges"
+      (click)="updateCourse()"
+    >
+      UPDATE
+    </button>
+  </span>
 </section>
 
 <div *ngIf="isLoading" class="form-loader">
@@ -28,27 +35,41 @@
   [formGroup]="updateCourseFormGroup"
   (ngSubmit)="updateCourse()"
 >
-  <mat-form-field>
-    <mat-label>Name (disabled)</mat-label>
-    <input matInput formControlName="name" [disabled]="true" />
-  </mat-form-field>
+  <section class="card course-details-card">
+    <div class="card-title">Course details ✍️</div>
 
-  <mat-form-field>
-    <mat-label>Domain name (disabled)</mat-label>
-    <input matInput formControlName="courseDomainName" [disabled]="true" />
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Name (disabled)</mat-label>
+      <input
+        matInput
+        formControlName="name"
+        [disabled]="true"
+        matTooltip="This field is locked after course creation"
+      />
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Description (optional)</mat-label>
-    <textarea
-      matInput
-      formControlName="description"
-      placeholder="Add some basic and relevant course information"
-    >
-    </textarea>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Domain name (disabled)</mat-label>
+      <input
+        matInput
+        formControlName="courseDomainName"
+        [disabled]="true"
+        matTooltip="This field is locked after course creation"
+      />
+    </mat-form-field>
 
-  <section class="activities-section" aria-label="Activities">
+    <mat-form-field appearance="outline">
+      <mat-label>Description (optional)</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        placeholder="Add some basic and relevant course information"
+      >
+      </textarea>
+    </mat-form-field>
+  </section>
+
+  <section class="activities-section card" aria-label="Activities">
     <div *ngIf="course.activities.length === 0">
       <div class="activities-empty">
         <span class="activities-title">No activities yet 😟</span>
@@ -59,7 +80,7 @@
     </div>
 
     <div *ngIf="course.activities.length !== 0">
-      <span class="activities-title">Activities 👣</span>
+      <span class="activities-title">Activities 📘</span>
 
       <mat-nav-list>
         <a
@@ -71,8 +92,12 @@
           <div matListItemTitle>{{ activity.name }}</div>
 
           <div matListItemLine class="muted">
-            {{ activity.numberOfDocuments }} attached document{{
-              activity.numberOfDocuments === 1 ? '' : 's'
+            {{
+              activity.numberOfDocuments === 0
+                ? 'No attached documents'
+                : activity.numberOfDocuments +
+                  ' attached document' +
+                  (activity.numberOfDocuments === 1 ? '' : 's')
             }}
           </div>
 

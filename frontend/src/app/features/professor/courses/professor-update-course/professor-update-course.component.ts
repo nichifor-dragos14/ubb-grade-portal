@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -40,6 +41,7 @@ import { DateConverterModule } from '$shared/date-converter';
     MatFormFieldModule,
     MatButtonModule,
     MatInputModule,
+    MatTooltipModule,
     MatListModule,
     MatIconModule,
     RouterModule,
@@ -93,6 +95,10 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
     return this.updateCourseFormGroup.controls.courseDomainName;
   }
 
+  get hasChanges(): boolean {
+    return this.updateCourseFormGroup.dirty;
+  }
+
   async ngOnInit() {
     this.professorCoursesEventService.activityCreated$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -121,6 +127,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
 
     this.updateCourseFormGroup.get('name')?.disable();
     this.updateCourseFormGroup.get('courseDomainName')?.disable();
+    this.updateCourseFormGroup.markAsPristine();
   }
 
   async getCourse() {

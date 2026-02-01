@@ -24,7 +24,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   selector: 'app-professor-add-activity',
   standalone: true,
   template: `
-    <app-page-header title="Add an activity to '{{ course.name }}' 🧠">
+    <app-page-header title="Add an activity to '{{ course.name }}' ✨">
       <button
         mat-button
         color="primary"

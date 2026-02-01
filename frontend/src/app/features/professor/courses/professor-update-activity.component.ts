@@ -31,7 +31,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
   standalone: true,
   template: `
     <app-page-header
-      title="Update '{{ activity.name }}' from '{{ course.name }}' 🧠"
+      title="Update '{{ activity.name }}' from '{{ course.name }}' 🛠️"
     >
       <button
         mat-button

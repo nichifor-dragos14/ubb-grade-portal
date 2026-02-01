@@ -3,15 +3,23 @@
     <mat-icon>close</mat-icon>
   </a>
 
-  <button
-    mat-button
-    color="primary"
-    type="submit"
-    [disabled]="addCourseFormGroup.invalid"
-    (click)="createCourse()"
+  <span
+    class="save-tooltip"
+    [matTooltip]="
+      addCourseFormGroup.invalid ? 'Please fill in all the required fields' : ''
+    "
+    [matTooltipDisabled]="!addCourseFormGroup.invalid"
   >
-    SAVE
-  </button>
+    <button
+      mat-button
+      color="primary"
+      type="submit"
+      [disabled]="addCourseFormGroup.invalid"
+      (click)="createCourse()"
+    >
+      SAVE
+    </button>
+  </span>
 </section>
 
 <div *ngIf="isLoading" class="form-loader">
@@ -24,40 +32,50 @@
   [formGroup]="addCourseFormGroup"
   (ngSubmit)="createCourse()"
 >
-  <mat-form-field>
-    <mat-label>Name</mat-label>
-    <input matInput formControlName="name" placeholder="Ex: First Course" />
+  <section class="card course-details-card">
+    <div class="card-title">Course details ✍️</div>
 
-    <mat-error *ngIf="name.touched && name.hasError('required')">
-      The name is required.
-    </mat-error>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Ex: First Course" />
 
-  <mat-selection-list
-    formControlName="courseDomainId"
-    class="scrollable-list-container"
-    [multiple]="false"
-  >
-    @for (courseDomain of courseDomains; track courseDomain.courseDomainId) {
-      <mat-list-option [value]="courseDomain.courseDomainId">
-        {{ courseDomain.name }}
-      </mat-list-option>
+      <mat-error *ngIf="name.touched && name.hasError('required')">
+        The name is required.
+      </mat-error>
+    </mat-form-field>
+
+    <div class="domain-field">
+      <div class="field-label">Course domain</div>
+      <mat-selection-list
+        formControlName="courseDomainId"
+        class="scrollable-list-container"
+        [multiple]="false"
+      >
+        @for (
+          courseDomain of courseDomains;
+          track courseDomain.courseDomainId
+        ) {
+          <mat-list-option [value]="courseDomain.courseDomainId">
+            {{ courseDomain.name }}
+          </mat-list-option>
+        }
+      </mat-selection-list>
 
       <mat-error
         *ngIf="courseDomainId.touched && courseDomainId.hasError('required')"
       >
         The course domain is required.
       </mat-error>
-    }
-  </mat-selection-list>
+    </div>
 
-  <mat-form-field>
-    <mat-label>Description (optional)</mat-label>
-    <textarea
-      matInput
-      formControlName="description"
-      placeholder="Add some basic and relevant course information"
-    >
-    </textarea>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Description (optional)</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        placeholder="Add some basic and relevant course information"
+      >
+      </textarea>
+    </mat-form-field>
+  </section>
 </form>

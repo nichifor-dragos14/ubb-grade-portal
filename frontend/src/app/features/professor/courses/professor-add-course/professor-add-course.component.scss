@@ -3,12 +3,13 @@
   flex-direction: column;
   padding: 0 32px !important;
   gap: 16px;
+  background: #f9fafb;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -24,8 +25,53 @@ section[role='course-actions'] {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 8px;
+  padding: 8px 0;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1f2937;
+  margin-bottom: 18px;
+}
+
+.course-details-card mat-form-field {
+  width: 100%;
+}
+
+.domain-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.field-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.scrollable-list-container {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 6px 0;
+  background: #fff;
 }
 
 textarea {
   min-height: 150px;
+}
+
+.save-tooltip {
+  display: inline-flex;
 }

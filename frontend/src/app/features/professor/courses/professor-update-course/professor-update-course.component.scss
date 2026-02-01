@@ -3,12 +3,13 @@
   flex-direction: column;
   padding: 0 32px !important;
   gap: 16px;
+  background: #f9fafb;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -24,6 +25,30 @@ section[role='course-actions'] {
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 8px;
+  padding: 8px 0;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1f2937;
+  margin-bottom: 18px;
+}
+
+.course-details-card mat-form-field {
+  width: 100%;
+}
+
+.course-details-card {
+  margin-bottom: 12px;
 }
 
 textarea {
@@ -31,7 +56,7 @@ textarea {
 }
 
 .activities-section {
-  margin-top: 24px;
+  margin-top: 8px;
 }
 
 .activities-empty {
@@ -54,10 +79,17 @@ h3 {
 }
 
 .activities-title {
-  font-weight: normal;
-  font-size: large;
+  font-weight: 400;
+  font-size: 16px;
+  color: #1f2937;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.update-tooltip {
+  display: inline-flex;
 }
 
 .text-muted {
-  color: grey;
+  color: #6b7280;
 }

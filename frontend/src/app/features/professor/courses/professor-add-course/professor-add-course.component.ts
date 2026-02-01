@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CourseDomainDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -36,6 +37,7 @@ import { AppToastService } from '$shared/toast';
     RouterModule,
     MatSelectModule,
     CommonModule,
+    MatTooltipModule,
     MatProgressSpinner,
   ],
   standalone: true,
