@@ -16,9 +16,10 @@ import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
-  ActivityDto,
+  ActivityStudentDto,
   CourseDetailsStudentDto,
   CourseService,
+  SolvedActivityStatus,
 } from '$backend/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,13 +28,13 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StudentSolvedActivityEventService } from '$features/student/student-enrollment-event.service';
 
-type CPState = 'done' | 'ready' | 'locked';
+type CPState = 'submitted' | 'completed' | 'returned' | 'unlocked' | 'locked';
 
 interface RoadmapPosition {
   x: number;
   y: number;
   idx: number;
-  a: ActivityDto;
+  a: ActivityStudentDto;
   state: CPState;
 }
 
@@ -148,12 +149,15 @@ export class StudentEnrollmentViewComponent
 
   trackById = (_: number, cp: RoadmapPosition) => cp.a.id;
 
-  onActivityClick(activity: ActivityDto, state: CPState): void {
+  onActivityClick(activity: ActivityStudentDto, state: CPState): void {
     if (state === 'locked') {
       return;
     }
 
-    const route = state === 'done' ? `view` : 'solve';
+    const route =
+      state === 'completed' || state === 'submitted' || state === 'returned'
+        ? 'view'
+        : 'solve';
 
     void this.router.navigate(['activities', activity.id, route], {
       relativeTo: this.route,
@@ -217,16 +221,17 @@ export class StudentEnrollmentViewComponent
     for (let i = 0; i < steps; i++) {
       const t = steps === 1 ? 0.05 : i / (steps - 1);
       const pt = path.getPointAtLength(t * L);
-      const completed =
-        (acts[i] as any).completed ??
-        (acts[i] as any).isCompleted ??
-        (acts[i] as any).done ??
-        false;
-      const state: CPState = completed
-        ? 'done'
-        : i <= unlockedIdx
-          ? 'ready'
-          : 'locked';
+      const status = (acts[i] as any).solvedStatus ?? null;
+      const state: CPState =
+        status === SolvedActivityStatus.$1
+          ? 'completed'
+          : status === SolvedActivityStatus.$0
+            ? 'submitted'
+            : status === SolvedActivityStatus.$2
+              ? 'returned'
+              : i === unlockedIdx
+                ? 'unlocked'
+                : 'locked';
       newPos.push({ x: pt.x, y: pt.y, idx: i, a: acts[i], state });
     }
 
@@ -237,18 +242,14 @@ export class StudentEnrollmentViewComponent
     return true;
   }
 
-  private getUnlockedIndex(acts: ActivityDto[]): number {
-    const lastDone = Math.max(
-      -1,
-      ...acts.map((a, i) => {
-        const c =
-          (a as any).completed ??
-          (a as any).isCompleted ??
-          (a as any).done ??
-          false;
-        return c ? i : -1;
-      })
-    );
-    return Math.min(lastDone + 1, acts.length - 1);
+  private getUnlockedIndex(acts: ActivityStudentDto[]): number {
+    for (let i = 0; i < acts.length; i++) {
+      const status = (acts[i] as any).solvedStatus ?? null;
+      if (status === null) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 }

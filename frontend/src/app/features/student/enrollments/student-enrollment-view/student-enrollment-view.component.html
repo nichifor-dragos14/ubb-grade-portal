@@ -5,8 +5,10 @@
 </app-page-header>
 
 <div class="legend" *ngIf="course.activities.length">
-  <span><span class="dot done"></span> Completed</span>
-  <span><span class="dot ready"></span> Unlocked</span>
+  <span><span class="dot completed"></span> Completed</span>
+  <span><span class="dot submitted"></span> Submitted</span>
+  <span><span class="dot returned"></span> Returned</span>
+  <span><span class="dot unlocked"></span> Unlocked</span>
   <span><span class="dot locked"></span> Locked</span>
 </div>
 
@@ -18,7 +20,7 @@
     preserveAspectRatio="xMidYMid meet"
   >
     <defs>
-      <filter id="glow-done">
+      <filter id="glow-completed">
         <feGaussianBlur stdDeviation="3" result="coloredBlur" />
         <feMerge>
           <feMergeNode in="coloredBlur" />
@@ -26,7 +28,7 @@
         </feMerge>
       </filter>
 
-      <filter id="glow-ready">
+      <filter id="glow-returned">
         <feGaussianBlur stdDeviation="4" result="coloredBlur" />
         <feMerge>
           <feMergeNode in="coloredBlur" />
@@ -34,12 +36,42 @@
         </feMerge>
       </filter>
 
-      <linearGradient id="doneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <filter id="glow-unlocked">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+        <feMerge>
+          <feMergeNode in="coloredBlur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <linearGradient
+        id="completedGradient"
+        x1="0%"
+        y1="0%"
+        x2="100%"
+        y2="100%"
+      >
         <stop offset="0%" stop-color="#4caf50" />
         <stop offset="100%" stop-color="#2e7d32" />
       </linearGradient>
 
-      <linearGradient id="readyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient
+        id="submittedGradient"
+        x1="0%"
+        y1="0%"
+        x2="100%"
+        y2="100%"
+      >
+        <stop offset="0%" stop-color="#a5d6a7" />
+        <stop offset="100%" stop-color="#66bb6a" />
+      </linearGradient>
+
+      <linearGradient id="returnedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ef5350" />
+        <stop offset="100%" stop-color="#c62828" />
+      </linearGradient>
+
+      <linearGradient id="unlockedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#ffd54f" />
         <stop offset="100%" stop-color="#f9a825" />
       </linearGradient>
@@ -74,11 +106,13 @@
           class="coin"
           [ngClass]="cp.state"
           [attr.filter]="
-            cp.state === 'ready'
-              ? 'url(#glow-ready)'
-              : cp.state === 'done'
-                ? 'url(#glow-done)'
-                : ''
+            cp.state === 'returned'
+              ? 'url(#glow-returned)'
+              : cp.state === 'unlocked'
+                ? 'url(#glow-unlocked)'
+                : cp.state === 'completed'
+                  ? 'url(#glow-completed)'
+                  : ''
           "
         ></circle>
 
@@ -88,7 +122,7 @@
           {{ cp.idx + 1 }}
         </text>
 
-        <g *ngIf="cp.state === 'done'" class="checkmark">
+        <g *ngIf="cp.state === 'completed'" class="checkmark">
           <circle r="10" fill="#fff" opacity="0.95" cy="12"></circle>
           <path
             d="M -3 12 L -1 14 L 4 9"

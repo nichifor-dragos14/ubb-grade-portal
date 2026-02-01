@@ -43,10 +43,16 @@ section[role='course-actions'] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  .done {
+  .completed {
     background: linear-gradient(135deg, #4caf50, #2e7d32);
   }
-  .ready {
+  .submitted {
+    background: linear-gradient(135deg, #a5d6a7, #66bb6a);
+  }
+  .returned {
+    background: linear-gradient(135deg, #ef5350, #c62828);
+  }
+  .unlocked {
     background: linear-gradient(135deg, #ffd54f, #f9a825);
   }
   .locked {
@@ -103,11 +109,19 @@ section[role='course-actions'] {
   transform: translateY(3px);
 }
 
-.coin-shadow.done {
+.coin-shadow.completed {
   fill: rgba(46, 125, 50, 0.3);
 }
 
-.coin-shadow.ready {
+.coin-shadow.submitted {
+  fill: rgba(102, 187, 106, 0.25);
+}
+
+.coin-shadow.returned {
+  fill: rgba(198, 40, 40, 0.3);
+}
+
+.coin-shadow.unlocked {
   fill: rgba(249, 168, 37, 0.3);
 }
 
@@ -121,12 +135,20 @@ section[role='course-actions'] {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.coin.done {
-  fill: url(#doneGradient);
+.coin.completed {
+  fill: url(#completedGradient);
 }
 
-.coin.ready {
-  fill: url(#readyGradient);
+.coin.submitted {
+  fill: url(#submittedGradient);
+}
+
+.coin.returned {
+  fill: url(#returnedGradient);
+}
+
+.coin.unlocked {
+  fill: url(#unlockedGradient);
   animation: pulse 2s infinite ease-in-out;
 }
 
@@ -153,7 +175,9 @@ section[role='course-actions'] {
   transition: fill 0.2s ease;
 }
 
-.coin-label.ready {
+.coin-label.submitted,
+.coin-label.returned,
+.coin-label.unlocked {
   fill: #2d2d2d;
 }
 

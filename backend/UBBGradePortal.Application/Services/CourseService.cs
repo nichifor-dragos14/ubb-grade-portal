@@ -169,7 +169,7 @@ public class CourseService : ICourseService
         return await _courseRepository.Update(course, cancellationToken);
     }
 
-    public async Task<CourseDetailsStudentDto?> GetByIdStudent(Guid id, CancellationToken cancellationToken)
+    public async Task<CourseDetailsStudentDto?> GetByIdStudent(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(id, cancellationToken);
 
@@ -195,7 +195,11 @@ public class CourseService : ICourseService
                             activity.Description,
                             activity.ActivityDocuments.Count,
                             activity.CreatedOn,
-                            activity.SolvedActivities.Count != 0
+                            activity.SolvedActivities
+                                .Where(sa => sa.User.Id == loggedUserId)
+                                .OrderByDescending(sa => sa.CreatedOn)
+                                .FirstOrDefault()?.Status
+
                         )
                     )
                     .ToList()

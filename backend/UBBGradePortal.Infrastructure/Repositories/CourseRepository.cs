@@ -99,6 +99,7 @@ public class CourseRepository : ICourseRepository
                 .ThenInclude(c => c.ActivityDocuments)
             .Include(c => c.Activities)
                 .ThenInclude(c => c.SolvedActivities)
+                .ThenInclude(sa => sa.User)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 

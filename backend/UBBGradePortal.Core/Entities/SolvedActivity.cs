@@ -3,6 +3,9 @@
 public class SolvedActivity
 {
     public Guid Id { get; set; }
+    public SolvedActivityStatus Status { get; set; }
+    public int Grade { get; set; }
+    public string? ProfessorComment { get; set; }
     public DateTime? CreatedOn { get; set; }
     public DateTime? UpdatedOn { get; set; }
 

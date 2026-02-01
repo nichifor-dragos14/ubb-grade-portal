@@ -1202,7 +1202,6 @@
       "ActivityStudentDto": {
         "required": [
           "id",
-          "isCompleted",
           "name",
           "numberOfDocuments"
         ],
@@ -1228,8 +1227,8 @@
             "format": "date-time",
             "nullable": true
           },
-          "isCompleted": {
-            "type": "boolean"
+          "solvedStatus": {
+            "$ref": "#/components/schemas/SolvedActivityStatus"
           }
         },
         "additionalProperties": false
@@ -1703,14 +1702,32 @@
       "SolvedActivityDetailsDto": {
         "required": [
           "activity",
+          "grade",
           "id",
-          "solvedActivityDocuments"
+          "solvedActivityDocuments",
+          "status"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SolvedActivityStatus"
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "professorComment": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "updatedOn": {
             "type": "string",
@@ -1767,6 +1784,15 @@
           }
         },
         "additionalProperties": false
+      },
+      "SolvedActivityStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
       },
       "StudentEnrollmentDto": {
         "required": [

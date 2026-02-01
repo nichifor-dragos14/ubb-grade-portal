@@ -248,6 +248,10 @@ public class ActivityService : IActivityService
         return
             new SolvedActivityDetailsDto(
                 solvedActivity.Id,
+                solvedActivity.Status,
+                solvedActivity.Grade,
+                solvedActivity.ProfessorComment,
+                solvedActivity.CreatedOn,
                 solvedActivity.UpdatedOn,
                 new ActivityDetailsDto(
                     activity.Id,
@@ -300,6 +304,7 @@ public class ActivityService : IActivityService
         var solvedActivity = new SolvedActivity
         {
             Id = solvedActivityId,
+            Status = SolvedActivityStatus.Submitted,
             UserId = loggedUserId,
             ActivityId = activity.Id,
             CreatedOn = creationDate,
@@ -344,6 +349,7 @@ public class ActivityService : IActivityService
         }
 
         solvedActivity.UpdatedOn = DateTime.UtcNow;
+        solvedActivity.Status = SolvedActivityStatus.Submitted;
 
         foreach (var document in updateSolvedActivityDto.SolvedActivityDocuments)
         {

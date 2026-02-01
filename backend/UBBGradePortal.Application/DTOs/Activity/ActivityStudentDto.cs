@@ -1,4 +1,6 @@
-﻿namespace UBBGradePortal.Application.DTOs.Activity;
+﻿using UBBGradePortal.Domain.Entities;
+
+namespace UBBGradePortal.Application.DTOs.Activity;
 
 public record ActivityStudentDto(
     Guid Id,
@@ -6,5 +8,5 @@ public record ActivityStudentDto(
     string? Description,
     int NumberOfDocuments,
     DateTime? CreatedOn,
-    bool IsCompleted
+    SolvedActivityStatus? SolvedStatus
 );

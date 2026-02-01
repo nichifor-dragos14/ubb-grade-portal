@@ -132,11 +132,19 @@ public class CourseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<Ok<CourseDetailsStudentDto>, BadRequest<string>, NotFound<string>>> GetCourseByIdStudent(
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<CourseDetailsStudentDto>, BadRequest<string>, NotFound<string>, ForbidHttpResult>> GetCourseByIdStudent(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
         if (id == Guid.Empty)
         {
             return TypedResults.BadRequest("No course id was specified");
@@ -144,7 +152,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var course = await _courseService.GetByIdStudent(id, cancellationToken);
+            var course = await _courseService.GetByIdStudent(id, loggedUserId, cancellationToken);
 
             return TypedResults.Ok(course);
         }
