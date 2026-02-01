@@ -44,32 +44,36 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
     </div>
 
     <form [formGroup]="addActivityFormGroup" *ngIf="!isLoading">
-      <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input
-          matInput
-          formControlName="name"
-          placeholder="Ex: First activity"
-        />
+      <section class="card activity-details-card">
+        <div class="card-title">Activity details ✍️</div>
 
-        <mat-error *ngIf="name.touched && name.hasError('required')">
-          The activity name is required.
-        </mat-error>
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Ex: First activity"
+          />
 
-      <mat-form-field>
-        <mat-label>Description (optional)</mat-label>
-        <textarea
-          matInput
-          formControlName="description"
-          placeholder="Add information to guide students solve the activity"
-        >
-        </textarea>
-      </mat-form-field>
+          <mat-error *ngIf="name.touched && name.hasError('required')">
+            The activity name is required.
+          </mat-error>
+        </mat-form-field>
 
-      <h3 class="muted-text">
-        Documents can be added after the activity was created 📄
-      </h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Description (optional)</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            placeholder="Add information to guide students solve the activity"
+          >
+          </textarea>
+        </mat-form-field>
+
+        <p class="hint-text">
+          You can add documents after the activity is created.
+        </p>
+      </section>
     </form>
   `,
   styles: `
@@ -80,13 +84,15 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
       display: flex;
       flex-direction: column;
       gap: 16px;
+      background: #f9fafb;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding: 0 64px;
+      gap: 16px;
+      overflow-y: auto;
+      scrollbar-width: none;
     }
 
     .form-loader {
@@ -95,12 +101,33 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
       place-items: center;
     }
 
-    .muted-text {
-      color: grey;
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 400;
+      color: #1f2937;
+      margin-bottom: 18px;
+    }
+
+    .activity-details-card mat-form-field {
+      width: 100%;
+    }
+
+    .hint-text {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      color: #6b7280;
     }
 
     textarea {
-      min-height: 200px;
+      min-height: 150px;
     }
   `,
   imports: [

@@ -37,7 +37,11 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="name" placeholder="Ex: First Course" />
+      <input
+        matInput
+        formControlName="name"
+        placeholder="The name of your course"
+      />
 
       <mat-error *ngIf="name.touched && name.hasError('required')">
         The name is required.
@@ -45,7 +49,7 @@
     </mat-form-field>
 
     <div class="domain-field">
-      <div class="field-label">Course domain</div>
+      <div class="field-label">Domain name</div>
       <mat-selection-list
         formControlName="courseDomainId"
         class="scrollable-list-container"
@@ -77,5 +81,7 @@
       >
       </textarea>
     </mat-form-field>
+
+    <p class="hint-text">You can add activities after creating the course.</p>
   </section>
 </form>

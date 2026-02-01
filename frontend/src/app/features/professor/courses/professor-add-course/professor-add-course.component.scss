@@ -51,7 +51,7 @@ section[role='course-actions'] {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 32px;
 }
 
 .field-label {
@@ -74,4 +74,10 @@ textarea {
 
 .save-tooltip {
   display: inline-flex;
+}
+
+.hint-text {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #6b7280;
 }

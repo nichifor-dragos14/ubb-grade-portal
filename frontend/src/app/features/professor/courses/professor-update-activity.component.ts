@@ -52,28 +52,35 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
     </div>
 
     <form [formGroup]="updateActivityFormGroup" *ngIf="!isLoading">
-      <mat-form-field>
-        <mat-label>Description (optional)</mat-label>
-        <textarea
-          matInput
-          formControlName="description"
-          placeholder="Add information to guide students solve the activity"
-        >
-        </textarea>
-      </mat-form-field>
+      <section class="card activity-details-card">
+        <div class="card-title">Activity details ✍️</div>
 
-      <app-activity-docs-dropzone
-        *ngIf="!isLoading && activity.id"
-        [activityId]="activity.id"
-        [tenantId]="'default'"
-        [accept]="
-          '.pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed'
-        "
-        [maxSizeMB]="10"
-        [multiple]="true"
-        [queue]="mapExistingToQueue(activity.activityDocuments || [])"
-      >
-      </app-activity-docs-dropzone>
+        <mat-form-field appearance="outline">
+          <mat-label>Description (optional)</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            placeholder="Add information to guide students solve the activity"
+          >
+          </textarea>
+        </mat-form-field>
+      </section>
+
+      <section class="card activity-docs-card">
+        <div class="card-title">Activity documents 📄</div>
+        <app-activity-docs-dropzone
+          *ngIf="!isLoading && activity.id"
+          [activityId]="activity.id"
+          [tenantId]="'default'"
+          [accept]="
+            '.pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed'
+          "
+          [maxSizeMB]="10"
+          [multiple]="true"
+          [queue]="mapExistingToQueue(activity.activityDocuments || [])"
+        >
+        </app-activity-docs-dropzone>
+      </section>
     </form>
   `,
   styles: `
@@ -84,14 +91,15 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
       display: flex;
       flex-direction: column;
       gap: 16px;
+      background: #f9fafb;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding: 0 64px;
+      gap: 16px;
       overflow-y: auto;
+      scrollbar-width: none;
     }
 
     .form-loader {
@@ -100,8 +108,27 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
       place-items: center;
     }
 
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 400;
+      color: #1f2937;
+      margin-bottom: 18px;
+    }
+
+    .activity-details-card mat-form-field {
+      width: 100%;
+    }
+
     textarea {
-      min-height: 200px;
+      min-height: 150px;
     }
   `,
   imports: [
