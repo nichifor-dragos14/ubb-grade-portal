@@ -29,7 +29,7 @@
         matListItemIcon
       >
         {{
-          getCompletionRate(
+          getCompletionPercentText(
             enrollment.totalNumberOfActivities,
             enrollment.numberOfSolvedActivities
           )
@@ -40,11 +40,11 @@
 
       <span matListItemLine>
         {{
-          enrollment.totalNumberOfActivities -
+          getCompletionLineText(
+            enrollment.totalNumberOfActivities,
             enrollment.numberOfSolvedActivities
+          )
         }}
-        / {{ enrollment.totalNumberOfActivities }}
-        activities left to complete
       </span>
 
       <span matListItemMeta> {{ enrollment.courseDomainName }}</span>

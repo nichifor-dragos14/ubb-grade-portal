@@ -111,11 +111,32 @@ export class StudentEnrollmentsComponent implements OnInit {
   }
 
   getCompletionRate(totalNumber: number, solvedNumber: number): number {
+    if (totalNumber === 0) {
+      return 0;
+    }
+
     if (solvedNumber === 0) {
       return 0;
     }
 
     return (solvedNumber * 100) / totalNumber;
+  }
+
+  getCompletionPercentText(totalNumber: number, solvedNumber: number): string {
+    if (totalNumber === 0) {
+      return '—';
+    }
+
+    const pct = Math.round(this.getCompletionRate(totalNumber, solvedNumber));
+    return `${pct}%`;
+  }
+
+  getCompletionLineText(totalNumber: number, solvedNumber: number): string {
+    if (totalNumber === 0) {
+      return 'No activities yet';
+    }
+
+    return `${solvedNumber} / ${totalNumber} activities completed`;
   }
 
   getCompletionClass(value: number): string {
