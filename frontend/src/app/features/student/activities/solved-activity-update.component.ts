@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import {
   ActivityService,
+  ActivityDocumentDto,
   SolvedActivityDetailsDto,
   SolvedActivityStatus,
 } from '$backend/services';
@@ -34,7 +35,9 @@ import { DateConverterModule } from '$shared/date-converter';
       title="{{
         isCompleted
           ? 'Your submission for ' + solvedActivity.activity.name + ' ✅'
-          : 'Edit your submission for ' + solvedActivity.activity.name + ' 🔄'
+          : isReturned
+            ? 'Resubmit your work for ' + solvedActivity.activity.name + ' ✍️'
+            : 'Edit your submission for ' + solvedActivity.activity.name + ' 🔄'
       }}"
     >
       <button
@@ -56,52 +59,81 @@ import { DateConverterModule } from '$shared/date-converter';
     </div>
 
     <div *ngIf="!isLoading && solvedActivity" class="content">
-      <p>{{ solvedActivity.activity.description }}</p>
+      <section class="card">
+        <h2 class="section-title">Activity details</h2>
+        <p
+          class="activity-description"
+          *ngIf="solvedActivity.activity.description; else noDescription"
+        >
+          {{ solvedActivity.activity.description }}
+        </p>
+        <ng-template #noDescription>
+          <p class="activity-description empty">
+            This activity doesn't have a description yet.
+          </p>
+        </ng-template>
 
-      <app-document-viewer
-        [documents]="solvedActivity.activity.activityDocuments"
-      >
-      </app-document-viewer>
+        <app-document-viewer
+          [documents]="solvedActivity.activity.activityDocuments"
+        >
+        </app-document-viewer>
+      </section>
 
-      <h2>
-        {{ isCompleted ? 'Your submission' : 'Your previous submission' }}
-      </h2>
-
-      <div class="status-panel">
-        <div class="row">
-          <span class="label">Status</span>
-          <span class="value">{{ statusLabel }}</span>
-        </div>
-        <div class="row" *ngIf="lastUpdatedOn">
-          <span class="label">Last updated</span>
-          <span class="value">{{ lastUpdatedOn | dateFormat }}</span>
-        </div>
-        <div class="row" *ngIf="isCompleted">
-          <span class="label">Grade</span>
-          <span class="value">{{ solvedActivity.grade }}</span>
-        </div>
-        <div class="row" *ngIf="isCompleted || isReturned">
-          <span class="label">Professor comment</span>
-          <span class="value">
-            {{ solvedActivity.professorComment || 'No comment yet' }}
+      <section class="card submission-card">
+        <div class="submission-header">
+          <h2>
+            {{ isCompleted ? 'Your submission' : 'Your previous submission' }}
+          </h2>
+          <span class="status-chip" [ngClass]="statusClass">
+            {{ statusLabel }}
           </span>
         </div>
-      </div>
+        <p class="status-message" [ngClass]="statusClass">
+          {{ statusMessage }}
+        </p>
 
-      <app-submission-docs-dropzone
-        #dropzone
-        [solvedActivityId]="solvedActivity.id"
-        [tenantId]="'default'"
-        [disabled]="!canEdit"
-        [allowDelete]="canEdit"
-        [queue]="
-          mapExistingToQueue(solvedActivity.solvedActivityDocuments || [])
-        "
-        accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
-        [maxSizeMB]="15"
-        [multiple]="true"
-      >
-      </app-submission-docs-dropzone>
+        <div class="status-panel">
+          <div class="row">
+            <span class="label">Status</span>
+            <span class="value" [ngClass]="statusClass">{{ statusLabel }}</span>
+          </div>
+          <div class="row" *ngIf="lastUpdatedOn">
+            <span class="label">Last updated</span>
+            <span class="value">{{ lastUpdatedOn | dateFormat }}</span>
+          </div>
+          <div class="row" *ngIf="isCompleted">
+            <span class="label">Grade</span>
+            <span class="value">{{ solvedActivity.grade }}</span>
+          </div>
+          <div class="row" *ngIf="isCompleted || isReturned">
+            <span class="label">Professor comment</span>
+            <span class="value">
+              {{ solvedActivity.professorComment || 'No comment yet' }}
+            </span>
+          </div>
+        </div>
+
+        <ng-container *ngIf="!isCompleted; else submissionViewer">
+          <app-submission-docs-dropzone
+            #dropzone
+            [solvedActivityId]="solvedActivity.id"
+            [tenantId]="'default'"
+            [disabled]="!canEdit"
+            [allowDelete]="canEdit"
+            [queue]="
+              mapExistingToQueue(solvedActivity.solvedActivityDocuments || [])
+            "
+            accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
+            [maxSizeMB]="15"
+            [multiple]="true"
+          >
+          </app-submission-docs-dropzone>
+        </ng-container>
+        <ng-template #submissionViewer>
+          <app-document-viewer [documents]="submissionDocuments">
+          </app-document-viewer>
+        </ng-template>
+      </section>
     </div>
   `,
   styles: [
@@ -121,7 +153,57 @@ import { DateConverterModule } from '$shared/date-converter';
       }
       .content {
         overflow: auto;
-        padding: 0 12px;
+        padding: 0 12px 12px;
+        display: grid;
+        gap: 16px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      }
+      .section-title {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #202124;
+      }
+      .activity-description {
+        margin: 0 0 12px 0;
+        color: #2d2d2d;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .activity-description.empty {
+        color: #8a8a8a;
+        font-style: italic;
+      }
+      .submission-card h2 {
+        margin: 0 0 8px 0;
+      }
+      .submission-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #f1f3f4;
+        color: #5f6368;
+      }
+      .status-message {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        color: #5f6368;
       }
       .status-panel {
         display: grid;
@@ -130,7 +212,7 @@ import { DateConverterModule } from '$shared/date-converter';
         border: 1px solid #e0e0e0;
         border-radius: 10px;
         background: #fafafa;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
       }
       .status-panel .row {
         display: grid;
@@ -145,6 +227,30 @@ import { DateConverterModule } from '$shared/date-converter';
       }
       .status-panel .value {
         font-weight: 500;
+      }
+      .status-submitted,
+      .status-submitted .value,
+      .status-submitted.status-message {
+        color: #2e7d32;
+      }
+      .status-completed,
+      .status-completed .value,
+      .status-completed.status-message {
+        color: #1b5e20;
+      }
+      .status-returned,
+      .status-returned .value,
+      .status-returned.status-message {
+        color: #c62828;
+      }
+      .status-submitted.status-chip {
+        background: rgba(76, 175, 80, 0.12);
+      }
+      .status-completed.status-chip {
+        background: rgba(46, 125, 50, 0.14);
+      }
+      .status-returned.status-chip {
+        background: rgba(198, 40, 40, 0.12);
       }
       .actions {
         display: flex;
@@ -234,6 +340,37 @@ export class SolvedActivityUpdateComponent {
       default:
         return 'Unknown';
     }
+  }
+
+  get statusClass(): string {
+    switch (this.solvedActivity?.status) {
+      case SolvedActivityStatus.$0:
+        return 'status-submitted';
+      case SolvedActivityStatus.$1:
+        return 'status-completed';
+      case SolvedActivityStatus.$2:
+        return 'status-returned';
+      default:
+        return '';
+    }
+  }
+
+  get statusMessage(): string {
+    switch (this.solvedActivity?.status) {
+      case SolvedActivityStatus.$0:
+        return 'Awaiting professor feedback.';
+      case SolvedActivityStatus.$1:
+        return 'Graded and completed. Great job!';
+      case SolvedActivityStatus.$2:
+        return 'Please review the feedback and resubmit when ready.';
+      default:
+        return '';
+    }
+  }
+
+  get submissionDocuments(): ActivityDocumentDto[] {
+    return (this.solvedActivity?.solvedActivityDocuments ??
+      []) as ActivityDocumentDto[];
   }
 
   get lastUpdatedOn(): string | null | undefined {
