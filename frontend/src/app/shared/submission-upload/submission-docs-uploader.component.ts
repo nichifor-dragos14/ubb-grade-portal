@@ -238,10 +238,12 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
               disabled ||
               !allowDelete ||
               item.status === 'uploading' ||
-              queue.length === 1
+              isLastSavedFile(item)
             "
             [title]="
-              queue.length === 1 ? 'Must keep at least one document' : ''
+              isLastSavedFile(item)
+                ? 'Must keep at least one saved document'
+                : ''
             "
           >
             Delete
@@ -300,6 +302,12 @@ export class SubmissionDocsDropzoneComponent {
 
   private deletedIds = new Set<string>();
   private deletedKeys = new Set<string>();
+  private pendingDeletions: Array<{
+    id?: string;
+    key?: string;
+    bucket?: string;
+    originalName?: string;
+  }> = [];
 
   dragOver = false;
 
@@ -313,6 +321,31 @@ export class SubmissionDocsDropzoneComponent {
 
   get hasUploadedFiles() {
     return this.queue.some((file) => file.status === 'done');
+  }
+
+  get hasPendingDeletions() {
+    return this.pendingDeletions.length > 0;
+  }
+
+  get hasPendingAdditions() {
+    return this.hasQueued;
+  }
+
+  get hasPendingChanges() {
+    return (
+      this.hasPendingAdditions ||
+      this.hasUploadedFiles ||
+      this.hasPendingDeletions
+    );
+  }
+
+  get savedItemsCount() {
+    return this.queue.filter((file) => file.status === 'alreadyUploaded')
+      .length;
+  }
+
+  isLastSavedFile(file: QueuedFile) {
+    return file.status === 'alreadyUploaded' && this.savedItemsCount <= 1;
   }
 
   getUploadedDocuments() {
@@ -564,6 +597,14 @@ export class SubmissionDocsDropzoneComponent {
       return;
     }
 
+    if (this.isLastSavedFile(file)) {
+      this.appToastService.open(
+        'You must keep at least one saved document in your submission',
+        'error'
+      );
+      return;
+    }
+
     if (this._queue.length === 1) {
       this.appToastService.open(
         'You must keep at least one document in your submission',
@@ -586,18 +627,18 @@ export class SubmissionDocsDropzoneComponent {
     }
 
     try {
-      if (file.key) {
+      if (file.status === 'alreadyUploaded') {
+        this.pendingDeletions.push({
+          id: file.id,
+          key: file.key,
+          bucket: file.bucket,
+          originalName: file.originalName,
+        });
+      } else if (file.key) {
         await this.submissionDocsService.deleteObjectByKeyAsync(
           file.key,
           file.bucket || 'uploads'
         );
-      }
-
-      // If file has an ID, it means it was previously saved - delete from DB
-      if (file.id && file.status === 'alreadyUploaded') {
-        await this.activityService.apiActivitySolvedDocumentIdDeleteAsync({
-          id: file.id,
-        });
       }
 
       if (file.id) {
@@ -611,13 +652,51 @@ export class SubmissionDocsDropzoneComponent {
       }
 
       this.appToastService.open(
-        `Successfully deleted ${file.originalName ?? file.file?.name}`
+        `Removed ${file.originalName ?? file.file?.name} from your submission`
       );
 
       this._queue = this._queue.filter((f) => f !== file);
       this.cdr.markForCheck();
     } catch (e: any) {
       this.appToastService.open(e?.message || 'Delete failed', 'error');
+    }
+  }
+
+  async commitPendingDeletions(): Promise<void> {
+    if (!this.pendingDeletions.length) {
+      return;
+    }
+
+    const pending = [...this.pendingDeletions];
+    const errors: string[] = [];
+
+    for (const item of pending) {
+      try {
+        if (item.key) {
+          await this.submissionDocsService.deleteObjectByKeyAsync(
+            item.key,
+            item.bucket || 'uploads'
+          );
+        }
+
+        if (item.id) {
+          await this.activityService.apiActivitySolvedDocumentIdDeleteAsync({
+            id: item.id,
+          });
+        }
+      } catch (e: any) {
+        errors.push(item.originalName || item.key || item.id || 'document');
+      }
+    }
+
+    this.pendingDeletions = [];
+
+    if (errors.length > 0) {
+      throw new Error(
+        `Failed to delete: ${errors.slice(0, 3).join(', ')}${
+          errors.length > 3 ? '…' : ''
+        }`
+      );
     }
   }
 

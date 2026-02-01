@@ -165,15 +165,15 @@ export class SolveActivityComponent {
 
   async close() {
     try {
-      if (this.dropzone?.hasUploadedFiles) {
+      if (this.dropzone?.hasPendingChanges) {
         const dialogRef = this.dialog.open(ConfirmCloseUnsavedDialog);
         const confirmed = await dialogRef.afterClosed().toPromise();
-
-        await this.dropzone?.cleanupNewFiles();
 
         if (!confirmed) {
           return;
         }
+
+        await this.dropzone?.cleanupNewFiles();
       }
 
       await this.router.navigate(['../../../'], { relativeTo: this.route });

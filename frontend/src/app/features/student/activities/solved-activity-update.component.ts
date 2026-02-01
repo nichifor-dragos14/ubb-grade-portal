@@ -44,7 +44,10 @@ import { DateConverterModule } from '$shared/date-converter';
         mat-button
         color="primary"
         (click)="done()"
-        [disabled]="!canEdit || !dropzone?.hasUploadedFiles"
+        [disabled]="
+          !canEdit ||
+          !(dropzone?.hasUploadedFiles || dropzone?.hasPendingDeletions)
+        "
         *ngIf="!isCompleted"
         button
       >
@@ -390,27 +393,22 @@ export class SolvedActivityUpdateComponent {
       return;
     }
 
-    if (!this.dropzone?.hasUploadedFiles) {
-      this.toast.open(
-        'Please upload at least one file before resubmitting your activity',
-        'error'
-      );
-
-      return;
-    }
-
     try {
+      const hasUploads = !!this.dropzone?.hasUploadedFiles;
+      const hasDeletions = !!this.dropzone?.hasPendingDeletions;
+
+      if (hasDeletions) {
+        await this.dropzone?.commitPendingDeletions();
+      }
+
       const documents = this.dropzone?.getUploadedDocuments();
 
-      if (!documents || documents.length === 0) {
-        this.toast.open('Something went wrong', 'error');
-        return;
-      }
+      const payloadDocuments = documents ?? [];
 
       const returnedSolvedActivityId =
         await this.activityService.apiActivitySolvedIdPutAsync({
           id: solvedActivityId,
-          body: { solvedActivityDocuments: documents },
+          body: { solvedActivityDocuments: payloadDocuments },
         });
 
       if (returnedSolvedActivityId) {
@@ -432,15 +430,15 @@ export class SolvedActivityUpdateComponent {
 
   async close() {
     try {
-      if (this.dropzone?.hasUploadedFiles) {
+      if (this.dropzone?.hasPendingChanges) {
         const dialogRef = this.dialog.open(ConfirmCloseUnsavedDialog);
         const confirmed = await dialogRef.afterClosed().toPromise();
-
-        await this.dropzone?.cleanupNewFiles();
 
         if (!confirmed) {
           return;
         }
+
+        await this.dropzone?.cleanupNewFiles();
       }
 
       await this.router.navigate(['../../../'], { relativeTo: this.route });

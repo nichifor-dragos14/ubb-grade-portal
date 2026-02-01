@@ -17,8 +17,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       </div>
 
       <p class="dialog-message">
-        You have uploaded files that are not submitted yet. Closing will discard
-        them. Are you sure you want to close?
+        You have unsaved changes. Closing will discard them. Are you sure you
+        want to close?
       </p>
 
       <div class="dialog-actions">
