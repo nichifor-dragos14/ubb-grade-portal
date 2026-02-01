@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import {
@@ -40,19 +41,26 @@ import { DateConverterModule } from '$shared/date-converter';
             : 'Edit your submission for ' + solvedActivity.activity.name + ' 🔄'
       }}"
     >
-      <button
-        mat-button
-        color="primary"
-        (click)="done()"
-        [disabled]="
-          !canEdit ||
-          !(dropzone?.hasUploadedFiles || dropzone?.hasPendingDeletions)
-        "
+      <span
         *ngIf="!isCompleted"
+        class="resubmit-tooltip"
+        [matTooltip]="resubmitTooltip"
+        [matTooltipDisabled]="!resubmitTooltip"
         button
       >
-        RESUBMIT
-      </button>
+        <button
+          mat-button
+          color="primary"
+          (click)="done()"
+          [disabled]="
+            !canEdit ||
+            !(dropzone?.hasUploadedFiles || dropzone?.hasPendingDeletions)
+          "
+          button
+        >
+          RESUBMIT
+        </button>
+      </span>
       <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
 
@@ -186,6 +194,9 @@ import { DateConverterModule } from '$shared/date-converter';
       .submission-card h2 {
         margin: 0 0 8px 0;
       }
+      .resubmit-tooltip {
+        display: inline-flex;
+      }
       .submission-header {
         display: flex;
         align-items: center;
@@ -273,6 +284,7 @@ import { DateConverterModule } from '$shared/date-converter';
     SubmissionDocsDropzoneComponent,
     DocumentViewerComponent,
     DateConverterModule,
+    MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -369,6 +381,21 @@ export class SolvedActivityUpdateComponent {
       default:
         return '';
     }
+  }
+
+  get resubmitTooltip(): string {
+    const hasChanges =
+      !!this.dropzone?.hasUploadedFiles || !!this.dropzone?.hasPendingDeletions;
+
+    if (!this.canEdit) {
+      return 'Resubmission is not allowed for completed activities';
+    }
+
+    if (!hasChanges) {
+      return 'No changes made to the assignment';
+    }
+
+    return '';
   }
 
   get submissionDocuments(): ActivityDocumentDto[] {

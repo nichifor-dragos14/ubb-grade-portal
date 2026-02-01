@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
 import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
@@ -29,6 +30,7 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -126,6 +128,10 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
         display: flex;
         gap: 6px;
         align-items: center;
+      }
+
+      .tooltip-wrapper {
+        display: inline-flex;
       }
 
       input[type='file'] {
@@ -230,24 +236,25 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
           >
           </mat-progress-spinner>
 
-          <button
-            mat-button
-            color="warn"
-            (click)="delete(item)"
-            [disabled]="
-              disabled ||
-              !allowDelete ||
-              item.status === 'uploading' ||
-              isLastSavedFile(item)
-            "
-            [title]="
-              isLastSavedFile(item)
-                ? 'Must keep at least one saved document'
-                : ''
-            "
+          <span
+            class="tooltip-wrapper"
+            [matTooltip]="getDeleteTooltip(item)"
+            [matTooltipDisabled]="!getDeleteTooltip(item)"
           >
-            Delete
-          </button>
+            <button
+              mat-button
+              color="warn"
+              (click)="delete(item)"
+              [disabled]="
+                disabled ||
+                !allowDelete ||
+                item.status === 'uploading' ||
+                isLastSavedFile(item)
+              "
+            >
+              Delete
+            </button>
+          </span>
         </div>
       </div>
     </div>
@@ -346,6 +353,22 @@ export class SubmissionDocsDropzoneComponent {
 
   isLastSavedFile(file: QueuedFile) {
     return file.status === 'alreadyUploaded' && this.savedItemsCount <= 1;
+  }
+
+  getDeleteTooltip(file: QueuedFile) {
+    if (this.disabled || !this.allowDelete) {
+      return 'Deletion is disabled for this submission';
+    }
+
+    if (file.status === 'uploading') {
+      return 'Please wait for the upload to finish';
+    }
+
+    if (this.isLastSavedFile(file)) {
+      return 'Keep at least one saved document. Add another document and save changes to delete this one.';
+    }
+
+    return '';
   }
 
   getUploadedDocuments() {
@@ -600,14 +623,6 @@ export class SubmissionDocsDropzoneComponent {
     if (this.isLastSavedFile(file)) {
       this.appToastService.open(
         'You must keep at least one saved document in your submission',
-        'error'
-      );
-      return;
-    }
-
-    if (this._queue.length === 1) {
-      this.appToastService.open(
-        'You must keep at least one document in your submission',
         'error'
       );
       return;
