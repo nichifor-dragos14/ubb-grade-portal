@@ -234,7 +234,12 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
             mat-button
             color="warn"
             (click)="delete(item)"
-            [disabled]="item.status === 'uploading' || queue.length === 1"
+            [disabled]="
+              disabled ||
+              !allowDelete ||
+              item.status === 'uploading' ||
+              queue.length === 1
+            "
             [title]="
               queue.length === 1 ? 'Must keep at least one document' : ''
             "
@@ -280,6 +285,7 @@ export class SubmissionDocsDropzoneComponent {
   @Input() maxSizeMB = 10;
   @Input() multiple = true;
   @Input() disabled = false;
+  @Input() allowDelete = true;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -553,6 +559,11 @@ export class SubmissionDocsDropzoneComponent {
   }
 
   async delete(file: QueuedFile) {
+    if (this.disabled || !this.allowDelete) {
+      this.appToastService.open('Deletion is disabled for this submission');
+      return;
+    }
+
     if (this._queue.length === 1) {
       this.appToastService.open(
         'You must keep at least one document in your submission',

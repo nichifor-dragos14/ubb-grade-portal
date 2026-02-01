@@ -13,26 +13,36 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
-import { ActivityService, SolvedActivityDetailsDto } from '$backend/services';
+import {
+  ActivityService,
+  SolvedActivityDetailsDto,
+  SolvedActivityStatus,
+} from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
 import { StudentSolvedActivityEventService } from '../student-enrollment-event.service';
 import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved-dialog.component';
+import { DateConverterModule } from '$shared/date-converter';
 
 @Component({
   selector: 'app-solved-activity-update',
   standalone: true,
   template: `
     <app-page-header
-      title="Your submission for '{{ solvedActivity.activity.name }}' 🔄"
+      title="{{
+        isCompleted
+          ? 'Your submission for ' + solvedActivity.activity.name + ' ✅'
+          : 'Edit your submission for ' + solvedActivity.activity.name + ' 🔄'
+      }}"
     >
       <button
         mat-button
         color="primary"
         (click)="done()"
-        [disabled]="!dropzone?.hasUploadedFiles"
+        [disabled]="!canEdit || !dropzone?.hasUploadedFiles"
+        *ngIf="!isCompleted"
         button
       >
         RESUBMIT
@@ -53,12 +63,37 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
       >
       </app-document-viewer>
 
-      <h2>Your Previous Submission</h2>
+      <h2>
+        {{ isCompleted ? 'Your submission' : 'Your previous submission' }}
+      </h2>
+
+      <div class="status-panel">
+        <div class="row">
+          <span class="label">Status</span>
+          <span class="value">{{ statusLabel }}</span>
+        </div>
+        <div class="row" *ngIf="lastUpdatedOn">
+          <span class="label">Last updated</span>
+          <span class="value">{{ lastUpdatedOn | dateFormat }}</span>
+        </div>
+        <div class="row" *ngIf="isCompleted">
+          <span class="label">Grade</span>
+          <span class="value">{{ solvedActivity.grade }}</span>
+        </div>
+        <div class="row" *ngIf="isCompleted || isReturned">
+          <span class="label">Professor comment</span>
+          <span class="value">
+            {{ solvedActivity.professorComment || 'No comment yet' }}
+          </span>
+        </div>
+      </div>
 
       <app-submission-docs-dropzone
         #dropzone
         [solvedActivityId]="solvedActivity.id"
         [tenantId]="'default'"
+        [disabled]="!canEdit"
+        [allowDelete]="canEdit"
         [queue]="
           mapExistingToQueue(solvedActivity.solvedActivityDocuments || [])
         "
@@ -88,6 +123,29 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         overflow: auto;
         padding: 0 12px;
       }
+      .status-panel {
+        display: grid;
+        gap: 6px;
+        padding: 12px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background: #fafafa;
+        margin-bottom: 12px;
+      }
+      .status-panel .row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 8px;
+        font-size: 13px;
+        color: #4a4a4a;
+      }
+      .status-panel .label {
+        font-weight: 600;
+        color: #616161;
+      }
+      .status-panel .value {
+        font-weight: 500;
+      }
       .actions {
         display: flex;
         gap: 8px;
@@ -105,6 +163,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     AppPageHeaderComponent,
     SubmissionDocsDropzoneComponent,
     DocumentViewerComponent,
+    DateConverterModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -149,8 +208,45 @@ export class SolvedActivityUpdateComponent {
     return this.submitting;
   }
 
+  get canEdit(): boolean {
+    return (
+      this.solvedActivity?.status === SolvedActivityStatus.$0 ||
+      this.solvedActivity?.status === SolvedActivityStatus.$2
+    );
+  }
+
+  get isCompleted(): boolean {
+    return this.solvedActivity?.status === SolvedActivityStatus.$1;
+  }
+
+  get isReturned(): boolean {
+    return this.solvedActivity?.status === SolvedActivityStatus.$2;
+  }
+
+  get statusLabel(): string {
+    switch (this.solvedActivity?.status) {
+      case SolvedActivityStatus.$0:
+        return 'Submitted';
+      case SolvedActivityStatus.$1:
+        return 'Completed';
+      case SolvedActivityStatus.$2:
+        return 'Returned';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  get lastUpdatedOn(): string | null | undefined {
+    return this.solvedActivity?.updatedOn || this.solvedActivity?.createdOn;
+  }
+
   async done() {
     const solvedActivityId = this.solvedActivity.id;
+
+    if (!this.canEdit) {
+      this.toast.open('Resubmission is not allowed for completed activities');
+      return;
+    }
 
     if (!solvedActivityId) {
       this.toast.open('Something went wrong', 'error');
