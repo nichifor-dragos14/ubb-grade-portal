@@ -4,6 +4,8 @@ import {
   Component,
   ElementRef,
   Input,
+  Output,
+  EventEmitter,
   ViewChild,
   inject,
   NgZone,
@@ -13,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import {
   ActivityDocsService,
@@ -22,6 +25,7 @@ import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { ActivityService } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { ProfessorCoursesEventService } from '$features/professor/courses/professor-courses-event.service';
+import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confirm-delete-solved-activity-document-dialog.component';
 
 @Component({
   selector: 'app-activity-docs-dropzone',
@@ -31,6 +35,7 @@ import { ProfessorCoursesEventService } from '$features/professor/courses/profes
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -259,6 +264,13 @@ export class ActivityDocsDropzoneComponent {
   @Input() set queue(value: QueuedFile[]) {
     const incoming = (value ?? []).map((item) => ({ ...item, xhr: null }));
 
+    // Track initially uploaded documents
+    for (const doc of incoming) {
+      if (doc.id && doc.status === 'alreadyUploaded') {
+        this.initiallyUploadedIds.add(doc.id);
+      }
+    }
+
     const filtered = incoming.filter(
       (d) =>
         !this.deletedIds.has(d?.id ?? '') && !this.deletedKeys.has(d?.key ?? '')
@@ -287,6 +299,7 @@ export class ActivityDocsDropzoneComponent {
   @Input() maxSizeMB = 10;
   @Input() multiple = true;
   @Input() disabled = false;
+  @Output() stateChanged = new EventEmitter<void>();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -296,6 +309,7 @@ export class ActivityDocsDropzoneComponent {
   private readonly professorCoursesEventService = inject(
     ProfessorCoursesEventService
   );
+  private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
 
@@ -303,6 +317,13 @@ export class ActivityDocsDropzoneComponent {
 
   private deletedIds = new Set<string>();
   private deletedKeys = new Set<string>();
+  private initiallyUploadedIds = new Set<string>();
+  private pendingDeletions: Array<{
+    id?: string;
+    key?: string;
+    bucket?: string;
+    originalName?: string;
+  }> = [];
 
   dragOver = false;
 
@@ -312,6 +333,23 @@ export class ActivityDocsDropzoneComponent {
 
   get hasQueued() {
     return this.queue.some((file) => file.status === 'queued' && !!file.file);
+  }
+
+  get hasPendingDeletions() {
+    return this.pendingDeletions.length > 0;
+  }
+
+  get hasPendingAdditions() {
+    return this.queue.some(
+      (file) =>
+        file.status === 'done' &&
+        file.id &&
+        !this.initiallyUploadedIds.has(file.id)
+    );
+  }
+
+  get hasPendingChanges() {
+    return this.hasQueued || this.hasPendingAdditions || this.hasPendingDeletions;
   }
 
   trackByItem = (index: number, file: QueuedFile) =>
@@ -420,6 +458,7 @@ export class ActivityDocsDropzoneComponent {
 
     this._queue = [...this._queue, ...items];
     this.cdr.markForCheck();
+    this.stateChanged.emit();
   }
 
   private filterByAccept(files: File[]) {
@@ -540,6 +579,7 @@ export class ActivityDocsDropzoneComponent {
         q.id = result.id;
         q.key = result.key;
         this.cdr.markForCheck();
+        this.stateChanged.emit();
       });
 
       return result;
@@ -558,19 +598,28 @@ export class ActivityDocsDropzoneComponent {
   }
 
   async delete(file: QueuedFile) {
-    try {
-      console.log(file);
-      if (file.id && this.activityId) {
-        await this.activityService.apiActivityDocumentIdDeleteAsync({
-          id: file.id,
-        });
+    const dialogRef = this.dialog.open(
+      ConfirmDeleteSolvedActivityDocumentDialog,
+      {
+        data: { fileName: file.originalName ?? file.file?.name },
       }
+    );
 
-      if (file.key) {
-        await this.activityDocsService.deleteObjectByKeyAsync(
-          file.key,
-          file.bucket || 'uploads'
-        );
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      // Only queue already-uploaded files for deletion from minio/db
+      if (file.status === 'alreadyUploaded' && (file.key || file.id)) {
+        this.pendingDeletions.push({
+          id: file.id,
+          key: file.key,
+          bucket: file.bucket,
+          originalName: file.originalName ?? file.file?.name,
+        });
       }
 
       if (file.id) {
@@ -584,17 +633,116 @@ export class ActivityDocsDropzoneComponent {
       }
 
       this.appToastService.open(
-        `Successfully deleted ${file.originalName ?? file.file?.name}`
+        `Removed ${file.originalName ?? file.file?.name} from activity`
       );
-
-      this.professorCoursesEventService.emitUpdatedActivityCount({
-        activityId: this.activityId,
-      });
 
       this._queue = this._queue.filter((f) => f !== file);
       this.cdr.markForCheck();
+      this.stateChanged.emit();
     } catch (e: any) {
       this.appToastService.open(e?.message || 'Delete failed', 'error');
     }
+  }
+
+  async commitPendingDeletions(): Promise<void> {
+    if (!this.pendingDeletions.length) {
+      return;
+    }
+
+    const pending = [...this.pendingDeletions];
+    const errors: string[] = [];
+
+    for (const item of pending) {
+      try {
+        if (item.key) {
+          await this.activityDocsService.deleteObjectByKeyAsync(
+            item.key,
+            item.bucket || 'uploads'
+          );
+        }
+
+        if (item.id) {
+          await this.activityService.apiActivityDocumentIdDeleteAsync({
+            id: item.id,
+          });
+        }
+      } catch (e: any) {
+        errors.push(item.originalName || item.key || item.id || 'document');
+      }
+    }
+
+    this.pendingDeletions = [];
+    this.stateChanged.emit();
+
+    if (errors.length > 0) {
+      throw new Error(
+        `Failed to delete: ${errors.slice(0, 3).join(', ')}${
+          errors.length > 3 ? '…' : ''
+        }`
+      );
+    }
+
+    this.professorCoursesEventService.emitUpdatedActivityCount({
+      activityId: this.activityId,
+    });
+  }
+
+  async cleanupNewFiles(): Promise<void> {
+    const newFiles = this._queue.filter(
+      (f) =>
+        f.key &&
+        (f.status === 'done' || f.status === 'uploading') &&
+        f.id &&
+        !this.initiallyUploadedIds.has(f.id)
+    );
+
+    const errors: string[] = [];
+
+    for (const file of newFiles) {
+      try {
+        if (file.key) {
+          await this.activityDocsService.deleteObjectByKeyAsync(
+            file.key,
+            file.bucket || 'uploads'
+          );
+        }
+
+        if (file.id) {
+          await this.activityService.apiActivityDocumentIdDeleteAsync({
+            id: file.id,
+          });
+        }
+      } catch (e: any) {
+        errors.push(`${file.originalName}: ${e?.message}`);
+      }
+    }
+
+    if (errors.length > 0) {
+      console.warn('Failed to cleanup some files from Minio:', errors);
+    }
+
+    this.professorCoursesEventService.emitUpdatedActivityCount({
+      activityId: this.activityId,
+    });
+  }
+
+  getNewlyUploadedDocuments() {
+    return this._queue
+      .filter(
+        (f) =>
+          f.status === 'done' &&
+          f.id &&
+          !this.initiallyUploadedIds.has(f.id) &&
+          f.key
+      )
+      .map((f) => ({
+        key: f.key ?? '',
+        originalName: f.originalName ?? f.file?.name ?? '',
+        contentType:
+          f.contentType ?? f.file?.type ?? 'application/octet-stream',
+        sizeBytes: f.sizeBytes ?? f.file?.size ?? 0,
+        bucket: f.bucket ?? 'uploads',
+        etag: (f as any).etag ?? null,
+      }));
   }
 }

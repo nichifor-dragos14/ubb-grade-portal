@@ -4,12 +4,13 @@ import {
   Component,
   Input,
   OnChanges,
+  ViewChild,
   inject,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
@@ -25,6 +26,8 @@ import {
 import { AppToastService } from '$shared/toast';
 import { ActivityDocsDropzoneComponent } from '$shared/activity-upload/activity-docs-uploader.component';
 import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
+import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved-dialog.component';
+import { ProfessorCoursesEventService } from '../courses/professor-courses-event.service';
 
 @Component({
   selector: 'app-professor-update-activity',
@@ -37,13 +40,13 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
         mat-button
         color="primary"
         button
-        [disabled]="updateActivityFormGroup.invalid"
+        [disabled]="updateActivityFormGroup.invalid || !canUpdate"
         (click)="updateActivity()"
       >
         UPDATE
       </button>
 
-      <button mat-button color="warn" routerLink="../../" button>CLOSE</button>
+      <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
 
     <div *ngIf="isLoading" class="form-loader">
@@ -70,6 +73,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
         <div class="card-title">Activity documents 📄</div>
         <app-activity-docs-dropzone
           *ngIf="!isLoading && activity.id"
+          #dropzone
           [activityId]="activity.id"
           [tenantId]="'default'"
           [accept]="
@@ -78,6 +82,7 @@ import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
           [maxSizeMB]="10"
           [multiple]="true"
           [queue]="mapExistingToQueue(activity.activityDocuments || [])"
+          (stateChanged)="onDocsStateChanged()"
         >
         </app-activity-docs-dropzone>
       </section>
@@ -150,12 +155,21 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
+  private readonly professorCoursesEventService = inject(
+    ProfessorCoursesEventService
+  );
 
   readonly toastService = inject(AppToastService);
   readonly activityService = inject(ActivityService);
 
   @Input() course!: CourseDetailsDto;
   @Input() activity!: ActivityDetailsDto;
+
+  @ViewChild('dropzone')
+  dropzone?: ActivityDocsDropzoneComponent;
+
+  docsChanged = false;
 
   updateActivityFormGroup = this.formBuilder.group({
     description: [''],
@@ -178,6 +192,17 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
 
   get name() {
     return this.updateActivityFormGroup.controls.name;
+  }
+
+  get hasDescriptionChange() {
+    const current = this.updateActivityFormGroup.controls.description.value;
+    const original = this.activity?.description ?? '';
+
+    return (current ?? '') !== original;
+  }
+
+  get canUpdate() {
+    return this.hasDescriptionChange || this.docsChanged;
   }
 
   mapExistingToQueue(
@@ -209,6 +234,13 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
     });
 
     this.updateActivityFormGroup.get('name')?.disable();
+    this.docsChanged = false;
+    this.cdr.markForCheck();
+  }
+
+  onDocsStateChanged() {
+    this.docsChanged = !!this.dropzone?.hasPendingChanges;
+    this.cdr.markForCheck();
   }
 
   async getActivity() {
@@ -253,10 +285,41 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       return;
     }
 
+    // Commit pending deletions BEFORE setting submitting=true
+    // (which would hide the dropzone and destroy the component reference)
+    if (this.dropzone?.hasPendingDeletions) {
+      try {
+        await this.dropzone.commitPendingDeletions();
+      } catch (deleteError: any) {
+        this.toastService.open(
+          `Warning: Some documents failed to delete: ${deleteError?.message}`,
+          'warning'
+        );
+      }
+    }
+
     this.submitting = true;
     this.cdr.detectChanges();
 
     try {
+      // Create DB records for newly uploaded documents
+      const newDocuments = this.dropzone?.getNewlyUploadedDocuments() ?? [];
+      if (newDocuments.length > 0) {
+        for (const doc of newDocuments) {
+          await this.activityService.apiActivityIdDocumentPostAsync({
+            id: activityId,
+            body: {
+              key: doc.key,
+              originalName: doc.originalName,
+              contentType: doc.contentType,
+              sizeBytes: doc.sizeBytes,
+              bucket: doc.bucket,
+              etag: doc.etag ?? null,
+            } as any,
+          });
+        }
+      }
+
       await this.activityService.apiActivityIdPutAsync({
         id: activityId,
         body: {
@@ -273,6 +336,10 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
         'info'
       );
 
+      this.professorCoursesEventService.emitUpdatedActivityCount({
+        activityId: activityId,
+      });
+
       await this.router.navigate(['../../'], {
         relativeTo: this.activatedRoute,
       });
@@ -286,6 +353,28 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.cdr.detectChanges();
 
       this.getActivity();
+    }
+  }
+
+  async close() {
+    try {
+      if (this.dropzone?.hasPendingChanges) {
+        const dialogRef = this.dialog.open(ConfirmCloseUnsavedDialog);
+        const confirmed = await dialogRef.afterClosed().toPromise();
+
+        if (!confirmed) {
+          return;
+        }
+
+        // Cleanup newly uploaded files from S3
+        await this.dropzone?.cleanupNewFiles();
+      }
+
+      await this.router.navigate(['../../'], {
+        relativeTo: this.activatedRoute,
+      });
+    } catch (error: any) {
+      this.toastService.open(error?.message || 'Failed to navigate', 'error');
     }
   }
 }
