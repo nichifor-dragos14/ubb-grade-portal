@@ -270,10 +270,20 @@ export class SolvedActivityUpdateComponent {
         return;
       }
 
-      await this.activityService.apiActivitySolvedIdPutAsync({
-        id: solvedActivityId,
-        body: { solvedActivityDocuments: documents },
-      });
+      const returnedSolvedActivityId =
+        await this.activityService.apiActivitySolvedIdPutAsync({
+          id: solvedActivityId,
+          body: { solvedActivityDocuments: documents },
+        });
+
+      if (returnedSolvedActivityId) {
+        this.toast.open(`Your submission was saved succesfully`, 'info');
+        this.studentSolvedActivityEventService.emitAddedSolvedActivity({
+          activityId: returnedSolvedActivityId,
+        });
+
+        await this.router.navigate(['../../../'], { relativeTo: this.route });
+      }
 
       this.toast.open(`Your submission was updated succesfully`, 'info');
 

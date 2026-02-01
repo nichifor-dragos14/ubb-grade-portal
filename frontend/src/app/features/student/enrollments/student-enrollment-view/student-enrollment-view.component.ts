@@ -87,6 +87,12 @@ export class StudentEnrollmentViewComponent
       .subscribe(() => {
         this.refreshCourse();
       });
+
+    this.enrollmentService.updatedSolvedActivity$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.refreshCourse();
+      });
   }
 
   ngAfterViewInit(): void {

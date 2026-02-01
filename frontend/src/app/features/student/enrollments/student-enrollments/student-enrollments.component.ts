@@ -72,6 +72,12 @@ export class StudentEnrollmentsComponent implements OnInit {
       .subscribe(() => {
         this.loadPage();
       });
+
+    this.enrollmentService.updatedSolvedActivity$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPage();
+      });
   }
 
   private async loadPage() {
