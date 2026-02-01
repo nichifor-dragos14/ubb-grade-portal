@@ -4,7 +4,6 @@ import {
   Component,
   ElementRef,
   Input,
-  OnDestroy,
   ViewChild,
   inject,
   NgZone,
@@ -14,11 +13,13 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 
 import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { AppToastService } from '$shared/toast';
 import { ActivityService } from '$backend/services';
+import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confirm-delete-solved-activity-document-dialog.component';
 
 @Component({
   selector: 'app-submission-docs-dropzone',
@@ -233,7 +234,10 @@ import { ActivityService } from '$backend/services';
             mat-button
             color="warn"
             (click)="delete(item)"
-            [disabled]="item.status === 'uploading'"
+            [disabled]="item.status === 'uploading' || queue.length === 1"
+            [title]="
+              queue.length === 1 ? 'Must keep at least one document' : ''
+            "
           >
             Delete
           </button>
@@ -282,6 +286,7 @@ export class SubmissionDocsDropzoneComponent {
   private readonly submissionDocsService = inject(SubmissionDocsService);
   private readonly appToastService = inject(AppToastService);
   private readonly activityService = inject(ActivityService);
+  private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
 
@@ -548,6 +553,27 @@ export class SubmissionDocsDropzoneComponent {
   }
 
   async delete(file: QueuedFile) {
+    if (this._queue.length === 1) {
+      this.appToastService.open(
+        'You must keep at least one document in your submission',
+        'error'
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(
+      ConfirmDeleteSolvedActivityDocumentDialog,
+      {
+        data: { fileName: file.originalName ?? file.file?.name },
+      }
+    );
+
+    const confirmed = await dialogRef.afterClosed().toPromise();
+
+    if (!confirmed) {
+      return;
+    }
+
     try {
       if (file.key) {
         await this.submissionDocsService.deleteObjectByKeyAsync(

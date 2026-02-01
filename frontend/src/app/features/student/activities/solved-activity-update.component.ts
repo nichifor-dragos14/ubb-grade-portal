@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -19,6 +19,7 @@ import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
 import { StudentSolvedActivityEventService } from '../student-enrollment-event.service';
+import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved-dialog.component';
 
 @Component({
   selector: 'app-solved-activity-update',
@@ -111,6 +112,7 @@ export class SolvedActivityUpdateComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
+  private readonly dialog = inject(MatDialog);
 
   private readonly activityService = inject(ActivityService);
   private readonly studentSolvedActivityEventService = inject(
@@ -188,9 +190,8 @@ export class SolvedActivityUpdateComponent {
   async close() {
     try {
       if (this.dropzone?.hasUploadedFiles) {
-        const confirmed = window.confirm(
-          'You have uploaded files that are not resubmitted yet. Closing will discard them. Are you sure you want to close?'
-        );
+        const dialogRef = this.dialog.open(ConfirmCloseUnsavedDialog);
+        const confirmed = await dialogRef.afterClosed().toPromise();
 
         await this.dropzone?.cleanupNewFiles();
 
