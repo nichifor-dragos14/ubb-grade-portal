@@ -10,6 +10,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,15 +26,26 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   standalone: true,
   template: `
     <app-page-header title="Add an activity to '{{ course.name }}' ✨">
-      <button
-        mat-button
-        color="primary"
+      <span
+        class="add-tooltip"
         button
-        [disabled]="addActivityFormGroup.invalid"
-        (click)="createActivity()"
+        [matTooltip]="
+          addActivityFormGroup.invalid
+            ? 'Please fill in all required fields'
+            : ''
+        "
+        [matTooltipDisabled]="!addActivityFormGroup.invalid"
       >
-        ADD
-      </button>
+        <button
+          mat-button
+          color="primary"
+          button
+          [disabled]="addActivityFormGroup.invalid"
+          (click)="createActivity()"
+        >
+          ADD
+        </button>
+      </span>
 
       <button mat-button color="warn" routerLink="../../" button>CLOSE</button>
     </app-page-header>
@@ -129,10 +141,15 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
     textarea {
       min-height: 150px;
     }
+
+    .add-tooltip {
+      display: inline-block;
+    }
   `,
   imports: [
     MatDialogModule,
     MatButtonModule,
+    MatTooltipModule,
     CommonModule,
     RouterModule,
     AppPageHeaderComponent,
