@@ -12,6 +12,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,15 +37,26 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
     <app-page-header
       title="Update '{{ activity.name }}' from '{{ course.name }}' 🛠️"
     >
-      <button
-        mat-button
-        color="primary"
+      <span
+        class="update-tooltip"
         button
-        [disabled]="updateActivityFormGroup.invalid || !canUpdate"
-        (click)="updateActivity()"
+        [matTooltip]="
+          updateActivityFormGroup.invalid || !canUpdate
+            ? 'No changes to update'
+            : ''
+        "
+        [matTooltipDisabled]="!(updateActivityFormGroup.invalid || !canUpdate)"
       >
-        UPDATE
-      </button>
+        <button
+          mat-button
+          color="primary"
+          button
+          [disabled]="updateActivityFormGroup.invalid || !canUpdate"
+          (click)="updateActivity()"
+        >
+          UPDATE
+        </button>
+      </span>
 
       <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
@@ -135,10 +147,15 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
     textarea {
       min-height: 150px;
     }
+
+    .update-tooltip {
+      display: inline-block;
+    }
   `,
   imports: [
     MatDialogModule,
     MatButtonModule,
+    MatTooltipModule,
     CommonModule,
     RouterModule,
     AppPageHeaderComponent,
@@ -243,8 +260,11 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
     this.cdr.markForCheck();
   }
 
-  async getActivity() {
+  async updateActivity() {
+    this.updateActivityFormGroup.markAllAsTouched();
+
     const activityId = this.activity.id;
+    const description = this.updateActivityFormGroup.controls.description.value;
 
     if (activityId == null) {
       return;
@@ -254,39 +274,6 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       return;
     }
 
-    try {
-      this.loadingActivity = true;
-
-      this.activity = await this.activityService.apiActivityIdGetAsync({
-        id: activityId,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        this.toastService.open(error.message, 'error');
-      }
-    } finally {
-      this.loadingActivity = false;
-      this.resetForm();
-      this.cdr.detectChanges();
-    }
-  }
-
-  async updateActivity() {
-    this.updateActivityFormGroup.markAllAsTouched();
-
-    const activityId = this.activity.id;
-    const description = this.updateActivityFormGroup.controls.description.value;
-
-    if (activityId == null || description == null) {
-      return;
-    }
-
-    if (this.isLoading) {
-      return;
-    }
-
-    // Commit pending deletions BEFORE setting submitting=true
-    // (which would hide the dropzone and destroy the component reference)
     if (this.dropzone?.hasPendingDeletions) {
       try {
         await this.dropzone.commitPendingDeletions();
@@ -302,8 +289,8 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
     this.cdr.detectChanges();
 
     try {
-      // Create DB records for newly uploaded documents
       const newDocuments = this.dropzone?.getNewlyUploadedDocuments() ?? [];
+
       if (newDocuments.length > 0) {
         for (const doc of newDocuments) {
           await this.activityService.apiActivityIdDocumentPostAsync({
@@ -332,7 +319,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.cdr.detectChanges();
 
       this.toastService.open(
-        `Succesfully updated ${this.activity.name}`,
+        `Succesfully updated activity ${this.activity.name}`,
         'info'
       );
 
@@ -351,8 +338,6 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.submitting = false;
       this.redirecting = false;
       this.cdr.detectChanges();
-
-      this.getActivity();
     }
   }
 
@@ -366,7 +351,6 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
           return;
         }
 
-        // Cleanup newly uploaded files from S3
         await this.dropzone?.cleanupNewFiles();
       }
 

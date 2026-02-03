@@ -349,7 +349,9 @@ export class ActivityDocsDropzoneComponent {
   }
 
   get hasPendingChanges() {
-    return this.hasQueued || this.hasPendingAdditions || this.hasPendingDeletions;
+    return (
+      this.hasQueued || this.hasPendingAdditions || this.hasPendingDeletions
+    );
   }
 
   trackByItem = (index: number, file: QueuedFile) =>
