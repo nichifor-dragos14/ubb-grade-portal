@@ -13,7 +13,7 @@ import { ActivityService, CourseService } from '$backend/services';
 import { DialogPageComponent } from '$shared/dialog-page';
 import { ProfessorAddActivityComponent } from './courses/professor-add-activity.component';
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
-import { ProfessorActivityFeedbackComponent } from './professor-activity-feedback/professor-activity-feedback.component';
+import { ProfessorActivityFeedbackComponent } from './feedback/professor-activity-feedback/professor-activity-feedback.component';
 
 const PROFESSOR_ROUTES: Routes = [
   {
