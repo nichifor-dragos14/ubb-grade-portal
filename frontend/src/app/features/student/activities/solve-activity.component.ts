@@ -9,6 +9,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -25,15 +26,24 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
   standalone: true,
   template: `
     <app-page-header title="Solve '{{ activity.name }}' 📝">
-      <button
-        mat-button
-        color="primary"
-        (click)="done()"
-        [disabled]="!dropzone?.hasUploadedFiles"
+      <span
+        class="submit-tooltip"
         button
+        [matTooltip]="
+          !dropzone?.hasUploadedFiles ? 'Please upload at least one file' : ''
+        "
+        [matTooltipDisabled]="!!dropzone?.hasUploadedFiles"
       >
-        SUBMIT
-      </button>
+        <button
+          mat-button
+          color="primary"
+          (click)="done()"
+          [disabled]="!dropzone?.hasUploadedFiles"
+          button
+        >
+          SUBMIT
+        </button>
+      </span>
       <button mat-button color="warn" (click)="close()" button>CLOSE</button>
     </app-page-header>
 
@@ -83,6 +93,10 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         gap: 8px;
         margin-top: 12px;
       }
+
+      .submit-tooltip {
+        display: inline-block;
+      }
     `,
   ],
   imports: [
@@ -90,6 +104,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     RouterModule,
     MatDialogModule,
     MatButtonModule,
+    MatTooltipModule,
     MatIconModule,
     MatProgressSpinnerModule,
     AppPageHeaderComponent,
