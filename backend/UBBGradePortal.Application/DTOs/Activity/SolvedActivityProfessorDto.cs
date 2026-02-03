@@ -2,7 +2,7 @@
 
 namespace UBBGradePortal.Application.DTOs.Activity;
 
-public record SolvedActivityProfessorDetailsDto(
+public record SolvedActivityProfessorDto(
     Guid Id,
     SolvedActivityStatus Status,
     string? SolvedByName,
@@ -12,3 +12,4 @@ public record SolvedActivityProfessorDetailsDto(
     DateTime? UpdatedOn,
     ActivityDetailsDto Activity
 );
+

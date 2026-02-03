@@ -21,8 +21,7 @@ import { DateConverterModule } from '$shared/date-converter';
 import {
   ActivityService,
   PaginatedProfessorSolvedActivityDto,
-  SolvedActivityDetailsDto,
-  SolvedActivityProfessorDetailsDto,
+  SolvedActivityProfessorDto,
   SolvedActivityStatus,
 } from '$backend/services';
 
@@ -47,11 +46,12 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfessorActivityFeedbackComponent implements OnInit {
-  private readonly activityService = inject(ActivityService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
 
-  solvedActivities: SolvedActivityProfessorDetailsDto[] = [];
+  private readonly activityService = inject(ActivityService);
+
+  solvedActivities: SolvedActivityProfessorDto[] = [];
   totalCount = 0;
 
   pageIndex = 0;
@@ -81,10 +81,11 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   async onStatusChange(value: SolvedActivityStatus) {
     this.statusFilter = value;
     this.pageIndex = 0;
+
     await this.loadPage();
   }
 
-  getStatusLabel(status: SolvedActivityStatus): string {
+  getStatusLabel(status: SolvedActivityStatus) {
     switch (status) {
       case SolvedActivityStatus.$0:
         return 'Submitted';
@@ -93,11 +94,11 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       case SolvedActivityStatus.$2:
         return 'Returned';
       default:
-        return 'Unknown';
+        return 'Status unknown';
     }
   }
 
-  getStatusClass(status: SolvedActivityStatus): string {
+  getStatusClass(status: SolvedActivityStatus) {
     switch (status) {
       case SolvedActivityStatus.$0:
         return 'status-submitted';
@@ -110,14 +111,12 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     }
   }
 
-  getSubmittedOn(
-    item: SolvedActivityProfessorDetailsDto
-  ): string | null | undefined {
-    return item.updatedOn || item.createdOn;
+  getSubmittedOn(solvedActivity: SolvedActivityProfessorDto) {
+    return solvedActivity.updatedOn || solvedActivity.createdOn;
   }
 
-  getSubmitterName(item: SolvedActivityProfessorDetailsDto): string {
-    return item?.solvedByName || 'Unknown student';
+  getSubmitterName(solvedActivity: SolvedActivityProfessorDto) {
+    return solvedActivity?.solvedByName || 'Unknown student';
   }
 
   private async loadPage() {

@@ -21,8 +21,15 @@
   @if (solvedActivities.length === 0) {
     <div class="empty-state">No submissions found.</div>
   }
-  @for (item of solvedActivities; track item.id) {
-    <div mat-list-item class="solved-item">
+
+  @for (solvedActivity of solvedActivities; track solvedActivity.id) {
+    <div
+      mat-list-item
+      class="solved-item"
+      [routerLink]="[solvedActivity.id]"
+      routerLinkActive="isActive"
+      [state]="{ solvedActivity: solvedActivity }"
+    >
       <span matListItemIcon class="item-icon">
         <mat-icon>assignment_turned_in</mat-icon>
       </span>
@@ -30,20 +37,25 @@
       <div class="item-content">
         <div class="title-row">
           <span class="title">
-            '{{ item.activity.name }}' from '{{ item.courseName }}'
+            '{{ solvedActivity.activity.name }}' from '{{
+              solvedActivity.courseName
+            }}'
           </span>
-          <span class="status-chip" [ngClass]="getStatusClass(item.status)">
-            {{ getStatusLabel(item.status) }}
+          <span
+            class="status-chip"
+            [ngClass]="getStatusClass(solvedActivity.status)"
+          >
+            {{ getStatusLabel(solvedActivity.status) }}
           </span>
         </div>
 
         <div class="meta-row">
-          <span *ngIf="getSubmittedOn(item) as submittedOn">
-            Submitted by {{ getSubmitterName(item) }} on
+          <span *ngIf="getSubmittedOn(solvedActivity) as submittedOn">
+            Submitted by {{ getSubmitterName(solvedActivity) }} on
             {{ submittedOn | dateFormat }}
           </span>
-          <span *ngIf="item.grade !== 0" class="grade">
-            Graded with {{ item.grade }}
+          <span *ngIf="solvedActivity.grade !== 0" class="grade">
+            Graded with {{ solvedActivity.grade }}
           </span>
         </div>
       </div>

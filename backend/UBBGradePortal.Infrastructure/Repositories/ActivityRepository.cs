@@ -119,6 +119,8 @@ public class ActivityRepository : IActivityRepository
         return await _dbContext
             .SolvedActivities
             .Include(s => s.SolvedActivityDocuments)
+            .Include(s => s.Activity)
+                .ThenInclude(a => a.ActivityDocuments)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
 

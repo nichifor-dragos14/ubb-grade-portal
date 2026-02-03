@@ -451,6 +451,39 @@
         }
       }
     },
+    "/api/Activity/solved/{id}/professor": {
+      "get": {
+        "tags": [
+          "Activity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolvedActivityDetailsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/api/Activity/{id}/last/solved": {
       "get": {
         "tags": [
@@ -1572,7 +1605,7 @@
           "solvedActivities": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SolvedActivityProfessorDetailsDto"
+              "$ref": "#/components/schemas/SolvedActivityProfessorDto"
             }
           }
         },
@@ -1852,7 +1885,7 @@
         },
         "additionalProperties": false
       },
-      "SolvedActivityProfessorDetailsDto": {
+      "SolvedActivityProfessorDto": {
         "required": [
           "activity",
           "grade",

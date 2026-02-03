@@ -2,5 +2,5 @@
 
 public record PaginatedProfessorSolvedActivityDto(
     int Count,
-    List<SolvedActivityProfessorDetailsDto> SolvedActivities
+    List<SolvedActivityProfessorDto> SolvedActivities
 );

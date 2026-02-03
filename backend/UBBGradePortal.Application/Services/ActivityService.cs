@@ -233,7 +233,7 @@ public class ActivityService : IActivityService
             new PaginatedProfessorSolvedActivityDto(
                 Count,
                 Activities
-                    .Select(solvedActivity => new SolvedActivityProfessorDetailsDto(
+                    .Select(solvedActivity => new SolvedActivityProfessorDto(
                             solvedActivity.Id,
                             solvedActivity.Status,
                             $"{solvedActivity.User?.LastName} {solvedActivity.User?.FirstName}".Trim(),
@@ -250,6 +250,58 @@ public class ActivityService : IActivityService
                         )
                     ).ToList()
                 );
+    }
+    public async Task<SolvedActivityDetailsDto?> GetSolvedActivityByIdProfessor(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var solvedActivity = await _activityRepository.GetSolvedActivityById(id, cancellationToken);
+
+        if (solvedActivity == null)
+        {
+            _logger.LogInformation($"The activity doesn't have any solved activity");
+
+            throw new NotFoundException("The activity doesn't have any solved activity");
+        }
+
+        return
+            new SolvedActivityDetailsDto(
+                solvedActivity.Id,
+                solvedActivity.Status,
+                solvedActivity.Grade,
+                solvedActivity.ProfessorComment,
+                solvedActivity.CreatedOn,
+                solvedActivity.UpdatedOn,
+                new ActivityDetailsDto(
+                    solvedActivity.Activity.Id,
+                    solvedActivity.Activity.Name,
+                    solvedActivity.Activity.Description,
+                    solvedActivity.Activity.ActivityDocuments
+                        .Select(d =>
+                            new ActivityDocumentDto(
+                                d.Id,
+                                d.OriginalName,
+                                d.ContentType,
+                                d.SizeBytes,
+                                d.CreatedOn,
+                                d.Key,
+                                d.Bucket
+                            )
+                        )
+                        .ToList()
+                ),
+                solvedActivity.SolvedActivityDocuments
+                        .Select(d =>
+                            new SolvedActivityDocumentDto(
+                                d.Id,
+                                d.OriginalName,
+                                d.ContentType,
+                                d.SizeBytes,
+                                d.CreatedOn,
+                                d.Key,
+                                d.Bucket
+                            )
+                        )
+                        .ToList()
+            );
     }
 
     public async Task<SolvedActivityDetailsDto?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)

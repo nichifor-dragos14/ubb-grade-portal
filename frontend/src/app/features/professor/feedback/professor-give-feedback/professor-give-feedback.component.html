@@ -1,0 +1,131 @@
+<section role="course-actions">
+  <a mat-icon-button (click)="close()" color="accent">
+    <mat-icon>close</mat-icon>
+  </a>
+
+  <button
+    mat-button
+    color="warn"
+    type="button"
+    [disabled]="isLoading || !canReturn"
+    (click)="returnActivity()"
+  >
+    RETURN
+  </button>
+
+  <button
+    mat-button
+    color="primary"
+    type="submit"
+    [disabled]="isLoading || !canGrade"
+    (click)="gradeActivity()"
+  >
+    GRADE
+  </button>
+</section>
+
+<div *ngIf="isLoading" class="form-loader">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<div *ngIf="!isLoading && solvedActivity" class="content">
+  <section class="card">
+    <div class="card-title">Submission details 📄</div>
+
+    <div class="details-grid">
+      <div class="detail-item">
+        <span class="label">Activity</span>
+        <span class="value">{{ solvedActivity.activity.name }}</span>
+      </div>
+
+      <!-- <div class="detail-item">
+        <span class="label">Course</span>
+        <span class="value">{{ solvedActivity.courseName }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="label">Student</span>
+        <span class="value">{{ submitterName }}</span>
+      </div> -->
+
+      <div class="detail-item">
+        <span class="label">Status</span>
+        <span class="value">{{ statusLabel }}</span>
+      </div>
+
+      <div class="detail-item" *ngIf="submittedOn">
+        <span class="label">Submitted on</span>
+        <span class="value">{{ submittedOn | dateFormat }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">Activity description ✍️</div>
+    <p
+      class="description"
+      *ngIf="solvedActivity.activity.description; else noDescription"
+    >
+      {{ solvedActivity.activity.description }}
+    </p>
+    <ng-template #noDescription>
+      <p class="description empty">No description provided.</p>
+    </ng-template>
+  </section>
+
+  <section class="card">
+    <div class="card-title">Activity resources 📎</div>
+    <app-document-viewer
+      [documents]="solvedActivity.activity.activityDocuments"
+    >
+    </app-document-viewer>
+    <div
+      *ngIf="solvedActivity.activity.activityDocuments.length === 0"
+      class="empty-state"
+    >
+      No activity resources.
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">Student submission 📎</div>
+    <app-document-viewer [documents]="submissionDocuments">
+    </app-document-viewer>
+    <div *ngIf="submissionDocuments.length === 0" class="empty-state">
+      No submission documents were provided.
+    </div>
+  </section>
+
+  <form [formGroup]="feedbackForm">
+    <section class="card">
+      <div class="card-title">Professor feedback ✍️</div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Grade (1-10)</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1"
+          max="10"
+          formControlName="grade"
+          placeholder="Enter a grade from 1 to 10"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Comment (optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="professorComment"
+          placeholder="Add feedback for the student"
+        >
+        </textarea>
+      </mat-form-field>
+    </section>
+  </form>
+</div>
+
+<div *ngIf="!isLoading && !solvedActivity" class="empty-state">
+  Select a submission to view details.
+</div>

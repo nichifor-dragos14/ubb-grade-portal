@@ -14,6 +14,7 @@ import { DialogPageComponent } from '$shared/dialog-page';
 import { ProfessorAddActivityComponent } from './courses/professor-add-activity.component';
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
 import { ProfessorActivityFeedbackComponent } from './feedback/professor-activity-feedback/professor-activity-feedback.component';
+import { ProfessorGiveFeedbackComponent } from './feedback/professor-give-feedback/professor-give-feedback.component';
 
 const PROFESSOR_ROUTES: Routes = [
   {
@@ -131,6 +132,32 @@ const PROFESSOR_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { roles: ['Professor'] },
     component: ProfessorActivityFeedbackComponent,
+    children: [
+      {
+        path: ':id',
+        component: ProfessorGiveFeedbackComponent,
+        resolve: {
+          solvedActivity: async ({ params }: ActivatedRouteSnapshot) => {
+            const router = inject(Router);
+            const activityService = inject(ActivityService);
+
+            const id = params['id'];
+
+            try {
+              return await activityService.apiActivitySolvedIdProfessorGetAsync(
+                {
+                  id,
+                }
+              );
+            } catch (error) {
+              router.navigate(['/error']);
+
+              return null;
+            }
+          },
+        },
+      },
+    ],
   },
 ] satisfies Routes;
 

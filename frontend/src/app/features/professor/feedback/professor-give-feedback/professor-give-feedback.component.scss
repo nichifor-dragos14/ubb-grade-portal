@@ -1,0 +1,89 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px !important;
+  gap: 16px;
+  background: #f9fafb;
+}
+
+.form-loader {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+}
+
+section[role='course-actions'] {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1f2937;
+  margin-bottom: 18px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.value {
+  font-size: 14px;
+  color: #111827;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.description.empty {
+  color: #6b7280;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  min-height: 140px;
+}
+
+.empty-state {
+  color: #6b7280;
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
