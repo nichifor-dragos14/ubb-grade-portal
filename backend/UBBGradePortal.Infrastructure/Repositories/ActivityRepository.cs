@@ -79,6 +79,28 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var solvedActivities = await _dbContext
+            .SolvedActivities
+            .Include(sa => sa.Activity)
+                .ThenInclude(a => a.Course)
+                .ThenInclude(c => c.CreatedByUser)
+            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId)
+            .OrderByDescending(sa => sa.UpdatedOn)
+            .ToListAsync(cancellationToken);
+
+        var count = solvedActivities.Count;
+
+        return (
+            count,
+            solvedActivities
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList()
+        );
+    }
+
     public async Task<Activity?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
     {
         return await _dbContext.Activities

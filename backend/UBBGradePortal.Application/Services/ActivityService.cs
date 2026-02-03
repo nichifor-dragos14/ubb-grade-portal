@@ -225,6 +225,57 @@ public class ActivityService : IActivityService
         await _activityRepository.DeleteDocument(activityDocument, cancellationToken);
     }
 
+    public async Task<PaginatedProfessorSolvedActivityDto> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var (Count, Activities) = await _activityRepository.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, loggedUserId, cancellationToken);
+
+        return
+            new PaginatedProfessorSolvedActivityDto(
+                Count,
+                Activities
+                    .Select(solvedActivity => new SolvedActivityDetailsDto(
+                            solvedActivity.Id,
+                            solvedActivity.Status,
+                            solvedActivity.Grade,
+                            solvedActivity.ProfessorComment,
+                            solvedActivity.CreatedOn,
+                            solvedActivity.UpdatedOn,
+                            new ActivityDetailsDto(
+                                solvedActivity.Activity.Id,
+                                solvedActivity.Activity.Name,
+                                solvedActivity.Activity.Description,
+                                solvedActivity.Activity.ActivityDocuments
+                                    .Select(d =>
+                                        new ActivityDocumentDto(
+                                            d.Id,
+                                            d.OriginalName,
+                                            d.ContentType,
+                                            d.SizeBytes,
+                                            d.CreatedOn,
+                                            d.Key,
+                                            d.Bucket
+                                        )
+                                    )
+                                    .ToList()
+                            ),
+                            solvedActivity.SolvedActivityDocuments
+                                    .Select(d =>
+                                        new SolvedActivityDocumentDto(
+                                            d.Id,
+                                            d.OriginalName,
+                                            d.ContentType,
+                                            d.SizeBytes,
+                                            d.CreatedOn,
+                                            d.Key,
+                                            d.Bucket
+                                        )
+                                    )
+                                    .ToList()
+                        )
+                    ).ToList()
+                );
+    }
+
     public async Task<SolvedActivityDetailsDto?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var activity = await _activityRepository.GetActivityLastSolvedActivity(activityId, loggedUserId, cancellationToken);

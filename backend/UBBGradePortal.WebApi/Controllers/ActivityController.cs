@@ -213,8 +213,32 @@ public class ActivityController : ControllerBase
         }
     }
 
-    /// <summary> Get an activity last submission from user (solved activity) by id </summary>
-    [HttpGet("{id}/last/solved")]
+    /// <summary> Get all the solved activities for a professor's courses </summary>
+    [HttpGet("created")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<PaginatedProfessorSolvedActivityDto>, BadRequest, ForbidHttpResult>> GetAllProfessorCreated(
+        [FromQuery] int pageNumber,
+        [FromQuery] int pageSize,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var paginatedResponse = await _activityService.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(paginatedResponse);
+    }
+
+        /// <summary> Get an activity last submission from user (solved activity) by id </summary>
+        [HttpGet("{id}/last/solved")]
     [Authorize(Roles = "Student")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
