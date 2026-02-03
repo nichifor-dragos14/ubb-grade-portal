@@ -1,1 +1,63 @@
-<p>professor-activity-feedback works!</p>
+<app-page-header title="Submissions 🧾">
+  <mat-form-field appearance="outline" class="header-filter" button>
+    <mat-label>Status</mat-label>
+    <mat-select
+      [value]="statusFilter"
+      (selectionChange)="onStatusChange($event.value)"
+    >
+      @for (option of statusOptions; track option.label) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</app-page-header>
+
+<div class="overlay" *ngIf="isLoading">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
+</div>
+
+<mat-nav-list *ngIf="!isLoading" class="list">
+  @if (solvedActivities.length === 0) {
+    <div class="empty-state">No submissions found.</div>
+  }
+  @for (item of solvedActivities; track item.id) {
+    <div mat-list-item class="solved-item">
+      <span matListItemIcon class="item-icon">
+        <mat-icon>assignment_turned_in</mat-icon>
+      </span>
+
+      <div class="item-content">
+        <div class="title-row">
+          <span class="title">
+            '{{ item.activity.name }}' from '{{ item.courseName }}'
+          </span>
+          <span class="status-chip" [ngClass]="getStatusClass(item.status)">
+            {{ getStatusLabel(item.status) }}
+          </span>
+        </div>
+
+        <div class="meta-row">
+          <span *ngIf="getSubmittedOn(item) as submittedOn">
+            Submitted by {{ getSubmitterName(item) }} on
+            {{ submittedOn | dateFormat }}
+          </span>
+          <span *ngIf="item.grade !== 0" class="grade">
+            Graded with {{ item.grade }}
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+</mat-nav-list>
+
+<mat-paginator
+  [length]="totalCount"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  showFirstLastButtons
+  (page)="onPageChange($event)"
+>
+</mat-paginator>
+
+<router-outlet hidden />

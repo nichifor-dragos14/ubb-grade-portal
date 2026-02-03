@@ -5,6 +5,7 @@ using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.Exceptions;
+using UBBGradePortal.Domain.Entities;
 
 namespace UBBGradePortal.WebApi.Controllers;
 
@@ -214,12 +215,13 @@ public class ActivityController : ControllerBase
     }
 
     /// <summary> Get all the solved activities for a professor's courses </summary>
-    [HttpGet("created")]
+    [HttpGet("solved/professor")]
     [Authorize(Roles = "Professor")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<Results<Ok<PaginatedProfessorSolvedActivityDto>, BadRequest, ForbidHttpResult>> GetAllProfessorCreated(
+    public async Task<Results<Ok<PaginatedProfessorSolvedActivityDto>, BadRequest, ForbidHttpResult>> GetAllSolvedActivitiesForProfessor(
+        [FromQuery] SolvedActivityStatus status,
         [FromQuery] int pageNumber,
         [FromQuery] int pageSize,
         CancellationToken cancellationToken
@@ -232,7 +234,7 @@ public class ActivityController : ControllerBase
             return TypedResults.Forbid();
         }
 
-        var paginatedResponse = await _activityService.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, loggedUserId, cancellationToken);
+        var paginatedResponse = await _activityService.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, status, loggedUserId, cancellationToken);
 
         return TypedResults.Ok(paginatedResponse);
     }

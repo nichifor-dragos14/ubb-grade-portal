@@ -225,52 +225,28 @@ public class ActivityService : IActivityService
         await _activityRepository.DeleteDocument(activityDocument, cancellationToken);
     }
 
-    public async Task<PaginatedProfessorSolvedActivityDto> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<PaginatedProfessorSolvedActivityDto> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken)
     {
-        var (Count, Activities) = await _activityRepository.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, loggedUserId, cancellationToken);
+        var (Count, Activities) = await _activityRepository.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, status, loggedUserId, cancellationToken);
 
         return
             new PaginatedProfessorSolvedActivityDto(
                 Count,
                 Activities
-                    .Select(solvedActivity => new SolvedActivityDetailsDto(
+                    .Select(solvedActivity => new SolvedActivityProfessorDetailsDto(
                             solvedActivity.Id,
                             solvedActivity.Status,
+                            $"{solvedActivity.User?.LastName} {solvedActivity.User?.FirstName}".Trim(),
+                            solvedActivity.Activity.Course.Name,
                             solvedActivity.Grade,
-                            solvedActivity.ProfessorComment,
                             solvedActivity.CreatedOn,
                             solvedActivity.UpdatedOn,
                             new ActivityDetailsDto(
                                 solvedActivity.Activity.Id,
                                 solvedActivity.Activity.Name,
                                 solvedActivity.Activity.Description,
-                                solvedActivity.Activity.ActivityDocuments
-                                    .Select(d =>
-                                        new ActivityDocumentDto(
-                                            d.Id,
-                                            d.OriginalName,
-                                            d.ContentType,
-                                            d.SizeBytes,
-                                            d.CreatedOn,
-                                            d.Key,
-                                            d.Bucket
-                                        )
-                                    )
-                                    .ToList()
-                            ),
-                            solvedActivity.SolvedActivityDocuments
-                                    .Select(d =>
-                                        new SolvedActivityDocumentDto(
-                                            d.Id,
-                                            d.OriginalName,
-                                            d.ContentType,
-                                            d.SizeBytes,
-                                            d.CreatedOn,
-                                            d.Key,
-                                            d.Bucket
-                                        )
-                                    )
-                                    .ToList()
+                                []
+                            )
                         )
                     ).ToList()
                 );

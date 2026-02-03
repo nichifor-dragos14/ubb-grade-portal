@@ -79,14 +79,15 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var solvedActivities = await _dbContext
             .SolvedActivities
+            .Include(sa => sa.User)
             .Include(sa => sa.Activity)
                 .ThenInclude(a => a.Course)
-                .ThenInclude(c => c.CreatedByUser)
-            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId)
+                .ThenInclude(a => a.CreatedByUser)
+            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId && sa.Status == status)
             .OrderByDescending(sa => sa.UpdatedOn)
             .ToListAsync(cancellationToken);
 

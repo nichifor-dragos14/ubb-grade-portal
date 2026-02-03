@@ -11,7 +11,7 @@ public interface IActivityRepository
     Task<ActivityDocument?> GetDocument(Guid id, CancellationToken cancellationToken);
     Task<Guid> AddDocument(ActivityDocument activityDocument, CancellationToken cancellationToken);
     Task DeleteDocument(ActivityDocument activityDocument, CancellationToken cancellationToken);
-    Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
+    Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken);
     Task<Activity?> GetActivityLastSolvedActivity(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     Task<SolvedActivity?> GetSolvedActivityById(Guid id, CancellationToken cancellationToken);
     Task<Guid> AddSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken);

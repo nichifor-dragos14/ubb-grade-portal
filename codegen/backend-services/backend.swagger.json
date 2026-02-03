@@ -404,6 +404,53 @@
         }
       }
     },
+    "/api/Activity/solved/professor": {
+      "get": {
+        "tags": [
+          "Activity"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SolvedActivityStatus"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProfessorSolvedActivityDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/api/Activity/{id}/last/solved": {
       "get": {
         "tags": [
@@ -1511,6 +1558,26 @@
         },
         "additionalProperties": false
       },
+      "PaginatedProfessorSolvedActivityDto": {
+        "required": [
+          "count",
+          "solvedActivities"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "solvedActivities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SolvedActivityProfessorDetailsDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "PaginatedStudentCourseEnrollmentDto": {
         "required": [
           "count",
@@ -1781,6 +1848,50 @@
           },
           "bucket": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SolvedActivityProfessorDetailsDto": {
+        "required": [
+          "activity",
+          "grade",
+          "id",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SolvedActivityStatus"
+          },
+          "solvedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "courseName": {
+            "type": "string",
+            "nullable": true
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activity": {
+            "$ref": "#/components/schemas/ActivityDetailsDto"
           }
         },
         "additionalProperties": false
