@@ -11,11 +11,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { firstValueFrom } from 'rxjs';
 
 import {
   SolvedActivityDto,
@@ -25,6 +27,10 @@ import {
 import { AppToastService } from '$shared/toast';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { DateConverterModule } from '$shared/date-converter';
+import {
+  ConfirmActionDialog,
+  ConfirmActionDialogData,
+} from '$shared/dialogs/confirm-action-dialog.component';
 
 @Component({
   selector: 'app-professor-give-feedback',
@@ -36,6 +42,7 @@ import { DateConverterModule } from '$shared/date-converter';
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinner,
@@ -53,6 +60,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
   private readonly solvedActivityService = inject(SolvedActivityService);
+  private readonly dialog = inject(MatDialog);
 
   @Input() solvedActivity?: SolvedActivityDto;
 
@@ -169,8 +177,22 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  private async confirmAction(data: ConfirmActionDialogData): Promise<boolean> {
+    const ref = this.dialog.open(ConfirmActionDialog, {
+      data,
+      disableClose: true,
+      width: '520px',
+    });
+
+    return (await firstValueFrom(ref.afterClosed())) === true;
+  }
+
   async gradeActivity() {
     if (!this.solvedActivity) {
+      return;
+    }
+
+    if (this.isLoading) {
       return;
     }
 
@@ -182,8 +204,27 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
 
     const grade = this.grade.value ?? null;
     const professorComment = this.professorComment.value ?? '';
+    const hasComment = professorComment.trim().length > 0;
+    const studentName = this.submitterName;
+    const activityName = this.solvedActivity.activity?.name ?? 'this activity';
 
     if (grade === null || grade === undefined) {
+      return;
+    }
+
+    const confirmed = await this.confirmAction({
+      title: 'Confirm grading',
+      message: `Are you sure you want to grade ${studentName}'s submission for ${activityName} with ${grade}?${
+        hasComment
+          ? ''
+          : ' Please consider leaving any remarks you might have regarding the submission.'
+      }`,
+      confirmText: 'Grade',
+      cancelText: 'Cancel',
+      icon: 'grading',
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -207,6 +248,11 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
         professorComment: professorComment,
       };
 
+      this.feedbackForm.reset({
+        grade: null,
+        professorComment: '',
+      });
+
       this.toastService.open('Feedback saved', 'info');
     } catch (error) {
       if (error instanceof Error) {
@@ -223,7 +269,31 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
       return;
     }
 
+    if (this.isLoading) {
+      return;
+    }
+
     const professorComment = this.professorComment.value ?? '';
+    const hasComment = professorComment.trim().length > 0;
+    const studentName = this.submitterName;
+    const activityName = this.solvedActivity.activity?.name ?? 'this activity';
+
+    const confirmed = await this.confirmAction({
+      title: 'Confirm return',
+      message: `Are you sure you want to return ${studentName}'s submission for ${activityName}?${
+        hasComment
+          ? ''
+          : ' Please consider leaving any remarks you might have in order to guide the student for their future submission.'
+      }`,
+      confirmText: 'Return',
+      cancelText: 'Cancel',
+      icon: 'assignment_return',
+      confirmColor: 'warn',
+    });
+
+    if (!confirmed) {
+      return;
+    }
 
     try {
       this.submitting = true;
@@ -244,6 +314,11 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
         grade: 0,
         professorComment: professorComment,
       };
+
+      this.feedbackForm.reset({
+        grade: null,
+        professorComment: '',
+      });
 
       this.toastService.open('Submission returned to student', 'info');
     } catch (error) {
