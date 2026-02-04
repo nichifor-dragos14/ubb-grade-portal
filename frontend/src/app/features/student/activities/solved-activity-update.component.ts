@@ -74,7 +74,7 @@ import { DateConverterModule } from '$shared/date-converter';
 
     <div *ngIf="!isLoading && solvedActivity" class="content">
       <section class="card">
-        <h2 class="section-title">Activity details</h2>
+        <h2 class="section-title">Activity details 📌</h2>
         <p
           class="activity-description"
           *ngIf="solvedActivity.activity?.description; else noDescription"
@@ -94,7 +94,9 @@ import { DateConverterModule } from '$shared/date-converter';
       <section class="card submission-card">
         <div class="submission-header">
           <h2>
-            {{ isCompleted ? 'Your submission' : 'Your previous submission' }}
+            {{
+              isCompleted ? 'Your submission ✅' : 'Your previous submission 🕘'
+            }}
           </h2>
           <span class="status-chip" [ngClass]="statusClass">
             {{ statusLabel }}
@@ -155,6 +157,7 @@ import { DateConverterModule } from '$shared/date-converter';
         display: flex;
         flex-direction: column;
         gap: 12px;
+        background: #f9fafb;
       }
       .form-loader {
         min-height: 50vh;
@@ -162,8 +165,9 @@ import { DateConverterModule } from '$shared/date-converter';
         place-items: center;
       }
       .content {
-        overflow: auto;
-        padding: 0 12px 12px;
+        overflow-y: auto;
+        overflow-x: visible;
+        padding: 0 16px 16px;
         display: grid;
         gap: 16px;
       }
@@ -174,10 +178,19 @@ import { DateConverterModule } from '$shared/date-converter';
         padding: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       }
+      .card h2 {
+        font-weight: 400;
+      }
       .section-title {
         margin: 0 0 10px 0;
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 400;
+        color: #202124;
+      }
+      .submission-card h2 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 400;
         color: #202124;
       }
       .activity-description {

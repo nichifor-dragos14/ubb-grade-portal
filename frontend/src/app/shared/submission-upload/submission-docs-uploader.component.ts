@@ -105,7 +105,7 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
       }
 
       .name {
-        font-weight: 600;
+        font-weight: 400;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

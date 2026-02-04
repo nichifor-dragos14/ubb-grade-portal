@@ -57,20 +57,37 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     </div>
 
     <div *ngIf="!isLoading && activity" class="content">
-      <p>{{ activity.description }}</p>
+      <section class="card">
+        <h2 class="section-title">Activity details 📌</h2>
+        <p
+          class="activity-description"
+          *ngIf="activity.description; else noDescription"
+        >
+          {{ activity.description }}
+        </p>
+        <ng-template #noDescription>
+          <p class="activity-description empty">
+            This activity doesn't have a description yet.
+          </p>
+        </ng-template>
 
-      <app-document-viewer [documents]="activity.documents!">
-      </app-document-viewer>
+        <app-document-viewer [documents]="activity.documents!">
+        </app-document-viewer>
+      </section>
 
-      <app-submission-docs-dropzone
-        #dropzone
-        [solvedActivityId]="activity.id!"
-        [tenantId]="'default'"
-        accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
-        [maxSizeMB]="15"
-        [multiple]="true"
-      >
-      </app-submission-docs-dropzone>
+      <section class="card submission-card">
+        <h2>Upload your submission 📤</h2>
+
+        <app-submission-docs-dropzone
+          #dropzone
+          [solvedActivityId]="activity.id!"
+          [tenantId]="'default'"
+          accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
+          [maxSizeMB]="15"
+          [multiple]="true"
+        >
+        </app-submission-docs-dropzone>
+      </section>
     </div>
   `,
   styles: [
@@ -82,6 +99,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         display: flex;
         flex-direction: column;
         gap: 12px;
+        background: #f9fafb;
       }
       .form-loader {
         min-height: 50vh;
@@ -89,13 +107,48 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         place-items: center;
       }
       .content {
-        overflow: auto;
-        padding: 0 12px;
+        overflow-y: auto;
+        overflow-x: visible;
+        padding: 0 16px 16px;
+        display: grid;
+        gap: 16px;
       }
-      .actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
+
+      .card {
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      }
+      .card h2 {
+        font-weight: 400;
+      }
+
+      .section-title {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: #202124;
+      }
+
+      .activity-description {
+        margin: 0 0 12px 0;
+        color: #2d2d2d;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .activity-description.empty {
+        color: #8a8a8a;
+        font-style: italic;
+      }
+
+      .submission-card h2 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: #202124;
       }
 
       .submit-tooltip {
