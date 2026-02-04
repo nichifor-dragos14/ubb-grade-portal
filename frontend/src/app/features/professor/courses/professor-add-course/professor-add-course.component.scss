@@ -13,7 +13,9 @@ form {
   overflow-y: visible;
   overflow-x: visible;
   scrollbar-width: none;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .form-loader {
@@ -28,6 +30,10 @@ section[role='course-actions'] {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f9fafb;
 }
 
 .card {

@@ -18,6 +18,10 @@ section[role='course-actions'] {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f9fafb;
 }
 
 .card {
@@ -128,5 +132,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
   padding-bottom: 16px;
 }
