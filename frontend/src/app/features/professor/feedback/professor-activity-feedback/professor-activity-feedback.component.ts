@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   OnInit,
   inject,
 } from '@angular/core';
@@ -25,6 +26,9 @@ import {
   SolvedActivityService,
   SolvedActivityStatus,
 } from '$backend/services';
+import { ProfessorCoursesEventService } from '$features/professor/courses/professor-courses-event.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ProfessorFeedbackEventService } from '../professor-feedback-event.service';
 
 @Component({
   selector: 'app-professor-activity-feedback',
@@ -49,8 +53,12 @@ import {
 export class ProfessorActivityFeedbackComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly solvedActivityService = inject(SolvedActivityService);
+  private readonly professorFeedbackEventService = inject(
+    ProfessorFeedbackEventService
+  );
 
   solvedActivities: SolvedActivityDto[] = [];
   totalCount = 0;
@@ -69,6 +77,13 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   ];
 
   async ngOnInit() {
+    this.professorFeedbackEventService.gradedSolvedActivity$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        console.log('Received gradedSolvedActivity event');
+        this.loadPage();
+      });
+
     await this.loadPage();
   }
 

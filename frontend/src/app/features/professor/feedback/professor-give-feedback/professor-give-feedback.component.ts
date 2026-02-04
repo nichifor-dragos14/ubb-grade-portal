@@ -31,6 +31,7 @@ import {
   ConfirmActionDialog,
   ConfirmActionDialogData,
 } from '$shared/dialogs/confirm-action-dialog.component';
+import { ProfessorFeedbackEventService } from '../professor-feedback-event.service';
 
 @Component({
   selector: 'app-professor-give-feedback',
@@ -61,6 +62,9 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   private readonly toastService = inject(AppToastService);
   private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly dialog = inject(MatDialog);
+  private readonly professorFeedbackEventService = inject(
+    ProfessorFeedbackEventService
+  );
 
   @Input() solvedActivity?: SolvedActivityDto;
 
@@ -248,12 +252,12 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
         professorComment: professorComment,
       };
 
-      this.feedbackForm.reset({
-        grade: null,
-        professorComment: '',
+      this.professorFeedbackEventService.emitGradedSolvedActivity({
+        solvedActivityId: this.solvedActivity!.id,
       });
 
-      this.toastService.open('Feedback saved', 'info');
+      await this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      this.toastService.open('The activity was graded', 'info');
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');
@@ -315,12 +319,14 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
         professorComment: professorComment,
       };
 
-      this.feedbackForm.reset({
-        grade: null,
-        professorComment: '',
+      this.toastService.open(
+        'The activity was returned to the student',
+        'info'
+      );
+      this.professorFeedbackEventService.emitGradedSolvedActivity({
+        solvedActivityId: this.solvedActivity!.id,
       });
-
-      this.toastService.open('Submission returned to student', 'info');
+      await this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');
