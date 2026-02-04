@@ -90,6 +90,8 @@ export class StudentEnrollmentViewComponent
     y: 0,
   };
 
+  private hideTooltipTimer?: number;
+
   private resizeObs?: ResizeObserver;
 
   async ngOnInit() {
@@ -186,6 +188,11 @@ export class StudentEnrollmentViewComponent
       return;
     }
 
+    if (this.hideTooltipTimer) {
+      window.clearTimeout(this.hideTooltipTimer);
+      this.hideTooltipTimer = undefined;
+    }
+
     this.updateTooltipPositionFromNode(cp, cp.a.name);
   }
 
@@ -194,12 +201,19 @@ export class StudentEnrollmentViewComponent
       return;
     }
 
-    this.zone.run(() => {
-      this.tooltip.visible = false;
-      this.cdr.markForCheck();
-    });
+    if (this.hideTooltipTimer) {
+      window.clearTimeout(this.hideTooltipTimer);
+    }
 
-    this.tooltipDir?.hide(0);
+    this.hideTooltipTimer = window.setTimeout(() => {
+      this.zone.run(() => {
+        this.tooltip.visible = false;
+        this.cdr.markForCheck();
+      });
+
+      this.tooltipDir?.hide(0);
+      this.hideTooltipTimer = undefined;
+    }, 120);
   }
 
   private updateTooltipPositionFromNode(
