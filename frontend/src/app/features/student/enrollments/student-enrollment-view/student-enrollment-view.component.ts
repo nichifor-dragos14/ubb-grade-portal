@@ -23,6 +23,7 @@ import {
 } from '$backend/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -45,6 +46,7 @@ interface RoadmapPosition {
     CommonModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     AppPageHeaderComponent,
     RouterModule,
   ],
@@ -68,6 +70,8 @@ export class StudentEnrollmentViewComponent
   @ViewChild('roadPath', { static: false })
   roadPath?: ElementRef<SVGPathElement>;
   @ViewChild('svg', { static: false }) svgRef?: ElementRef<SVGSVGElement>;
+  @ViewChild('board', { static: false }) boardRef?: ElementRef<HTMLElement>;
+  @ViewChild(MatTooltip, { static: false }) tooltipDir?: MatTooltip;
 
   @Input() course!: CourseDetailsStudentDto;
 
@@ -78,6 +82,13 @@ export class StudentEnrollmentViewComponent
     'M 80 520 C 220 420, 540 560, 700 500 S 600 260, 420 260 S 220 200, 300 120';
 
   positions: RoadmapPosition[] = [];
+
+  tooltip = {
+    visible: false,
+    name: '',
+    x: 0,
+    y: 0,
+  };
 
   private resizeObs?: ResizeObserver;
 
@@ -167,6 +178,62 @@ export class StudentEnrollmentViewComponent
 
     void this.router.navigate(['activities', activity.id, route], {
       relativeTo: this.route,
+    });
+  }
+
+  onActivityHover(event: MouseEvent, cp: RoadmapPosition): void {
+    if (!cp.a?.name) {
+      return;
+    }
+
+    this.updateTooltipPositionFromNode(cp, cp.a.name);
+  }
+
+  onActivityLeave(): void {
+    if (!this.tooltip.visible) {
+      return;
+    }
+
+    this.zone.run(() => {
+      this.tooltip.visible = false;
+      this.cdr.markForCheck();
+    });
+
+    this.tooltipDir?.hide(0);
+  }
+
+  private updateTooltipPositionFromNode(
+    cp: RoadmapPosition,
+    name?: string
+  ): void {
+    const boardEl = this.boardRef?.nativeElement;
+    const svgEl = this.svgRef?.nativeElement;
+
+    if (!boardEl || !svgEl) {
+      return;
+    }
+
+    const boardRect = boardEl.getBoundingClientRect();
+    const svgRect = svgEl.getBoundingClientRect();
+    const svgOffsetX = svgRect.left - boardRect.left;
+    const svgOffsetY = svgRect.top - boardRect.top;
+    const scaleX = svgRect.width / 800;
+    const scaleY = svgRect.height / 600;
+    const x = svgOffsetX + cp.x * scaleX;
+    const y = svgOffsetY + cp.y * scaleY - 10;
+
+    this.zone.run(() => {
+      if (name !== undefined) {
+        this.tooltip.name = name;
+      }
+      this.tooltip.x = x;
+      this.tooltip.y = y;
+      this.tooltip.visible = true;
+      this.cdr.markForCheck();
+    });
+
+    requestAnimationFrame(() => {
+      this.tooltipDir?.show(0);
     });
   }
 

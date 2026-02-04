@@ -81,7 +81,7 @@ public class CourseService : ICourseService
                         c.CreatedOn,
                         c.Course.Activities.Count,
                         c.User.SolvedActivities
-                            .Where(s => c.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
+                            .Where(s => s.Status == SolvedActivityStatus.Completed && c.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
                             .DistinctBy(s => s.ActivityId)
                             .Count()
                     ))

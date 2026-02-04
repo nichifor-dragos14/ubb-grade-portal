@@ -133,10 +133,10 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   getCompletionLineText(totalNumber: number, solvedNumber: number): string {
     if (totalNumber === 0) {
-      return 'No activities yet';
+      return 'No activities were added by the professor yet';
     }
 
-    return `${solvedNumber} / ${totalNumber} activities completed`;
+    return `You completed ${solvedNumber} / ${totalNumber} activities`;
   }
 
   getCompletionClass(value: number): string {

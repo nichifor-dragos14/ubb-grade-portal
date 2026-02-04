@@ -12,7 +12,7 @@
   <span><span class="dot locked"></span> Locked</span>
 </div>
 
-<div class="board" *ngIf="course.activities.length; else noActivities">
+<div class="board" #board *ngIf="course.activities.length; else noActivities">
   <svg
     #svg
     class="map"
@@ -100,6 +100,8 @@
         class="activity-node"
         [class.clickable]="cp.state !== 'locked'"
         (click)="onActivityClick(cp.a, cp.state)"
+        (mouseenter)="onActivityHover($event, cp)"
+        (mouseleave)="onActivityLeave()"
       >
         <circle
           r="22"
@@ -136,6 +138,15 @@
       </g>
     </g>
   </svg>
+
+  <span
+    class="mat-tooltip-anchor"
+    [style.left.px]="tooltip.x"
+    [style.top.px]="tooltip.y"
+    [matTooltip]="tooltip.name"
+    [matTooltipDisabled]="!tooltip.visible"
+    matTooltipPosition="above"
+  ></span>
 </div>
 
 <ng-template #noActivities>

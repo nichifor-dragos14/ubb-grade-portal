@@ -64,6 +64,7 @@ section[role='course-actions'] {
   width: 100%;
   min-height: 560px;
   padding: 0 24px;
+  position: relative;
 }
 
 .map {
@@ -83,6 +84,13 @@ section[role='course-actions'] {
 
 .activity-node {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mat-tooltip-anchor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
 }
 
 .activity-node::before,
