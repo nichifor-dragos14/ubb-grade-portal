@@ -7,5 +7,5 @@ public record CourseDetailsStudentDto(
     string Name,
     string? Description,
     string CourseDomainName,
-    List<ActivityStudentDto> Activities
+    List<ActivityDto> Activities
 );

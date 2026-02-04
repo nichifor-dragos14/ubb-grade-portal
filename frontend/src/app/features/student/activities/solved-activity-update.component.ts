@@ -16,8 +16,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import {
   ActivityService,
-  ActivityDocumentDto,
-  SolvedActivityDetailsDto,
+  DocumentDto,
+  SolvedActivityDto,
+  SolvedActivityService,
   SolvedActivityStatus,
 } from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
@@ -35,10 +36,12 @@ import { DateConverterModule } from '$shared/date-converter';
     <app-page-header
       title="{{
         isCompleted
-          ? 'Your submission for ' + solvedActivity.activity.name + ' ✅'
+          ? 'Your submission for ' + solvedActivity.activity?.name + ' ✅'
           : isReturned
-            ? 'Resubmit your work for ' + solvedActivity.activity.name + ' ✍️'
-            : 'Edit your submission for ' + solvedActivity.activity.name + ' 🔄'
+            ? 'Resubmit your work for ' + solvedActivity.activity?.name + ' ✍️'
+            : 'Edit your submission for ' +
+              solvedActivity.activity?.name +
+              ' 🔄'
       }}"
     >
       <span
@@ -74,9 +77,9 @@ import { DateConverterModule } from '$shared/date-converter';
         <h2 class="section-title">Activity details</h2>
         <p
           class="activity-description"
-          *ngIf="solvedActivity.activity.description; else noDescription"
+          *ngIf="solvedActivity.activity?.description; else noDescription"
         >
-          {{ solvedActivity.activity.description }}
+          {{ solvedActivity.activity?.description }}
         </p>
         <ng-template #noDescription>
           <p class="activity-description empty">
@@ -84,9 +87,7 @@ import { DateConverterModule } from '$shared/date-converter';
           </p>
         </ng-template>
 
-        <app-document-viewer
-          [documents]="solvedActivity.activity.activityDocuments"
-        >
+        <app-document-viewer [documents]="solvedActivity.activity?.documents!">
         </app-document-viewer>
       </section>
 
@@ -127,13 +128,11 @@ import { DateConverterModule } from '$shared/date-converter';
         <ng-container *ngIf="!isCompleted; else submissionViewer">
           <app-submission-docs-dropzone
             #dropzone
-            [solvedActivityId]="solvedActivity.id"
+            [solvedActivityId]="solvedActivity.id!"
             [tenantId]="'default'"
             [disabled]="!canEdit"
             [allowDelete]="canEdit"
-            [queue]="
-              mapExistingToQueue(solvedActivity.solvedActivityDocuments || [])
-            "
+            [queue]="mapExistingToQueue(solvedActivity.documents || [])"
             accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
             [maxSizeMB]="15"
             [multiple]="true"
@@ -295,17 +294,18 @@ export class SolvedActivityUpdateComponent {
   private readonly dialog = inject(MatDialog);
 
   private readonly activityService = inject(ActivityService);
+  private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly studentSolvedActivityEventService = inject(
     StudentSolvedActivityEventService
   );
 
-  @Input() solvedActivity!: SolvedActivityDetailsDto;
+  @Input() solvedActivity!: SolvedActivityDto;
 
   @ViewChild('dropzone')
   dropzone?: SubmissionDocsDropzoneComponent;
 
   mapExistingToQueue(
-    docs: NonNullable<SolvedActivityDetailsDto['solvedActivityDocuments']>
+    docs: NonNullable<SolvedActivityDto['documents']>
   ): QueuedFile[] {
     return (docs || []).map((document) => ({
       id: document.id,
@@ -398,9 +398,8 @@ export class SolvedActivityUpdateComponent {
     return '';
   }
 
-  get submissionDocuments(): ActivityDocumentDto[] {
-    return (this.solvedActivity?.solvedActivityDocuments ??
-      []) as ActivityDocumentDto[];
+  get submissionDocuments(): DocumentDto[] {
+    return (this.solvedActivity?.documents ?? []) as DocumentDto[];
   }
 
   get lastUpdatedOn(): string | null | undefined {
@@ -433,9 +432,9 @@ export class SolvedActivityUpdateComponent {
       const payloadDocuments = documents ?? [];
 
       const returnedSolvedActivityId =
-        await this.activityService.apiActivitySolvedIdPutAsync({
+        await this.solvedActivityService.apiSolvedActivityIdPutAsync({
           id: solvedActivityId,
-          body: { solvedActivityDocuments: payloadDocuments },
+          body: { documents: payloadDocuments },
         });
 
       if (returnedSolvedActivityId) {

@@ -176,7 +176,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityDetailsDto"
+                  "$ref": "#/components/schemas/ActivityDto"
                 }
               }
             }
@@ -331,17 +331,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddActivityDocumentDto"
+                "$ref": "#/components/schemas/AddDocumentDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddActivityDocumentDto"
+                "$ref": "#/components/schemas/AddDocumentDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/AddActivityDocumentDto"
+                "$ref": "#/components/schemas/AddDocumentDto"
               }
             }
           }
@@ -372,278 +372,6 @@
       }
     },
     "/api/Activity/document/{id}": {
-      "delete": {
-        "tags": [
-          "Activity"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Activity/solved/professor": {
-      "get": {
-        "tags": [
-          "Activity"
-        ],
-        "parameters": [
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/SolvedActivityStatus"
-            }
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedProfessorSolvedActivityDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/Activity/solved/{id}/professor": {
-      "get": {
-        "tags": [
-          "Activity"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SolvedActivityDetailsDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/Activity/{id}/last/solved": {
-      "get": {
-        "tags": [
-          "Activity"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SolvedActivityDetailsDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Activity/solved": {
-      "post": {
-        "tags": [
-          "Activity"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddSolvedActivityDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddSolvedActivityDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddSolvedActivityDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Activity/solved/{id}": {
-      "put": {
-        "tags": [
-          "Activity"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Activity/solved/document/{id}": {
       "delete": {
         "tags": [
           "Activity"
@@ -1034,6 +762,276 @@
         }
       }
     },
+    "/api/SolvedActivity/professor": {
+      "get": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SolvedActivityStatus"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProfessorSolvedActivityDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/SolvedActivity/{id}": {
+      "get": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolvedActivityDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSolvedActivityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SolvedActivity/{activityId}/last": {
+      "get": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "activityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolvedActivityDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SolvedActivity": {
+      "post": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSolvedActivityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SolvedActivity/document/{id}": {
+      "delete": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Upload/presign": {
       "post": {
         "tags": [
@@ -1181,167 +1179,50 @@
   },
   "components": {
     "schemas": {
-      "ActivityDetailsDto": {
-        "required": [
-          "activityDocuments",
-          "id",
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "activityDocuments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ActivityDocumentDto"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "ActivityDocumentDto": {
-        "required": [
-          "bucket",
-          "contentType",
-          "createdOn",
-          "id",
-          "key",
-          "originalName",
-          "sizeBytes"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "originalName": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "sizeBytes": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "key": {
-            "type": "string"
-          },
-          "bucket": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
       "ActivityDto": {
         "required": [
-          "id",
-          "name",
-          "numberOfDocuments"
+          "documents",
+          "solvedActivities"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "description": {
             "type": "string",
             "nullable": true
-          },
-          "numberOfDocuments": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ActivityStudentDto": {
-        "required": [
-          "id",
-          "name",
-          "numberOfDocuments"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "numberOfDocuments": {
-            "type": "integer",
-            "format": "int32"
           },
           "createdOn": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "solvedStatus": {
+          "solvedActivityStatus": {
             "$ref": "#/components/schemas/SolvedActivityStatus"
-          }
-        },
-        "additionalProperties": false
-      },
-      "AddActivityDocumentDto": {
-        "required": [
-          "bucket",
-          "contentType",
-          "key",
-          "originalName",
-          "sizeBytes"
-        ],
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
           },
-          "originalName": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "sizeBytes": {
+          "numberOfDocuments": {
             "type": "integer",
-            "format": "int64"
-          },
-          "bucket": {
-            "type": "string"
-          },
-          "etag": {
-            "type": "string",
+            "format": "int32",
             "nullable": true
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentDto"
+            }
+          },
+          "solvedActivities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SolvedActivityDto"
+            }
           }
         },
         "additionalProperties": false
@@ -1388,7 +1269,7 @@
         },
         "additionalProperties": false
       },
-      "AddSolvedActivityDocumentDto": {
+      "AddDocumentDto": {
         "required": [
           "bucket",
           "contentType",
@@ -1424,7 +1305,7 @@
       "AddSolvedActivityDto": {
         "required": [
           "activityId",
-          "solvedActivityDocuments"
+          "documents"
         ],
         "type": "object",
         "properties": {
@@ -1432,10 +1313,10 @@
             "type": "string",
             "format": "uuid"
           },
-          "solvedActivityDocuments": {
+          "documents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AddSolvedActivityDocumentDto"
+              "$ref": "#/components/schemas/AddDocumentDto"
             }
           }
         },
@@ -1511,7 +1392,7 @@
           "activities": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ActivityStudentDto"
+              "$ref": "#/components/schemas/ActivityDto"
             }
           }
         },
@@ -1550,6 +1431,45 @@
             "type": "string"
           },
           "courseDomainName": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DocumentDto": {
+        "required": [
+          "bucket",
+          "contentType",
+          "createdOn",
+          "id",
+          "key",
+          "originalName",
+          "sizeBytes"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "key": {
+            "type": "string"
+          },
+          "bucket": {
             "type": "string"
           }
         },
@@ -1605,7 +1525,7 @@
           "solvedActivities": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SolvedActivityProfessorDto"
+              "$ref": "#/components/schemas/SolvedActivityDto"
             }
           }
         },
@@ -1799,26 +1719,24 @@
         "type": "integer",
         "format": "int32"
       },
-      "SolvedActivityDetailsDto": {
+      "SolvedActivityDto": {
         "required": [
-          "activity",
-          "grade",
-          "id",
-          "solvedActivityDocuments",
-          "status"
+          "documents"
         ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/SolvedActivityStatus"
           },
           "grade": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "professorComment": {
             "type": "string",
@@ -1834,73 +1752,6 @@
             "format": "date-time",
             "nullable": true
           },
-          "activity": {
-            "$ref": "#/components/schemas/ActivityDetailsDto"
-          },
-          "solvedActivityDocuments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SolvedActivityDocumentDto"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "SolvedActivityDocumentDto": {
-        "required": [
-          "bucket",
-          "contentType",
-          "createdOn",
-          "id",
-          "key",
-          "originalName",
-          "sizeBytes"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "originalName": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "sizeBytes": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "key": {
-            "type": "string"
-          },
-          "bucket": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "SolvedActivityProfessorDto": {
-        "required": [
-          "activity",
-          "grade",
-          "id",
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "$ref": "#/components/schemas/SolvedActivityStatus"
-          },
           "solvedByName": {
             "type": "string",
             "nullable": true
@@ -1909,22 +1760,14 @@
             "type": "string",
             "nullable": true
           },
-          "grade": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "activity": {
-            "$ref": "#/components/schemas/ActivityDetailsDto"
+            "$ref": "#/components/schemas/ActivityDto"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentDto"
+            }
           }
         },
         "additionalProperties": false
@@ -1998,14 +1841,14 @@
       },
       "UpdateSolvedActivityDto": {
         "required": [
-          "solvedActivityDocuments"
+          "documents"
         ],
         "type": "object",
         "properties": {
-          "solvedActivityDocuments": {
+          "documents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AddSolvedActivityDocumentDto"
+              "$ref": "#/components/schemas/AddDocumentDto"
             }
           }
         },

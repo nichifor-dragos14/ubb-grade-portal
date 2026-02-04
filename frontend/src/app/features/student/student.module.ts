@@ -6,7 +6,11 @@ import {
   Routes,
 } from '@angular/router';
 import { inject, NgModule } from '@angular/core';
-import { CourseService, ActivityService } from '$backend/services';
+import {
+  CourseService,
+  ActivityService,
+  SolvedActivityService,
+} from '$backend/services';
 import { StudentEnrollmentsComponent } from './enrollments/student-enrollments/student-enrollments.component';
 import { StudentEnrollmentViewComponent } from './enrollments/student-enrollment-view/student-enrollment-view.component';
 import { DialogPageComponent } from '$shared/dialog-page';
@@ -57,13 +61,15 @@ const STUDENT_ROUTES: Routes = [
                         params,
                       }: ActivatedRouteSnapshot) => {
                         const router = inject(Router);
-                        const activityService = inject(ActivityService);
+                        const solvedActivityService = inject(
+                          SolvedActivityService
+                        );
                         const id = params['id'];
 
                         try {
-                          return await activityService.apiActivityIdLastSolvedGetAsync(
+                          return await solvedActivityService.apiSolvedActivityActivityIdLastGetAsync(
                             {
-                              id,
+                              activityId: id,
                             }
                           );
                         } catch (error) {

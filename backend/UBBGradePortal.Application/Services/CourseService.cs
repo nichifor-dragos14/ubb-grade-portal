@@ -2,6 +2,7 @@
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Course;
+using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
@@ -110,8 +111,11 @@ public class CourseService : ICourseService
                             activity.Id,
                             activity.Name,
                             activity.Description,
+                            activity.CreatedOn,
+                            null,
                             activity.ActivityDocuments.Count,
-                            activity.CreatedOn
+                            [],
+                            []
                         )
                     )
                     .ToList()
@@ -189,17 +193,31 @@ public class CourseService : ICourseService
                 course.Activities
                     .OrderBy(c => c.CreatedOn)
                     .Select(
-                        activity => new ActivityStudentDto(
+                        activity => new ActivityDto(
                             activity.Id,
                             activity.Name,
                             activity.Description,
-                            activity.ActivityDocuments.Count,
                             activity.CreatedOn,
                             activity.SolvedActivities
-                                .Where(sa => sa.User.Id == loggedUserId)
-                                .OrderByDescending(sa => sa.CreatedOn)
-                                .FirstOrDefault()?.Status
-
+                            .Where(sa => sa.User.Id == loggedUserId)
+                            .OrderByDescending(sa => sa.CreatedOn)
+                            .Select(sa => new SolvedActivityDto(
+                                sa.Id,
+                                sa.Status,
+                                sa.Grade,
+                                sa.ProfessorComment,
+                                sa.CreatedOn,
+                                sa.UpdatedOn,
+                                null,
+                                null,
+                                null,
+                                []
+                                )
+                            )
+                            .FirstOrDefault()?.Status,
+                            activity.ActivityDocuments.Count,
+                            [],
+                            []
                         )
                     )
                     .ToList()

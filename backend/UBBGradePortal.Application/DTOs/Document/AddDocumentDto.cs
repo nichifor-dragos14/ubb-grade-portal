@@ -1,6 +1,6 @@
-﻿namespace UBBGradePortal.Application.DTOs.Activity;
+﻿namespace UBBGradePortal.Application.DTOs.Document;
 
-public record AddActivityDocumentDto(
+public record AddDocumentDto(
     string Key,
     string OriginalName,
     string ContentType,

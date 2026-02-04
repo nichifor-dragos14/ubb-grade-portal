@@ -36,10 +36,10 @@
     <div class="details-grid">
       <div class="detail-item">
         <span class="label">Activity</span>
-        <span class="value">{{ solvedActivity.activity.name }}</span>
+        <span class="value">{{ solvedActivity.activity?.name }}</span>
       </div>
 
-      <!-- <div class="detail-item">
+      <div class="detail-item">
         <span class="label">Course</span>
         <span class="value">{{ solvedActivity.courseName }}</span>
       </div>
@@ -47,7 +47,7 @@
       <div class="detail-item">
         <span class="label">Student</span>
         <span class="value">{{ submitterName }}</span>
-      </div> -->
+      </div>
 
       <div class="detail-item">
         <span class="label">Status</span>
@@ -65,9 +65,9 @@
     <div class="card-title">Activity description ✍️</div>
     <p
       class="description"
-      *ngIf="solvedActivity.activity.description; else noDescription"
+      *ngIf="solvedActivity.activity?.description; else noDescription"
     >
-      {{ solvedActivity.activity.description }}
+      {{ solvedActivity.activity?.description }}
     </p>
     <ng-template #noDescription>
       <p class="description empty">No description provided.</p>
@@ -76,12 +76,10 @@
 
   <section class="card">
     <div class="card-title">Activity resources 📎</div>
-    <app-document-viewer
-      [documents]="solvedActivity.activity.activityDocuments"
-    >
+    <app-document-viewer [documents]="solvedActivity.activity?.documents!">
     </app-document-viewer>
     <div
-      *ngIf="solvedActivity.activity.activityDocuments.length === 0"
+      *ngIf="solvedActivity.activity?.documents?.length === 0"
       class="empty-state"
     >
       No activity resources.

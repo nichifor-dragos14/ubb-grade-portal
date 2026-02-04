@@ -1,9 +1,16 @@
-﻿namespace UBBGradePortal.Application.DTOs.Activity;
+﻿using UBBGradePortal.Application.DTOs.Document;
+using UBBGradePortal.Application.DTOs.SolvedActivity;
+using UBBGradePortal.Domain.Entities;
+
+namespace UBBGradePortal.Application.DTOs.Activity;
 
 public record ActivityDto(
-    Guid Id,
-    string Name,
+    Guid? Id,
+    string? Name,
     string? Description,
-    int NumberOfDocuments,
-    DateTime? CreatedOn
+    DateTime? CreatedOn,
+    SolvedActivityStatus? SolvedActivityStatus,
+    int? NumberOfDocuments,
+    List<DocumentDto> Documents,
+    List<SolvedActivityDto> SolvedActivities
 );

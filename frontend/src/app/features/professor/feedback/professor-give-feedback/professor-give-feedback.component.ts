@@ -16,10 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
-import {
-  SolvedActivityDetailsDto,
-  SolvedActivityStatus,
-} from '$backend/services';
+import { SolvedActivityDto, SolvedActivityStatus } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { DateConverterModule } from '$shared/date-converter';
@@ -50,7 +47,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
 
-  @Input() solvedActivity?: SolvedActivityDetailsDto;
+  @Input() solvedActivity?: SolvedActivityDto;
 
   submitting = false;
   loading = false;
@@ -87,9 +84,9 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     return this.solvedActivity?.updatedOn || this.solvedActivity?.createdOn;
   }
 
-  //   get submitterName(): string {
-  //     return this.solvedActivity?.solvedByName || 'Unknown student';
-  //   }
+  get submitterName(): string {
+    return this.solvedActivity?.solvedByName || 'Unknown student';
+  }
 
   get statusLabel(): string {
     switch (this.solvedActivity?.status) {
@@ -112,11 +109,11 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   async ngOnInit() {
     const state = this.router.getCurrentNavigation()?.extras
       ?.state as unknown as {
-      solvedActivity?: SolvedActivityDetailsDto;
+      solvedActivity?: SolvedActivityDto;
     };
 
     const resolved = this.activatedRoute.snapshot.data['solvedActivity'] as
-      | SolvedActivityDetailsDto
+      | SolvedActivityDto
       | undefined;
 
     // this.solvedActivity = resolved ?? state?.solvedActivity;

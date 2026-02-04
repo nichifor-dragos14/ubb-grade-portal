@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
+using UBBGradePortal.Application.DTOs.Document;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
@@ -38,11 +39,11 @@ public class ActivityService : IActivityService
         var activities = await _activityRepository.GetAllByCourseId(courseId, cancellationToken);
 
         return activities
-            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.ActivityDocuments.Count, c.CreatedOn))
+            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.CreatedOn, null, c.ActivityDocuments.Count, [], []))
             .ToList();
     }
 
-    public async Task<ActivityDetailsDto?> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<ActivityDto?> GetById(Guid id, CancellationToken cancellationToken)
     {
         var activity = await _activityRepository.GetById(id, cancellationToken);
 
@@ -54,23 +55,10 @@ public class ActivityService : IActivityService
         }
 
         return
-            new ActivityDetailsDto(
-                activity.Id,
-                activity.Name,
-                activity.Description,
-                activity.ActivityDocuments
-                    .Select(d =>
-                        new ActivityDocumentDto(
-                            d.Id,
-                            d.OriginalName,
-                            d.ContentType,
-                            d.SizeBytes,
-                            d.CreatedOn,
-                            d.Key,
-                            d.Bucket
-                        )
-                    )
-                    .ToList()
+            new ActivityDto(activity.Id, activity.Name, activity.Description, activity.CreatedOn, null, activity.ActivityDocuments.Count, activity.ActivityDocuments
+                    .Select(d => new DocumentDto(d.Id, d.OriginalName, d.ContentType, d.SizeBytes, d.CreatedOn, d.Key, d.Bucket))
+                    .ToList(),
+                    []
             );
     }
 
@@ -140,7 +128,7 @@ public class ActivityService : IActivityService
         return await _activityRepository.Update(activity, cancellationToken);
     }
 
-    public async Task<Guid> AddDocument(AddActivityDocumentDto addActivityDocumentDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<Guid> AddDocument(AddDocumentDto addDocumentDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var activity = await _activityRepository.GetById(id, cancellationToken);
 
@@ -172,12 +160,12 @@ public class ActivityService : IActivityService
         var activityDocument = new ActivityDocument
         {
             Id = documentActivityId,
-            Key = addActivityDocumentDto.Key,
-            OriginalName = addActivityDocumentDto.OriginalName,
-            ContentType = addActivityDocumentDto.ContentType,
-            SizeBytes = addActivityDocumentDto.SizeBytes,
-            Bucket = addActivityDocumentDto.Bucket,
-            Etag = addActivityDocumentDto.Etag,
+            Key = addDocumentDto.Key,
+            OriginalName = addDocumentDto.OriginalName,
+            ContentType = addDocumentDto.ContentType,
+            SizeBytes = addDocumentDto.SizeBytes,
+            Bucket = addDocumentDto.Bucket,
+            Etag = addDocumentDto.Etag,
             IsDeleted = false,
             CreatedOn = DateTime.UtcNow,
             ActivityId = activity.Id,
@@ -223,248 +211,5 @@ public class ActivityService : IActivityService
         }
 
         await _activityRepository.DeleteDocument(activityDocument, cancellationToken);
-    }
-
-    public async Task<PaginatedProfessorSolvedActivityDto> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var (Count, Activities) = await _activityRepository.GetAllSolvedActivitiesProfessor(pageNumber, pageSize, status, loggedUserId, cancellationToken);
-
-        return
-            new PaginatedProfessorSolvedActivityDto(
-                Count,
-                Activities
-                    .Select(solvedActivity => new SolvedActivityProfessorDto(
-                            solvedActivity.Id,
-                            solvedActivity.Status,
-                            $"{solvedActivity.User?.LastName} {solvedActivity.User?.FirstName}".Trim(),
-                            solvedActivity.Activity.Course.Name,
-                            solvedActivity.Grade,
-                            solvedActivity.CreatedOn,
-                            solvedActivity.UpdatedOn,
-                            new ActivityDetailsDto(
-                                solvedActivity.Activity.Id,
-                                solvedActivity.Activity.Name,
-                                solvedActivity.Activity.Description,
-                                []
-                            )
-                        )
-                    ).ToList()
-                );
-    }
-    public async Task<SolvedActivityDetailsDto?> GetSolvedActivityByIdProfessor(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var solvedActivity = await _activityRepository.GetSolvedActivityById(id, cancellationToken);
-
-        if (solvedActivity == null)
-        {
-            _logger.LogInformation($"The activity doesn't have any solved activity");
-
-            throw new NotFoundException("The activity doesn't have any solved activity");
-        }
-
-        return
-            new SolvedActivityDetailsDto(
-                solvedActivity.Id,
-                solvedActivity.Status,
-                solvedActivity.Grade,
-                solvedActivity.ProfessorComment,
-                solvedActivity.CreatedOn,
-                solvedActivity.UpdatedOn,
-                new ActivityDetailsDto(
-                    solvedActivity.Activity.Id,
-                    solvedActivity.Activity.Name,
-                    solvedActivity.Activity.Description,
-                    solvedActivity.Activity.ActivityDocuments
-                        .Select(d =>
-                            new ActivityDocumentDto(
-                                d.Id,
-                                d.OriginalName,
-                                d.ContentType,
-                                d.SizeBytes,
-                                d.CreatedOn,
-                                d.Key,
-                                d.Bucket
-                            )
-                        )
-                        .ToList()
-                ),
-                solvedActivity.SolvedActivityDocuments
-                        .Select(d =>
-                            new SolvedActivityDocumentDto(
-                                d.Id,
-                                d.OriginalName,
-                                d.ContentType,
-                                d.SizeBytes,
-                                d.CreatedOn,
-                                d.Key,
-                                d.Bucket
-                            )
-                        )
-                        .ToList()
-            );
-    }
-
-    public async Task<SolvedActivityDetailsDto?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var activity = await _activityRepository.GetActivityLastSolvedActivity(activityId, loggedUserId, cancellationToken);
-
-        if (activity == null)
-        {
-            _logger.LogInformation($"The activity {activityId} does not exist");
-
-            throw new NotFoundException("The activity does not exist");
-        }
-
-        var solvedActivity = activity.SolvedActivities.FirstOrDefault();
-
-        if (solvedActivity == null)
-        {
-            _logger.LogInformation($"The activity doesn't have any solved activity");
-
-            throw new NotFoundException("The activity doesn't have any solved activity");
-        }
-
-        return
-            new SolvedActivityDetailsDto(
-                solvedActivity.Id,
-                solvedActivity.Status,
-                solvedActivity.Grade,
-                solvedActivity.ProfessorComment,
-                solvedActivity.CreatedOn,
-                solvedActivity.UpdatedOn,
-                new ActivityDetailsDto(
-                    activity.Id,
-                    activity.Name,
-                    activity.Description,
-                    activity.ActivityDocuments
-                        .Select(d =>
-                            new ActivityDocumentDto(
-                                d.Id,
-                                d.OriginalName,
-                                d.ContentType,
-                                d.SizeBytes,
-                                d.CreatedOn,
-                                d.Key,
-                                d.Bucket
-                            )
-                        )
-                        .ToList()
-                ),
-                solvedActivity.SolvedActivityDocuments
-                        .Select(d =>
-                            new SolvedActivityDocumentDto(
-                                d.Id,
-                                d.OriginalName,
-                                d.ContentType,
-                                d.SizeBytes,
-                                d.CreatedOn,
-                                d.Key,
-                                d.Bucket
-                            )
-                        )
-                        .ToList()
-            );
-    }
-
-    public async Task<Guid> AddSolvedActivity(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var activity = await _activityRepository.GetById(addSolvedActivityDto.ActivityId, cancellationToken);
-
-        if (activity == null)
-        {
-            _logger.LogInformation($"The activity {addSolvedActivityDto.ActivityId} is not available");
-
-            throw new NotFoundException("The activity does not exist");
-        }
-
-        var creationDate = DateTime.UtcNow;
-        var solvedActivityId = Guid.NewGuid();
-
-        var solvedActivity = new SolvedActivity
-        {
-            Id = solvedActivityId,
-            Status = SolvedActivityStatus.Submitted,
-            UserId = loggedUserId,
-            ActivityId = activity.Id,
-            CreatedOn = creationDate,
-            UpdatedOn = creationDate,
-        };
-        
-        solvedActivity.Id = await _activityRepository.AddSolvedActivity(solvedActivity, cancellationToken);
-
-        foreach (var document in addSolvedActivityDto.SolvedActivityDocuments)
-        {
-            var solvedActivityDocumentId = Guid.NewGuid();
-
-            var solvedActivityDocument = new SolvedActivityDocument
-            {
-                Id = solvedActivityDocumentId,
-                Key = document.Key,
-                OriginalName = document.OriginalName,
-                ContentType = document.ContentType,
-                SizeBytes = document.SizeBytes,
-                Bucket = document.Bucket,
-                Etag = document.Etag,
-                IsDeleted = false,
-                CreatedOn = DateTime.UtcNow,
-                SolvedActivityId = solvedActivity.Id,
-            };
-
-            await _activityRepository.AddSolvedActivityDocument(solvedActivityDocument, cancellationToken);
-        }
-
-        return solvedActivity.Id;
-    }
-
-    public async Task<Guid> UpdateSolvedActivity(UpdateSolvedActivityDto updateSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var solvedActivity = await _activityRepository.GetSolvedActivityById(id, cancellationToken);
-
-        if (solvedActivity == null)
-        {
-            _logger.LogInformation($"The solved activity {id} does not exist");
-
-            throw new NotFoundException("The solved activity does not exist");
-        }
-
-        solvedActivity.UpdatedOn = DateTime.UtcNow;
-        solvedActivity.Status = SolvedActivityStatus.Submitted;
-
-        foreach (var document in updateSolvedActivityDto.SolvedActivityDocuments)
-        {
-            var solvedActivityDocumentId = Guid.NewGuid();
-
-            var solvedActivityDocument = new SolvedActivityDocument
-            {
-                Id = solvedActivityDocumentId,
-                Key = document.Key,
-                OriginalName = document.OriginalName,
-                ContentType = document.ContentType,
-                SizeBytes = document.SizeBytes,
-                Bucket = document.Bucket,
-                Etag = document.Etag,
-                IsDeleted = false,
-                CreatedOn = DateTime.UtcNow,
-                SolvedActivityId = solvedActivity.Id,
-            };
-
-            await _activityRepository.AddSolvedActivityDocument(solvedActivityDocument, cancellationToken);
-        }
-
-        return await _activityRepository.UpdateSolvedActivity(solvedActivity, cancellationToken);
-    }
-
-    public async Task DeleteSolvedActivityDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var solvedActivityDocument = await _activityRepository.GetSolvedActivityDocument(id, cancellationToken);
-
-        if (solvedActivityDocument == null)
-        {
-            _logger.LogInformation($"The solved activity document {id} does not exist");
-
-            throw new NotFoundException("The solved activity document does not exist");
-        }
-
-        await _activityRepository.DeleteSolvedActivityDocument(solvedActivityDocument, cancellationToken);
     }
 }

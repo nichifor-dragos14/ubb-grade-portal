@@ -55,6 +55,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICourseDomainRepository, CourseDomainRepository>();
         services.AddScoped<ICourseEnrollmentRepository, CourseEnrollmentRepository>();
         services.AddScoped<IActivityRepository, ActivityRepository>();
+        services.AddScoped<ISolvedActivityRepository, SolvedActivityRepository>();
 
         return services;
     }

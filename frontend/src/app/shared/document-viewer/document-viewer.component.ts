@@ -9,11 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  ActivityDocumentDto,
-  PresignRequestDto,
-  UploadService,
-} from '$backend/services';
+import { DocumentDto, UploadService } from '$backend/services';
 
 @Component({
   selector: 'app-document-viewer',
@@ -164,27 +160,26 @@ import {
   `,
 })
 export class DocumentViewerComponent {
-  @Input() documents: ActivityDocumentDto[] | null = [];
+  @Input() documents: DocumentDto[] | null = [];
 
   private readonly uploadService = inject(UploadService);
 
-  trackByDocument = (index: number, doc: ActivityDocumentDto) =>
-    doc.id ?? index;
+  trackByDocument = (index: number, doc: DocumentDto) => doc.id ?? index;
 
-  getDisplayName(doc: ActivityDocumentDto): string {
+  getDisplayName(doc: DocumentDto): string {
     return doc.originalName ?? 'document';
   }
 
-  getDisplayType(doc: ActivityDocumentDto): string {
+  getDisplayType(doc: DocumentDto): string {
     return doc.contentType ?? 'application/octet-stream';
   }
 
-  getDisplaySize(doc: ActivityDocumentDto): string {
+  getDisplaySize(doc: DocumentDto): string {
     const bytes = doc.sizeBytes ?? 0;
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   }
 
-  getExtension(doc: ActivityDocumentDto): string {
+  getExtension(doc: DocumentDto): string {
     const type = this.getDisplayType(doc);
 
     if (type.includes('/')) {
@@ -197,7 +192,7 @@ export class DocumentViewerComponent {
     return ext ? ext.substring(0, 3).toUpperCase() : 'FILE';
   }
 
-  async downloadDocument(doc: ActivityDocumentDto) {
+  async downloadDocument(doc: DocumentDto) {
     try {
       if (!doc.key) {
         console.error('No key available for document', doc);

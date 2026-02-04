@@ -19,7 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SubmissionDocsService } from '$shared/submission-upload/submission-docs.service';
 import { QueuedFile } from '$shared/activity-upload/queued-file.model';
 import { AppToastService } from '$shared/toast';
-import { ActivityService } from '$backend/services';
+import { ActivityService, SolvedActivityService } from '$backend/services';
 import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confirm-delete-solved-activity-document-dialog.component';
 
 @Component({
@@ -301,6 +301,7 @@ export class SubmissionDocsDropzoneComponent {
   private readonly submissionDocsService = inject(SubmissionDocsService);
   private readonly appToastService = inject(AppToastService);
   private readonly activityService = inject(ActivityService);
+  private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
@@ -695,9 +696,11 @@ export class SubmissionDocsDropzoneComponent {
         }
 
         if (item.id) {
-          await this.activityService.apiActivitySolvedDocumentIdDeleteAsync({
-            id: item.id,
-          });
+          await this.solvedActivityService.apiSolvedActivityDocumentIdDeleteAsync(
+            {
+              id: item.id,
+            }
+          );
         }
       } catch (e: any) {
         errors.push(item.originalName || item.key || item.id || 'document');

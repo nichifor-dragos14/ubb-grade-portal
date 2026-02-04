@@ -40,6 +40,17 @@ public class ActivityRepository : IActivityRepository
             .Include(a => a.ActivityDocuments)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
+    public async Task<Activity?> GetLastSubmissionById(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Activities
+            .Include(a => a.ActivityDocuments)
+            .Include(a => a.SolvedActivities
+                .Where(s => s.UserId == loggedUserId)
+                .OrderByDescending(s => s.CreatedOn)
+                .Take(1))
+                .ThenInclude(s => s.SolvedActivityDocuments)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+    }
 
     public async Task<Guid> Add(Activity activity, CancellationToken cancellationToken)
     {
@@ -76,88 +87,6 @@ public class ActivityRepository : IActivityRepository
     public async Task DeleteDocument(ActivityDocument activityDocument, CancellationToken cancellationToken)
     {
         _dbContext.Remove(activityDocument);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllSolvedActivitiesProfessor(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var solvedActivities = await _dbContext
-            .SolvedActivities
-            .Include(sa => sa.User)
-            .Include(sa => sa.Activity)
-                .ThenInclude(a => a.Course)
-                .ThenInclude(a => a.CreatedByUser)
-            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId && sa.Status == status)
-            .OrderByDescending(sa => sa.UpdatedOn)
-            .ToListAsync(cancellationToken);
-
-        var count = solvedActivities.Count;
-
-        return (
-            count,
-            solvedActivities
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList()
-        );
-    }
-
-    public async Task<Activity?> GetActivityLastSolvedActivity(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Activities
-            .Include(a => a.ActivityDocuments)
-            .Include(a => a.SolvedActivities
-                .Where(s => s.UserId == loggedUserId)
-                .OrderByDescending(s => s.CreatedOn)
-                .Take(1))
-                .ThenInclude(s => s.SolvedActivityDocuments)
-            .FirstOrDefaultAsync(a => a.Id == activityId, cancellationToken);
-    }
-
-    public async Task<SolvedActivity?> GetSolvedActivityById(Guid id, CancellationToken cancellationToken)
-    {
-        return await _dbContext
-            .SolvedActivities
-            .Include(s => s.SolvedActivityDocuments)
-            .Include(s => s.Activity)
-                .ThenInclude(a => a.ActivityDocuments)
-            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
-    }
-
-    public async Task<Guid> AddSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
-    {
-        await _dbContext.AddAsync(solvedActivity, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return solvedActivity.Id;
-    }
-
-    public async Task<Guid> UpdateSolvedActivity(SolvedActivity solvedActivity, CancellationToken cancellationToken)
-    {
-        _dbContext.Update(solvedActivity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return solvedActivity.Id;
-    }
-
-    public async Task<SolvedActivityDocument?> GetSolvedActivityDocument(Guid id, CancellationToken cancellationToken)
-    {
-        return await _dbContext
-            .SolvedActivityDocuments
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-    }
-
-    public async Task<Guid> AddSolvedActivityDocument(SolvedActivityDocument solvedActivityDocument, CancellationToken cancellationToken)
-    {
-        await _dbContext.AddAsync(solvedActivityDocument, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return solvedActivityDocument.Id;
-    }
-
-    public async Task DeleteSolvedActivityDocument(SolvedActivityDocument solvedActivityDocument, CancellationToken cancellationToken)
-    {
-        _dbContext.Remove(solvedActivityDocument);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

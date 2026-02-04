@@ -1,6 +1,6 @@
-﻿namespace UBBGradePortal.Application.DTOs.Activity;
+﻿namespace UBBGradePortal.Application.DTOs.Document;
 
-public record SolvedActivityDocumentDto(
+public record DocumentDto(
     Guid Id,
     string OriginalName,
     string ContentType,

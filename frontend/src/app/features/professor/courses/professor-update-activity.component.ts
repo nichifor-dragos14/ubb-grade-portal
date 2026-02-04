@@ -20,7 +20,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import {
-  ActivityDetailsDto,
+  ActivityDto,
   ActivityService,
   CourseDetailsDto,
 } from '$backend/services';
@@ -93,7 +93,7 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
           "
           [maxSizeMB]="10"
           [multiple]="true"
-          [queue]="mapExistingToQueue(activity.activityDocuments || [])"
+          [queue]="mapExistingToQueue(activity.documents || [])"
           (stateChanged)="onDocsStateChanged()"
         >
         </app-activity-docs-dropzone>
@@ -181,7 +181,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
   readonly activityService = inject(ActivityService);
 
   @Input() course!: CourseDetailsDto;
-  @Input() activity!: ActivityDetailsDto;
+  @Input() activity!: ActivityDto;
 
   @ViewChild('dropzone')
   dropzone?: ActivityDocsDropzoneComponent;
@@ -223,7 +223,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
   }
 
   mapExistingToQueue(
-    docs: NonNullable<ActivityDetailsDto['activityDocuments']>
+    docs: NonNullable<ActivityDto['documents']>
   ): QueuedFile[] {
     return (docs || []).map((document) => ({
       id: document.id,

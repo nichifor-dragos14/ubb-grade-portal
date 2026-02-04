@@ -21,7 +21,8 @@ import { DateConverterModule } from '$shared/date-converter';
 import {
   ActivityService,
   PaginatedProfessorSolvedActivityDto,
-  SolvedActivityProfessorDto,
+  SolvedActivityDto,
+  SolvedActivityService,
   SolvedActivityStatus,
 } from '$backend/services';
 
@@ -49,9 +50,9 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
 
-  private readonly activityService = inject(ActivityService);
+  private readonly solvedActivityService = inject(SolvedActivityService);
 
-  solvedActivities: SolvedActivityProfessorDto[] = [];
+  solvedActivities: SolvedActivityDto[] = [];
   totalCount = 0;
 
   pageIndex = 0;
@@ -85,7 +86,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     await this.loadPage();
   }
 
-  getStatusLabel(status: SolvedActivityStatus) {
+  getStatusLabel(status?: SolvedActivityStatus) {
     switch (status) {
       case SolvedActivityStatus.$0:
         return 'Submitted';
@@ -98,7 +99,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     }
   }
 
-  getStatusClass(status: SolvedActivityStatus) {
+  getStatusClass(status?: SolvedActivityStatus) {
     switch (status) {
       case SolvedActivityStatus.$0:
         return 'status-submitted';
@@ -111,11 +112,11 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     }
   }
 
-  getSubmittedOn(solvedActivity: SolvedActivityProfessorDto) {
+  getSubmittedOn(solvedActivity: SolvedActivityDto) {
     return solvedActivity.updatedOn || solvedActivity.createdOn;
   }
 
-  getSubmitterName(solvedActivity: SolvedActivityProfessorDto) {
+  getSubmitterName(solvedActivity: SolvedActivityDto) {
     return solvedActivity?.solvedByName || 'Unknown student';
   }
 
@@ -125,7 +126,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       this.cdr.detectChanges();
 
       const result: PaginatedProfessorSolvedActivityDto =
-        await this.activityService.apiActivitySolvedProfessorGetAsync({
+        await this.solvedActivityService.apiSolvedActivityProfessorGetAsync({
           pageNumber: this.pageIndex + 1,
           pageSize: this.pageSize,
           status: this.statusFilter,

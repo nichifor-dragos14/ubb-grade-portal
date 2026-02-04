@@ -14,7 +14,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
-import { ActivityDetailsDto, ActivityService } from '$backend/services';
+import {
+  ActivityDto,
+  ActivityService,
+  SolvedActivityService,
+} from '$backend/services';
 import { SubmissionDocsDropzoneComponent } from '$shared/submission-upload/submission-docs-uploader.component';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { AppToastService } from '$shared/toast';
@@ -55,12 +59,12 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     <div *ngIf="!isLoading && activity" class="content">
       <p>{{ activity.description }}</p>
 
-      <app-document-viewer [documents]="activity.activityDocuments">
+      <app-document-viewer [documents]="activity.documents">
       </app-document-viewer>
 
       <app-submission-docs-dropzone
         #dropzone
-        [solvedActivityId]="activity.id"
+        [solvedActivityId]="activity.id!"
         [tenantId]="'default'"
         accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
         [maxSizeMB]="15"
@@ -120,11 +124,12 @@ export class SolveActivityComponent {
   private readonly dialog = inject(MatDialog);
 
   private readonly activityService = inject(ActivityService);
+  private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly studentSolvedActivityEventService = inject(
     StudentSolvedActivityEventService
   );
 
-  @Input() activity!: ActivityDetailsDto;
+  @Input() activity!: ActivityDto;
 
   @ViewChild('dropzone')
   dropzone?: SubmissionDocsDropzoneComponent;
@@ -161,8 +166,8 @@ export class SolveActivityComponent {
       }
 
       const solvedActivityId =
-        await this.activityService.apiActivitySolvedPostAsync({
-          body: { activityId: activityId, solvedActivityDocuments: documents },
+        await this.solvedActivityService.apiSolvedActivityPostAsync({
+          body: { activityId: activityId, documents: documents },
         });
 
       if (solvedActivityId) {

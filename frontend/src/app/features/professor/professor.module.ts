@@ -9,7 +9,11 @@ import { ProfessorCoursesComponent } from './courses/professor-courses/professor
 import { ProfessorAddCourseComponent } from './courses/professor-add-course/professor-add-course.component';
 import { ProfessorUpdateCourseComponent } from './courses/professor-update-course/professor-update-course.component';
 import { inject, NgModule } from '@angular/core';
-import { ActivityService, CourseService } from '$backend/services';
+import {
+  ActivityService,
+  CourseService,
+  SolvedActivityService,
+} from '$backend/services';
 import { DialogPageComponent } from '$shared/dialog-page';
 import { ProfessorAddActivityComponent } from './courses/professor-add-activity.component';
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
@@ -139,16 +143,14 @@ const PROFESSOR_ROUTES: Routes = [
         resolve: {
           solvedActivity: async ({ params }: ActivatedRouteSnapshot) => {
             const router = inject(Router);
-            const activityService = inject(ActivityService);
+            const solvedActivityService = inject(SolvedActivityService);
 
             const id = params['id'];
 
             try {
-              return await activityService.apiActivitySolvedIdProfessorGetAsync(
-                {
-                  id,
-                }
-              );
+              return await solvedActivityService.apiSolvedActivityIdGetAsync({
+                id,
+              });
             } catch (error) {
               router.navigate(['/error']);
 

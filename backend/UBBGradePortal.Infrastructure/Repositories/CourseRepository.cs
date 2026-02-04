@@ -88,6 +88,15 @@ public class CourseRepository : ICourseRepository
         );
     }
 
+    public async Task<List<CourseEnrollment>> GetAllStudentCourseEnrollments(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .CourseEnrollments
+            .AsNoTracking()
+            .Where(c => c.UserId == loggedUserId)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Course?> GetById(Guid id, CancellationToken cancellationToken)
     {
         return await _dbContext

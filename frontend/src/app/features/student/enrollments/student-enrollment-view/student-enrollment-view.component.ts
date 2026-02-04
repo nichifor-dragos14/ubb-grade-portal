@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
-  ActivityStudentDto,
+  ActivityDto,
   CourseDetailsStudentDto,
   CourseService,
   SolvedActivityStatus,
@@ -34,7 +34,7 @@ interface RoadmapPosition {
   x: number;
   y: number;
   idx: number;
-  a: ActivityStudentDto;
+  a: ActivityDto;
   state: CPState;
 }
 
@@ -155,7 +155,7 @@ export class StudentEnrollmentViewComponent
 
   trackById = (_: number, cp: RoadmapPosition) => cp.a.id;
 
-  onActivityClick(activity: ActivityStudentDto, state: CPState): void {
+  onActivityClick(activity: ActivityDto, state: CPState): void {
     if (state === 'locked') {
       return;
     }
@@ -227,7 +227,10 @@ export class StudentEnrollmentViewComponent
     for (let i = 0; i < steps; i++) {
       const t = steps === 1 ? 0.05 : i / (steps - 1);
       const pt = path.getPointAtLength(t * L);
-      const status = (acts[i] as any).solvedStatus ?? null;
+      const status =
+        (acts[i] as any).solvedActivityStatus ??
+        (acts[i] as any).solvedStatus ??
+        null;
       const state: CPState =
         status === SolvedActivityStatus.$1
           ? 'completed'
@@ -248,9 +251,12 @@ export class StudentEnrollmentViewComponent
     return true;
   }
 
-  private getUnlockedIndex(acts: ActivityStudentDto[]): number {
+  private getUnlockedIndex(acts: ActivityDto[]): number {
     for (let i = 0; i < acts.length; i++) {
-      const status = (acts[i] as any).solvedStatus ?? null;
+      const status =
+        (acts[i] as any).solvedActivityStatus ??
+        (acts[i] as any).solvedStatus ??
+        null;
       if (status === null) {
         return i;
       }
