@@ -999,6 +999,66 @@
         }
       }
     },
+    "/api/SolvedActivity/{id}/evaluate": {
+      "put": {
+        "tags": [
+          "SolvedActivity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeSolvedActivityDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeSolvedActivityDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeSolvedActivityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/SolvedActivity/document/{id}": {
       "delete": {
         "tags": [
@@ -1471,6 +1531,27 @@
           },
           "bucket": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GradeSolvedActivityDto": {
+        "required": [
+          "grade",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SolvedActivityStatus"
+          },
+          "professorComment": {
+            "type": "string",
+            "nullable": true
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

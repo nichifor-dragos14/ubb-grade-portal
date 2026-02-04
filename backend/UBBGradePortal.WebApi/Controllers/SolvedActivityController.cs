@@ -174,6 +174,41 @@ namespace UBBGradePortal.WebApi.Controllers
             }
         }
 
+        /// <summary> Update an activity submission (solved activity) </summary>
+        [HttpPut("{id}/evaluate")]
+        [Authorize(Roles = "Professor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<Results<Ok<Guid>, NotFound<string>, ForbidHttpResult>> GradeSolvedActivityDto(
+            [FromBody] GradeSolvedActivityDto gradeSolvedActivityDto,
+            [FromRoute] Guid id,
+            CancellationToken cancellationToken
+        )
+        {
+            var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+            {
+                return TypedResults.Forbid();
+            }
+
+            try
+            {
+                var solvedActivityId = await _solvedActivityService.GradeSolvedActivity(gradeSolvedActivityDto, id, loggedUserId, cancellationToken);
+
+                return TypedResults.Ok(solvedActivityId);
+            }
+            catch (NotFoundException ex)
+            {
+                return TypedResults.NotFound(ex.Message);
+            }
+            catch (ForbiddenException)
+            {
+                return TypedResults.Forbid();
+            }
+        }
+
         /// <summary> Delete a document from a submission (solved activity). </summary>
         [HttpDelete("document/{id}")]
         [Authorize(Roles = "Student")]

@@ -10,5 +10,6 @@ public interface ISolvedActivityService
     Task<SolvedActivityDto?> GetById(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Add(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Update(UpdateSolvedActivityDto updateSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
+    public Task<Guid> GradeSolvedActivity(GradeSolvedActivityDto gradeSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
 }

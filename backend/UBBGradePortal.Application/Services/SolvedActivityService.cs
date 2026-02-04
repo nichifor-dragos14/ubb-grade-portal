@@ -196,6 +196,31 @@ public class SolvedActivityService : ISolvedActivityService
         return await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
     }
 
+    public async Task<Guid> GradeSolvedActivity(GradeSolvedActivityDto gradeSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var solvedActivity = await _solvedActivityRepository.GetById(id, cancellationToken);
+
+        if (solvedActivity == null)
+        {
+            _logger.LogInformation($"The solved activity {id} does not exist");
+
+            throw new NotFoundException("The solved activity does not exist");
+        }
+
+        if (solvedActivity.Activity.Course.CreatedByUser.Id != loggedUserId)
+        {
+            _logger.LogInformation($"The user {loggedUserId} cannot grade the solved activity {id}");
+
+            throw new ForbiddenException("You cannot grade this solved activity");
+        }
+
+        solvedActivity.Status = gradeSolvedActivityDto.Status;
+        solvedActivity.ProfessorComment = gradeSolvedActivityDto.ProfessorComment;
+        solvedActivity.Grade = gradeSolvedActivityDto.Grade;
+
+        return await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+    }
+
     public async Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var solvedActivityDocument = await _solvedActivityRepository.GetDocument(id, cancellationToken);

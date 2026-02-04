@@ -15,8 +15,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { SolvedActivityDto, SolvedActivityStatus } from '$backend/services';
+import {
+  SolvedActivityDto,
+  SolvedActivityService,
+  SolvedActivityStatus,
+} from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { DocumentViewerComponent } from '$shared/document-viewer/document-viewer.component';
 import { DateConverterModule } from '$shared/date-converter';
@@ -35,6 +40,7 @@ import { DateConverterModule } from '$shared/date-converter';
     MatInputModule,
     MatProgressSpinner,
     MatIconModule,
+    MatTooltipModule,
     DocumentViewerComponent,
     DateConverterModule,
   ],
@@ -46,6 +52,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
+  private readonly solvedActivityService = inject(SolvedActivityService);
 
   @Input() solvedActivity?: SolvedActivityDto;
 
@@ -73,7 +80,13 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   }
 
   get canGrade(): boolean {
-    return !!this.solvedActivity && this.feedbackForm.valid;
+    const gradeValue = this.grade.value;
+    return (
+      !!this.solvedActivity &&
+      gradeValue !== null &&
+      gradeValue !== undefined &&
+      this.feedbackForm.valid
+    );
   }
 
   get canReturn(): boolean {
@@ -170,12 +183,29 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     const grade = this.grade.value ?? null;
     const professorComment = this.professorComment.value ?? '';
 
+    if (grade === null || grade === undefined) {
+      return;
+    }
+
     try {
       this.submitting = true;
       this.cdr.detectChanges();
 
-      // TODO: wire to professor feedback endpoint once available in codegen.
-      await Promise.resolve();
+      await this.solvedActivityService.apiSolvedActivityIdEvaluatePutAsync({
+        id: this.solvedActivity.id,
+        body: {
+          status: SolvedActivityStatus.$1,
+          grade: grade,
+          professorComment: professorComment,
+        },
+      });
+
+      this.solvedActivity = {
+        ...this.solvedActivity,
+        status: SolvedActivityStatus.$1,
+        grade: grade,
+        professorComment: professorComment,
+      };
 
       this.toastService.open('Feedback saved', 'info');
     } catch (error) {
@@ -199,8 +229,21 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
       this.submitting = true;
       this.cdr.detectChanges();
 
-      // TODO: wire to professor feedback endpoint once available in codegen.
-      await Promise.resolve();
+      await this.solvedActivityService.apiSolvedActivityIdEvaluatePutAsync({
+        id: this.solvedActivity.id,
+        body: {
+          status: SolvedActivityStatus.$2,
+          grade: 0,
+          professorComment: professorComment,
+        },
+      });
+
+      this.solvedActivity = {
+        ...this.solvedActivity,
+        status: SolvedActivityStatus.$2,
+        grade: 0,
+        professorComment: professorComment,
+      };
 
       this.toastService.open('Submission returned to student', 'info');
     } catch (error) {
