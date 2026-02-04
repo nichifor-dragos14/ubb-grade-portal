@@ -3,25 +3,27 @@
     <mat-icon>close</mat-icon>
   </a>
 
-  <button
-    mat-button
-    color="warn"
-    type="button"
-    [disabled]="isLoading || !canReturn"
-    (click)="returnActivity()"
-  >
-    RETURN
-  </button>
+  <ng-container *ngIf="!isReadOnly">
+    <button
+      mat-button
+      color="warn"
+      type="button"
+      [disabled]="isLoading || !canReturn"
+      (click)="returnActivity()"
+    >
+      RETURN
+    </button>
 
-  <button
-    mat-button
-    color="primary"
-    type="submit"
-    [disabled]="isLoading || !canGrade"
-    (click)="gradeActivity()"
-  >
-    GRADE
-  </button>
+    <button
+      mat-button
+      color="primary"
+      type="submit"
+      [disabled]="isLoading || !canGrade"
+      (click)="gradeActivity()"
+    >
+      GRADE
+    </button>
+  </ng-container>
 </section>
 
 <div *ngIf="isLoading" class="form-loader">
@@ -51,7 +53,9 @@
 
       <div class="detail-item">
         <span class="label">Status</span>
-        <span class="value">{{ statusLabel }}</span>
+        <span class="status-chip" [ngClass]="statusClass">
+          {{ statusLabel }}
+        </span>
       </div>
 
       <div class="detail-item" *ngIf="submittedOn">
@@ -59,10 +63,47 @@
         <span class="value">{{ submittedOn | dateFormat }}</span>
       </div>
     </div>
+
+    <div class="detail-item submission-docs">
+      <app-document-viewer [documents]="submissionDocuments">
+      </app-document-viewer>
+      <div *ngIf="submissionDocuments.length === 0" class="empty-state">
+        No submission documents were provided.
+      </div>
+    </div>
+
+    <div class="detail-item submission-docs" *ngIf="isCompleted">
+      <div class="detail-stack">
+        <div class="detail-pair">
+          <span class="label">Grade 🎓</span>
+          <span class="value">{{ solvedActivity!.grade ?? 'N/A' }}</span>
+        </div>
+
+        <div class="detail-pair">
+          <span class="label">My comments 💬</span>
+          <span class="value" *ngIf="professorCommentValue; else noComment">
+            {{ professorCommentValue }}
+          </span>
+          <ng-template #noComment>
+            <span class="value">No comment provided.</span>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-item submission-docs" *ngIf="isReturned">
+      <span class="label">My comments 💬</span>
+      <span class="value" *ngIf="professorCommentValue; else noReturnComment">
+        {{ professorCommentValue }}
+      </span>
+      <ng-template #noReturnComment>
+        <span class="value">No comment provided.</span>
+      </ng-template>
+    </div>
   </section>
 
   <section class="card">
-    <div class="card-title">Activity description ✍️</div>
+    <div class="card-title">Activity details ✍️</div>
     <p
       class="description"
       *ngIf="solvedActivity.activity?.description; else noDescription"
@@ -72,32 +113,16 @@
     <ng-template #noDescription>
       <p class="description empty">No description provided.</p>
     </ng-template>
-  </section>
 
-  <section class="card">
-    <div class="card-title">Activity resources 📎</div>
-    <app-document-viewer [documents]="solvedActivity.activity?.documents!">
-    </app-document-viewer>
-    <div
-      *ngIf="solvedActivity.activity?.documents?.length === 0"
-      class="empty-state"
-    >
-      No activity resources.
+    <div class="detail-item submission-docs">
+      <app-document-viewer [documents]="solvedActivity.activity?.documents!">
+      </app-document-viewer>
     </div>
   </section>
 
-  <section class="card">
-    <div class="card-title">Student submission 📎</div>
-    <app-document-viewer [documents]="submissionDocuments">
-    </app-document-viewer>
-    <div *ngIf="submissionDocuments.length === 0" class="empty-state">
-      No submission documents were provided.
-    </div>
-  </section>
-
-  <form [formGroup]="feedbackForm">
+  <form *ngIf="!isReadOnly" [formGroup]="feedbackForm">
     <section class="card">
-      <div class="card-title">Professor feedback ✍️</div>
+      <div class="card-title">My feedback ✍️</div>
 
       <mat-form-field appearance="outline">
         <mat-label>Grade (1-10)</mat-label>

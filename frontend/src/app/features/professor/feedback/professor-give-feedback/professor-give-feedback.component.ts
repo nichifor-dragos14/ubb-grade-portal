@@ -101,6 +101,38 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     }
   }
 
+  get isCompleted(): boolean {
+    return this.solvedActivity?.status === SolvedActivityStatus.$1;
+  }
+
+  get isReturned(): boolean {
+    return this.solvedActivity?.status === SolvedActivityStatus.$2;
+  }
+
+  get professorCommentValue(): string {
+    return this.solvedActivity?.professorComment?.trim() || '';
+  }
+
+  get statusClass(): string {
+    switch (this.solvedActivity?.status) {
+      case SolvedActivityStatus.$0:
+        return 'status-submitted';
+      case SolvedActivityStatus.$1:
+        return 'status-completed';
+      case SolvedActivityStatus.$2:
+        return 'status-returned';
+      default:
+        return '';
+    }
+  }
+
+  get isReadOnly(): boolean {
+    return (
+      this.solvedActivity?.status === SolvedActivityStatus.$1 ||
+      this.solvedActivity?.status === SolvedActivityStatus.$2
+    );
+  }
+
   get submissionDocuments() {
     return ((this.solvedActivity as any)?.documents ?? []) as any[];
   }
