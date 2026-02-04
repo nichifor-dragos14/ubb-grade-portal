@@ -102,8 +102,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   }
 
   get submissionDocuments() {
-    return ((this.solvedActivity as any)?.solvedActivityDocuments ??
-      []) as any[];
+    return ((this.solvedActivity as any)?.documents ?? []) as any[];
   }
 
   async ngOnInit() {

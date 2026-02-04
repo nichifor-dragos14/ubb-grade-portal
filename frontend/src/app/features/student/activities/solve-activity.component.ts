@@ -59,7 +59,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     <div *ngIf="!isLoading && activity" class="content">
       <p>{{ activity.description }}</p>
 
-      <app-document-viewer [documents]="activity.documents">
+      <app-document-viewer [documents]="activity.documents!">
       </app-document-viewer>
 
       <app-submission-docs-dropzone

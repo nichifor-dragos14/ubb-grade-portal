@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
+using UBBGradePortal.Application.Mappers;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 
@@ -106,17 +108,10 @@ public class CourseService : ICourseService
                 course.CourseDomain.Name,
                 course.Activities
                     .OrderBy(c => c.CreatedOn)
-                    .Select(
-                        activity => new ActivityDto(
-                            activity.Id,
-                            activity.Name,
-                            activity.Description,
-                            activity.CreatedOn,
-                            null,
-                            activity.ActivityDocuments.Count,
-                            [],
-                            []
-                        )
+                    .Select(activity => ActivityMapper.FromActivityToActivityDto(
+                        activity,
+                        null,
+                        activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList()  )
                     )
                     .ToList()
             );
@@ -184,43 +179,26 @@ public class CourseService : ICourseService
             throw new NotFoundException("The course does not exist");
         }
 
+        course.Activities.ForEach(activity => activity.SolvedActivities = activity.SolvedActivities
+            .OrderByDescending(sa => sa.CreatedOn)
+            .Where(sa => sa.User.Id == loggedUserId)
+            .ToList()
+        );
+
         return
             new CourseDetailsStudentDto(
                 course.Id,
                 course.Name,
                 course.Description,
-                course.CourseDomain.Name,
+                course.CourseDomain.Name,           
                 course.Activities
-                    .OrderBy(c => c.CreatedOn)
-                    .Select(
-                        activity => new ActivityDto(
-                            activity.Id,
-                            activity.Name,
-                            activity.Description,
-                            activity.CreatedOn,
-                            activity.SolvedActivities
-                            .Where(sa => sa.User.Id == loggedUserId)
-                            .OrderByDescending(sa => sa.CreatedOn)
-                            .Select(sa => new SolvedActivityDto(
-                                sa.Id,
-                                sa.Status,
-                                sa.Grade,
-                                sa.ProfessorComment,
-                                sa.CreatedOn,
-                                sa.UpdatedOn,
-                                null,
-                                null,
-                                null,
-                                []
-                                )
-                            )
-                            .FirstOrDefault()?.Status,
-                            activity.ActivityDocuments.Count,
-                            [],
-                            []
-                        )
+                    .OrderBy(activity => activity.CreatedOn)
+                    .Select(activity => ActivityMapper.FromActivityToActivityDto(
+                        activity,
+                        activity.SolvedActivities.Select(solvedActivity => SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(solvedActivity, null, null)).ToList(),
+                        activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList()
                     )
-                    .ToList()
+                ).ToList()
             );
     }
 }

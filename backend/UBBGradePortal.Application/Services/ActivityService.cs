@@ -3,6 +3,7 @@ using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Document;
 using UBBGradePortal.Application.Exceptions;
+using UBBGradePortal.Application.Mappers;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 
@@ -39,7 +40,11 @@ public class ActivityService : IActivityService
         var activities = await _activityRepository.GetAllByCourseId(courseId, cancellationToken);
 
         return activities
-            .Select(c => new ActivityDto(c.Id, c.Name, c.Description, c.CreatedOn, null, c.ActivityDocuments.Count, [], []))
+            .Select(activity => ActivityMapper.FromActivityToActivityDto(
+                activity,
+                null,
+                activity.ActivityDocuments.Select(DocumentMapper.FromActivityDocumentToDocumentDto).ToList())
+            )
             .ToList();
     }
 
@@ -54,12 +59,11 @@ public class ActivityService : IActivityService
             throw new NotFoundException("The activity does not exist");
         }
 
-        return
-            new ActivityDto(activity.Id, activity.Name, activity.Description, activity.CreatedOn, null, activity.ActivityDocuments.Count, activity.ActivityDocuments
-                    .Select(d => new DocumentDto(d.Id, d.OriginalName, d.ContentType, d.SizeBytes, d.CreatedOn, d.Key, d.Bucket))
-                    .ToList(),
-                    []
-            );
+        return ActivityMapper.FromActivityToActivityDto(
+            activity,
+            null,
+            activity.ActivityDocuments.Select(DocumentMapper.FromActivityDocumentToDocumentDto).ToList()
+        );
     }
 
     public async Task<Guid> Add(AddActivityDto addActivityDto, Guid loggedUserId, CancellationToken cancellationToken)

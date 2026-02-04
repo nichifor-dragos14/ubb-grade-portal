@@ -4,6 +4,7 @@ using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Document;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
+using UBBGradePortal.Application.Mappers;
 using UBBGradePortal.Domain.Entities;
 using UBBGradePortal.Infrastructure.Abstractions;
 
@@ -33,28 +34,14 @@ public class SolvedActivityService : ISolvedActivityService
     {
         var (Count, Activities) = await _solvedActivityRepository.GetAllByStatusForProfessorCourses(pageNumber, pageSize, status, loggedUserId, cancellationToken);
 
+       
+
         return
             new PaginatedProfessorSolvedActivityDto(Count, Activities
-                    .Select(solvedActivity => new SolvedActivityDto(
-                        solvedActivity.Id,
-                        solvedActivity.Status,
-                        solvedActivity.Grade,
-                        solvedActivity.ProfessorComment,
-                        solvedActivity.CreatedOn,
-                        solvedActivity.UpdatedOn,
-                        $"{solvedActivity.User?.LastName} {solvedActivity.User?.FirstName}".Trim(),
-                        solvedActivity.Activity.Course.Name,
-                        new ActivityDto(
-                            solvedActivity.Activity.Id,
-                            solvedActivity.Activity.Name,
-                            solvedActivity.Activity.Description,
-                            solvedActivity.CreatedOn,
-                            null,
-                            null,
-                            [],
-                            []
-                        ),
-                        [])
+                    .Select(solvedActivity => SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(
+                        solvedActivity,
+                        ActivityMapper.FromActivityToActivityDto(solvedActivity.Activity, null, null),
+                        solvedActivity.SolvedActivityDocuments.Select(DocumentMapper.FromSolvedActivityDocumentToDocumentDto).ToList())
                     )
                     .ToList()
             );
@@ -71,32 +58,11 @@ public class SolvedActivityService : ISolvedActivityService
             throw new NotFoundException("The activity doesn't have any solved activity");
         }
 
-        return
-            new SolvedActivityDto(
-                solvedActivity.Id,
-                solvedActivity.Status,
-                solvedActivity.Grade,
-                solvedActivity.ProfessorComment,
-                solvedActivity.CreatedOn,
-                solvedActivity.UpdatedOn,
-                null,
-                null,
-                new ActivityDto(
-                    solvedActivity.Activity.Id,
-                    solvedActivity.Activity.Name,
-                    solvedActivity.Activity.Description,
-                    solvedActivity.Activity.CreatedOn,
-                    null,
-                    solvedActivity.Activity.ActivityDocuments.Count,
-                    solvedActivity.Activity.ActivityDocuments
-                        .Select(d => new DocumentDto(d.Id, d.OriginalName, d.ContentType, d.SizeBytes, d.CreatedOn, d.Key, d.Bucket))
-                        .ToList(),
-                    []
-                ),
-                solvedActivity.SolvedActivityDocuments
-                        .Select(d => new DocumentDto(d.Id, d.OriginalName, d.ContentType, d.SizeBytes, d.CreatedOn, d.Key, d.Bucket))
-                        .ToList()
-            );
+        return SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(
+                        solvedActivity,
+                        ActivityMapper.FromActivityToActivityDto(solvedActivity.Activity, null, solvedActivity.Activity.ActivityDocuments.Select(DocumentMapper.FromActivityDocumentToDocumentDto).ToList()),
+                        solvedActivity.SolvedActivityDocuments.Select(DocumentMapper.FromSolvedActivityDocumentToDocumentDto).ToList()
+        );
     }
 
     public async Task<SolvedActivityDto?> GetLastByActivityId(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken)
@@ -119,52 +85,11 @@ public class SolvedActivityService : ISolvedActivityService
             throw new NotFoundException("The activity doesn't have any solved activity");
         }
 
-        return
-            new SolvedActivityDto(
-                solvedActivity.Id,
-                solvedActivity.Status,
-                solvedActivity.Grade,
-                solvedActivity.ProfessorComment,
-                solvedActivity.CreatedOn,
-                solvedActivity.UpdatedOn,
-                null,
-                null,
-                new ActivityDto(
-                    activity.Id,
-                    activity.Name,
-                    activity.Description,
-                    activity.CreatedOn,
-                    null,
-                    activity.ActivityDocuments.Count,
-                    activity.ActivityDocuments
-                        .Select(d =>
-                            new DocumentDto(
-                                d.Id,
-                                d.OriginalName,
-                                d.ContentType,
-                                d.SizeBytes,
-                                d.CreatedOn,
-                                d.Key,
-                                d.Bucket
-                            )
-                        )
-                        .ToList(),
-                    []
-                ),
-                solvedActivity.SolvedActivityDocuments
-                    .Select(d =>
-                        new DocumentDto(
-                            d.Id,
-                            d.OriginalName,
-                            d.ContentType,
-                            d.SizeBytes,
-                            d.CreatedOn,
-                            d.Key,
-                            d.Bucket
-                        )
-                    )
-                    .ToList()
-            );
+        return SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(
+                        solvedActivity,
+                        ActivityMapper.FromActivityToActivityDto(solvedActivity.Activity, null, solvedActivity.Activity.ActivityDocuments.Select(DocumentMapper.FromActivityDocumentToDocumentDto).ToList()),
+                        solvedActivity.SolvedActivityDocuments.Select(DocumentMapper.FromSolvedActivityDocumentToDocumentDto).ToList()
+        );
     }
 
     public async Task<Guid> Add(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken)

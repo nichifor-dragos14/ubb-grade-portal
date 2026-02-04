@@ -4,13 +4,14 @@ using UBBGradePortal.Domain.Entities;
 
 namespace UBBGradePortal.Application.DTOs.Activity;
 
-public record ActivityDto(
-    Guid? Id,
-    string? Name,
-    string? Description,
-    DateTime? CreatedOn,
-    SolvedActivityStatus? SolvedActivityStatus,
-    int? NumberOfDocuments,
-    List<DocumentDto> Documents,
-    List<SolvedActivityDto> SolvedActivities
-);
+public class ActivityDto
+{
+    public Guid Id { get; set; }
+    public string? Name {  get; set; }
+    public string? Description { get; set; }
+    public DateTime? CreatedOn { get; set; }
+    public SolvedActivityStatus? SolvedActivityStatus { get; set; }
+    public int? NumberOfDocuments { get; set; }
+    public List<DocumentDto>? Documents { get; set; } = [];
+    public List<SolvedActivityDto>? SolvedActivities { get; set; } = [];
+};
