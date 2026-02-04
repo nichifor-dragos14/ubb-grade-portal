@@ -10,8 +10,10 @@ form {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto;
+  overflow-y: visible;
+  overflow-x: visible;
   scrollbar-width: none;
+  padding-bottom: 24px;
 }
 
 .form-loader {

@@ -116,7 +116,11 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
       flex-direction: column;
       gap: 16px;
       overflow-y: auto;
+      overflow-x: visible;
       scrollbar-width: none;
+      padding-bottom: 24px;
+      padding-right: 16px;
+      padding-left: 16px;
     }
 
     .form-loader {
