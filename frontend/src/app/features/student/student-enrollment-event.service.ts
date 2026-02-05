@@ -9,6 +9,10 @@ export interface UpdatedSolvedActivityEvent {
   activityId: string;
 }
 
+export interface EnrolledToCourseEvent {
+  courseId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudentSolvedActivityEventService {
   private addedSolvedActivitySubject = new Subject<AddedSolvedActivityEvent>();
@@ -23,5 +27,15 @@ export class StudentSolvedActivityEventService {
   }
   emitUpdatedSolvedActivity(e: UpdatedSolvedActivityEvent) {
     this.updatedSolvedActivitySubject.next(e);
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class StudentEnrollmentEventService {
+  private enrolledToCourseSubject = new Subject<EnrolledToCourseEvent>();
+  enrolledToCourse$ = this.enrolledToCourseSubject.asObservable();
+
+  emitEnrolledToCourse(e: EnrolledToCourseEvent) {
+    this.enrolledToCourseSubject.next(e);
   }
 }

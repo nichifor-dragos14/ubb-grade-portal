@@ -21,6 +21,7 @@ import { debounceTime, distinctUntilChanged, tap } from 'rxjs';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { CourseDto, CourseService } from '$backend/services';
+import { StudentEnrollmentEventService } from '$features/student/student-enrollment-event.service';
 
 @Component({
   selector: 'app-student-find-courses',
@@ -48,10 +49,14 @@ export class StudentFindCoursesComponent implements OnInit {
   private readonly courseService = inject(CourseService);
   private readonly toastService = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly studentEnrollmentEventService = inject(
+    StudentEnrollmentEventService
+  );
 
   courses: CourseDto[] = [];
   isLoading = false;
   private requestId = 0;
+  private enrollingIds = new Set<string>();
 
   searchControl = new FormControl<string>('', { nonNullable: true });
 
@@ -128,10 +133,35 @@ export class StudentFindCoursesComponent implements OnInit {
   }
 
   enroll(course: CourseDto) {
-    this.toastService.open(
-      `Enrollment for ${course.name} will be available soon.`,
-      'info'
-    );
+    if (!course.id || this.enrollingIds.has(course.id)) {
+      return;
+    }
+
+    this.enrollingIds.add(course.id);
+    this.cdr.detectChanges();
+
+    this.courseService
+      .apiCourseIdEnrollPutAsync({ id: course.id })
+      .then(() => {
+        this.toastService.open(`You are enrolled in ${course.name}.`, 'info');
+        this.studentEnrollmentEventService.emitEnrolledToCourse({
+          courseId: course.id,
+        });
+        this.loadCourses(this.searchControl.value?.trim() ?? null);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          this.toastService.open(error.message, 'error');
+        }
+      })
+      .finally(() => {
+        this.enrollingIds.delete(course.id);
+        this.cdr.detectChanges();
+      });
+  }
+
+  isEnrolling(course: CourseDto): boolean {
+    return !!course.id && this.enrollingIds.has(course.id);
   }
 
   getActivityCountText(course: CourseDto): string {

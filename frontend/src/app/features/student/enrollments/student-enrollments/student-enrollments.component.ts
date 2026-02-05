@@ -20,7 +20,10 @@ import { CourseDto, CourseService } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppToastService } from '$shared/toast';
-import { StudentSolvedActivityEventService } from '$features/student/student-enrollment-event.service';
+import {
+  StudentEnrollmentEventService,
+  StudentSolvedActivityEventService,
+} from '$features/student/student-enrollment-event.service';
 import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-student-enrollments',
@@ -49,6 +52,9 @@ export class StudentEnrollmentsComponent implements OnInit {
   private readonly enrollmentService = inject(
     StudentSolvedActivityEventService
   );
+  private readonly studentEnrollmentEventService = inject(
+    StudentEnrollmentEventService
+  );
 
   private readonly destroy$ = new Subject<void>();
 
@@ -70,6 +76,12 @@ export class StudentEnrollmentsComponent implements OnInit {
       });
 
     this.enrollmentService.updatedSolvedActivity$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPage();
+      });
+
+    this.studentEnrollmentEventService.enrolledToCourse$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadPage();

@@ -216,11 +216,34 @@ public class CourseService : ICourseService
         {
             _logger.LogInformation($"The user {loggedUserId} cannot update the course {course.Id}");
 
-            throw new NotFoundException("You cannot update this course");
+            throw new ForbiddenException("You cannot update this course");
         }
 
         course.Description = updateCourseDto.Description;
 
         return await _courseRepository.Update(course, cancellationToken);
+    }
+
+    public async Task<bool> EnrollToCourse(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var enrollments = await _courseEnrollmentRepository.GetAllByUserId(loggedUserId, cancellationToken);
+
+        if (enrollments.Select(e => e.CourseId).Contains(id))
+        {
+            _logger.LogInformation($"The user {loggedUserId} is already enrolled to course {id}");
+
+            throw new ForbiddenException("You already enrolled for this course");
+        }
+
+        var enrollment = new CourseEnrollment
+        {
+            Id = Guid.NewGuid(),
+            CourseId = id,
+            UserId = loggedUserId,
+            CreatedOn = DateTime.UtcNow,
+            UpdatedOn = DateTime.UtcNow,
+        };
+
+        return await _courseEnrollmentRepository.Add([enrollment], cancellationToken);
     }
 }

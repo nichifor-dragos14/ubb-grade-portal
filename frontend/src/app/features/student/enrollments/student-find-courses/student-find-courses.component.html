@@ -61,8 +61,9 @@
                   color="primary"
                   class="enroll-button"
                   (click)="enroll(course)"
+                  [disabled]="isEnrolling(course)"
                 >
-                  ENROLL
+                  {{ isEnrolling(course) ? 'ENROLLING' : 'ENROLL' }}
                 </button>
               </div>
               <div class="course-description">
