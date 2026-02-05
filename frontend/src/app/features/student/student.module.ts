@@ -13,6 +13,7 @@ import {
 } from '$backend/services';
 import { StudentEnrollmentsComponent } from './enrollments/student-enrollments/student-enrollments.component';
 import { StudentEnrollmentViewComponent } from './enrollments/student-enrollment-view/student-enrollment-view.component';
+import { StudentFindCoursesComponent } from './enrollments/student-find-courses/student-find-courses.component';
 import { DialogPageComponent } from '$shared/dialog-page';
 import { SolveActivityComponent } from './activities/solve-activity.component';
 import { SolvedActivityUpdateComponent } from './activities/solved-activity-update.component';
@@ -27,6 +28,16 @@ const STUDENT_ROUTES: Routes = [
         data: { roles: ['Student'] },
         component: StudentEnrollmentsComponent,
         children: [
+          {
+            path: 'find',
+            component: DialogPageComponent,
+            children: [
+              {
+                path: '',
+                component: StudentFindCoursesComponent,
+              },
+            ],
+          },
           {
             path: 'course/:id',
             canActivate: [roleGuard],

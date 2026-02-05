@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using UBBGradePortal.Application.Abstractions;
-using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Application.DTOs.CourseDomain;
 using UBBGradePortal.Application.DTOs.Pagination;
-using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Application.Mappers;
 using UBBGradePortal.Domain.Entities;
@@ -17,16 +15,19 @@ public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseDomainRepository _courseDomainRepository;
+    private readonly ICourseEnrollmentRepository _courseEnrollmentRepository;
     private readonly ILogger<CourseService> _logger;
-    
+
     public CourseService(
         ICourseRepository courseRepository,
         ICourseDomainRepository courseDomainRepository,
+        ICourseEnrollmentRepository courseEnrollmentRepository,
         ILogger<CourseService> logger
     )
     {
         _courseRepository = courseRepository;
         _courseDomainRepository = courseDomainRepository;
+        _courseEnrollmentRepository = courseEnrollmentRepository;
         _logger = logger;
     }
 
@@ -52,7 +53,7 @@ public class CourseService : ICourseService
     {
         var (Count, Courses) = await _courseRepository.GetAllProfessorCreated(pageNumber, pageSize, loggedUserId, cancellationToken);
 
-        return 
+        return
             new PaginatedProfessorCreatedCourseDto(
                 Count,
                 Courses
@@ -74,8 +75,8 @@ public class CourseService : ICourseService
                 Count,
                 Courses
                     .Select(course => CourseMapper.FromCourseToCourseDto(
-                                    course.Course, 
-                                    course.Course.Activities.Select(a => ActivityMapper.FromActivityToActivityDto(a, null, null)).ToList(), 
+                                    course.Course,
+                                    course.Course.Activities.Select(a => ActivityMapper.FromActivityToActivityDto(a, null, null)).ToList(),
                                     course.User.SolvedActivities
                                         .Where(s => s.Status == SolvedActivityStatus.Completed && course.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
                                         .DistinctBy(s => s.ActivityId)
@@ -84,6 +85,39 @@ public class CourseService : ICourseService
                     )
                     .ToList()
             );
+    }
+
+    public async Task<List<CourseDto>> GetAllStudentCoursesByRecommendationOrSearchString(string? searchString, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var enrollments = await _courseEnrollmentRepository.GetAllByUserId(loggedUserId, cancellationToken);
+
+        if (String.IsNullOrEmpty(searchString))
+        {
+            var courseDomainIds = enrollments.Select(e => e.Course.CourseDomainId).ToList();
+            var courseRecommendations = await _courseRepository.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
+
+            return courseRecommendations
+                .Where(course => !enrollments.Select(e => e.CourseId).Contains(course.Id))
+                .Select(course => CourseMapper.FromCourseToCourseDto(
+                    course,
+                    course.Activities.Select(activity => ActivityMapper.FromActivityToActivityDto(activity, null, null)).ToList(),
+                    null)
+                )
+                .Take(10)
+                .ToList();
+        }
+
+        var filteredCourses = await _courseRepository.GetAllBySearchString(searchString, cancellationToken);
+
+        return filteredCourses
+                .Where(course => !enrollments.Select(e => e.CourseId).Contains(course.Id))
+                .Select(course => CourseMapper.FromCourseToCourseDto(
+                    course,
+                    course.Activities.Select(activity => ActivityMapper.FromActivityToActivityDto(activity, null, null)).ToList(),
+                    null)
+                )
+                .Take(10)
+                .ToList();
     }
 
     public async Task<CourseDto?> GetById(Guid id, CancellationToken cancellationToken)

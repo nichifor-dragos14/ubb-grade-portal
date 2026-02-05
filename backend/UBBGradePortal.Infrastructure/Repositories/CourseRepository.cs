@@ -26,8 +26,21 @@ public class CourseRepository : ICourseRepository
             .Courses
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
-            .Include (c => c.Activities)
+            .Include(c => c.Activities)
             .Include(c => c.CreatedByUser)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Course>> GetAllBySearchString(string searchString, CancellationToken cancellationToken)
+    {
+        var pattern = $"%{searchString}%";
+
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Include (c => c.Activities)
+            .Where(c => EF.Functions.ILike(c.CourseDomain.Name, pattern) ||
+                        EF.Functions.ILike(c.Name, pattern))
             .ToListAsync(cancellationToken);
     }
 

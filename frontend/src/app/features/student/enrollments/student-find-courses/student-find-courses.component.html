@@ -1,0 +1,80 @@
+<app-page-header title="Discover new courses and start learning 🔎">
+  <button mat-button color="warn" (click)="close()" button>CLOSE</button>
+</app-page-header>
+
+<div class="content">
+  <section class="search-area">
+    <mat-form-field appearance="outline">
+      <mat-label>Search by course name or domain</mat-label>
+      <input
+        matInput
+        [formControl]="searchControl"
+        placeholder="Ex: Databases"
+        (keyup.enter)="search()"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        [disabled]="isLoading"
+        (click)="search()"
+        aria-label="Search courses"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </section>
+
+  <section class="card results-card">
+    <div class="results-header">
+      <div class="results-title">{{ resultsTitle }}</div>
+      <div class="results-subtitle" *ngIf="resultsSubtitle">
+        {{ resultsSubtitle }}
+      </div>
+    </div>
+
+    <div class="loader" *ngIf="isLoading">
+      <mat-progress-spinner mode="indeterminate" diameter="48">
+      </mat-progress-spinner>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <p class="empty-text" *ngIf="courses.length === 0">
+        No courses were found.
+      </p>
+
+      <div class="course-list" *ngIf="courses.length > 0">
+        @for (course of courses; track course.id) {
+          <div class="course-card">
+            <div class="course-main">
+              <div class="course-header">
+                <div>
+                  <div class="course-name">{{ course.name }}</div>
+                  <div class="course-domain">
+                    {{ course.courseDomainName || '—' }}
+                  </div>
+                  <div class="course-meta">
+                    {{ getActivityCountText(course) }}
+                  </div>
+                </div>
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  class="enroll-button"
+                  (click)="enroll(course)"
+                >
+                  ENROLL
+                </button>
+              </div>
+              <div class="course-description">
+                {{
+                  course.description ||
+                    'No description was provided by the professor.'
+                }}
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </ng-container>
+  </section>
+</div>

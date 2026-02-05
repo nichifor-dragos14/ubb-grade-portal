@@ -2,6 +2,7 @@
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace UBBGradePortal.Infrastructure.Repositories;
 
@@ -17,6 +18,17 @@ public class CourseEnrollmentRepository : ICourseEnrollmentRepository
     {
         _dbContext = dbContext;
         _logger = logger;
+    }
+
+    public async Task<List<CourseEnrollment>> GetAllByUserId(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .CourseEnrollments
+            .Include(ce => ce.Course)
+                .ThenInclude(ce => ce.Activities)
+            .Include(ce => ce.User)
+            .Where(ce => ce.UserId == loggedUserId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)

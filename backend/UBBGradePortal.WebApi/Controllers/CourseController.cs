@@ -100,6 +100,29 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(paginatedResponse);
     }
 
+    /// <summary> Get all the recommended courses or get all courses by course domain name / course name search string</summary>
+    [HttpGet("find")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<List<CourseDto>>, BadRequest, ForbidHttpResult>> GetAllProfessorCreated(
+        [FromQuery] string? searchString,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var courses = await _courseService.GetAllStudentCoursesByRecommendationOrSearchString(searchString, loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(courses);
+    }
+
     /// <summary> Get course by id </summary>
     [HttpGet("{id}")]
     [Authorize(Roles = "Professor,Admin")]
