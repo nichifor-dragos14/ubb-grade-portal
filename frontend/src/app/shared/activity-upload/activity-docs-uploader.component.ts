@@ -152,7 +152,9 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
     >
       <div>
         <mat-icon>upload_file</mat-icon>
-        <div><strong>Drop files here</strong> or click to browse</div>
+        <div>
+          <strong>Drop activity resources here</strong> or click to browse
+        </div>
         <div class="hint">
           {{ multiple ? 'Multiple files allowed.' : 'Single file.' }}
           <ng-container *ngIf="accept"> • Allowed: {{ accept }}</ng-container>

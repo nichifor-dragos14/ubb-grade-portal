@@ -8,10 +8,10 @@
 </div>
 
 <mat-nav-list *ngIf="!isLoading">
-  @for (course of courses; track course.courseId) {
+  @for (course of courses; track course.id) {
     <a
       mat-list-item
-      [routerLink]="['/main/professor/courses', course.courseId]"
+      [routerLink]="['/main/professor/courses', course.id]"
       routerLinkActive="isActive"
     >
       <span
@@ -30,10 +30,11 @@
       <span matListItemLine>
         {{
           course.numberOfEntrollments === 0
-            ? 'No students have enrolled yet'
+            ? 'No students have enrolled to this course yet'
             : course.numberOfEntrollments === 1
-              ? '1 student has enrolled'
-              : course.numberOfEntrollments + ' students have enrolled'
+              ? '1 student has enrolled to this course'
+              : course.numberOfEntrollments +
+                ' students have enrolled to this course'
         }}
       </span>
 

@@ -1,4 +1,5 @@
-﻿using UBBGradePortal.Application.DTOs.SolvedActivity;
+﻿using UBBGradePortal.Application.DTOs.Pagination;
+using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Domain.Entities;
 
 namespace UBBGradePortal.Application.Abstractions;

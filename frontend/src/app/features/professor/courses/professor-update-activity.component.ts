@@ -19,11 +19,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
-import {
-  ActivityDto,
-  ActivityService,
-  CourseDetailsDto,
-} from '$backend/services';
+import { ActivityDto, ActivityService, CourseDto } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { ActivityDocsDropzoneComponent } from '$shared/activity-upload/activity-docs-uploader.component';
 import { QueuedFile } from '../../../shared/activity-upload/queued-file.model';
@@ -82,7 +78,7 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
       </section>
 
       <section class="card activity-docs-card">
-        <div class="card-title">Activity documents 📄</div>
+        <div class="card-title">Activity resources 📄</div>
         <app-activity-docs-dropzone
           *ngIf="!isLoading && activity.id"
           #dropzone
@@ -184,7 +180,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
   readonly toastService = inject(AppToastService);
   readonly activityService = inject(ActivityService);
 
-  @Input() course!: CourseDetailsDto;
+  @Input() course!: CourseDto;
   @Input() activity!: ActivityDto;
 
   @ViewChild('dropzone')

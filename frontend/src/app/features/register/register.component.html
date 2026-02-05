@@ -172,8 +172,8 @@
                     class="scrollable-list-container"
                     [multiple]="true"
                   >
-                    @for (course of courses; track course.courseId) {
-                      <mat-list-option [value]="course.courseId">
+                    @for (course of courses; track course.id) {
+                      <mat-list-option [value]="course.id">
                         {{ course.name }}
                       </mat-list-option>
                     }

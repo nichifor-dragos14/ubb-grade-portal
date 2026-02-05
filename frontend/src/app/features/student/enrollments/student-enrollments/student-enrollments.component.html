@@ -10,10 +10,10 @@
 </div>
 
 <mat-nav-list *ngIf="!isLoading">
-  @for (enrollment of enrollments; track enrollment.courseId) {
+  @for (enrollment of enrollments; track enrollment.id) {
     <a
       mat-list-item
-      [routerLink]="['/main/student/enrollments/course', enrollment.courseId]"
+      [routerLink]="['/main/student/enrollments/course', enrollment.id]"
       routerLinkActive="isActive"
     >
       <span
@@ -21,8 +21,8 @@
         [ngClass]="
           getCompletionClass(
             getCompletionRate(
-              enrollment.totalNumberOfActivities,
-              enrollment.numberOfSolvedActivities
+              enrollment.numberOfActivities!,
+              enrollment.numberOfSolvedActivities!
             )
           )
         "
@@ -30,19 +30,19 @@
       >
         {{
           getCompletionPercentText(
-            enrollment.totalNumberOfActivities,
-            enrollment.numberOfSolvedActivities
+            enrollment.numberOfActivities!,
+            enrollment.numberOfSolvedActivities!
           )
         }}
       </span>
 
-      <span matListItemTitle>{{ enrollment.courseName }}</span>
+      <span matListItemTitle>{{ enrollment.name }}</span>
 
       <span matListItemLine>
         {{
           getCompletionLineText(
-            enrollment.totalNumberOfActivities,
-            enrollment.numberOfSolvedActivities
+            enrollment.numberOfActivities!,
+            enrollment.numberOfSolvedActivities!
           )
         }}
       </span>

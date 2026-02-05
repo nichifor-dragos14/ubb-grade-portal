@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Course;
+using UBBGradePortal.Application.DTOs.CourseDomain;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.Exceptions;
 
 namespace UBBGradePortal.WebApi.Controllers;
@@ -104,7 +106,7 @@ public class CourseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<Ok<CourseDetailsDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
+    public async Task<Results<Ok<CourseDto>, BadRequest<string>, NotFound<string>>> GetCourseById(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
@@ -133,7 +135,7 @@ public class CourseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<Results<Ok<CourseDetailsStudentDto>, BadRequest<string>, NotFound<string>, ForbidHttpResult>> GetCourseByIdStudent(
+    public async Task<Results<Ok<CourseDto>, BadRequest<string>, NotFound<string>, ForbidHttpResult>> GetCourseByIdStudent(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )

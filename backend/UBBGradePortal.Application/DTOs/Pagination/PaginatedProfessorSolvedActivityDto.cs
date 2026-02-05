@@ -1,4 +1,6 @@
-﻿namespace UBBGradePortal.Application.DTOs.SolvedActivity;
+﻿using UBBGradePortal.Application.DTOs.SolvedActivity;
+
+namespace UBBGradePortal.Application.DTOs.Pagination;
 
 public record PaginatedProfessorSolvedActivityDto(
     int Count,

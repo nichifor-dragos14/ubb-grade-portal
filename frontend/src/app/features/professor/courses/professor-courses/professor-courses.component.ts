@@ -16,7 +16,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DateConverterModule } from '$shared/date-converter';
 
-import { CourseService, ProfessorCreatedCourseDto } from '$backend/services';
+import { CourseDto, CourseService } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProfessorCoursesEventService } from '../professor-courses-event.service';
@@ -52,7 +52,7 @@ export class ProfessorCoursesComponent implements OnInit {
     ProfessorCoursesEventService
   );
 
-  courses: ProfessorCreatedCourseDto[] = [];
+  courses: CourseDto[] = [];
   courseCount = 0;
 
   pageIndex = 0;

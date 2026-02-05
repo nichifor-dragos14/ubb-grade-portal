@@ -1,7 +1,17 @@
-﻿namespace UBBGradePortal.Application.DTOs.Course;
+﻿using UBBGradePortal.Application.DTOs.Activity;
 
-public record CourseDto(
-    Guid CourseId,
-    string Name,
-    string CourseDomainName
-);
+namespace UBBGradePortal.Application.DTOs.Course;
+
+public class CourseDto
+{
+    public Guid Id { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? CourseDomainName { get; set; }
+    public Guid? CourseDomainId { get; set; }
+    public DateTime? CreatedOn { get; set; }
+    public int? NumberOfEntrollments { get; set; }
+    public int? NumberOfActivities { get; set; }
+    public int? NumberOfSolvedActivities { get; set; }
+    public List<ActivityDto>? Activities { get; set; } = [];
+}

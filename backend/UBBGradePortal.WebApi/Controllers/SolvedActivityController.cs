@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Domain.Entities;

@@ -70,7 +70,7 @@
   </section>
 
   <section class="activities-section card" aria-label="Activities">
-    <div *ngIf="course.activities.length === 0">
+    <div *ngIf="course.activities!.length === 0">
       <div class="activities-empty">
         <span class="activities-title">No activities yet 😟</span>
         <p class="text-muted">
@@ -79,7 +79,7 @@
       </div>
     </div>
 
-    <div *ngIf="course.activities.length !== 0">
+    <div *ngIf="course.activities!.length !== 0">
       <span class="activities-title">Activities 📘</span>
 
       <mat-nav-list>
@@ -94,10 +94,12 @@
           <div matListItemLine class="muted">
             {{
               activity.numberOfDocuments === 0
-                ? 'No attached documents'
-                : activity.numberOfDocuments +
-                  ' attached document' +
-                  (activity.numberOfDocuments === 1 ? '' : 's')
+                ? 'You have not attached any resources to this activity yet'
+                : 'You attached ' +
+                  activity.numberOfDocuments +
+                  ' resource' +
+                  (activity.numberOfDocuments === 1 ? '' : 's') +
+                  ' to this activity'
             }}
           </div>
 

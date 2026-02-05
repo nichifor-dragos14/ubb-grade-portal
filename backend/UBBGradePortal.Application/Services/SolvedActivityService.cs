@@ -2,6 +2,7 @@
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Document;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Application.Mappers;

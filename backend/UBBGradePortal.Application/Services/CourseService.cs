@@ -3,6 +3,8 @@ using System.Diagnostics;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Activity;
 using UBBGradePortal.Application.DTOs.Course;
+using UBBGradePortal.Application.DTOs.CourseDomain;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Application.Mappers;
@@ -33,7 +35,7 @@ public class CourseService : ICourseService
         var courses = await _courseRepository.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
         return courses
-            .Select(c => new CourseDto(c.Id, c.Name, c.CourseDomain.Name))
+            .Select(c => CourseMapper.FromCourseToCourseDto(c, null, null))
             .ToList();
     }
 
@@ -54,14 +56,11 @@ public class CourseService : ICourseService
             new PaginatedProfessorCreatedCourseDto(
                 Count,
                 Courses
-                    .Select(c => new ProfessorCreatedCourseDto(
-                        c.Id,
-                        c.Name,
-                        c.CourseDomain.Name,
-                        c.CreatedOn,
-                        c.CourseEnrollments.Count,
-                        c.Activities.Count
-                    ))
+                    .Select(course => CourseMapper.FromCourseToCourseDto(
+                        course,
+                        course.Activities.Select(activity => ActivityMapper.FromActivityToActivityDto(activity, null, null)).ToList(),
+                        null)
+                    )
                     .ToList()
             );
     }
@@ -74,22 +73,20 @@ public class CourseService : ICourseService
             new PaginatedStudentCourseEnrollmentDto(
                 Count,
                 Courses
-                    .Select(c => new StudentEnrollmentDto(
-                        c.Course.Id,
-                        c.Course.Name,
-                        c.Course.CourseDomain.Name,
-                        c.CreatedOn,
-                        c.Course.Activities.Count,
-                        c.User.SolvedActivities
-                            .Where(s => s.Status == SolvedActivityStatus.Completed && c.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
-                            .DistinctBy(s => s.ActivityId)
-                            .Count()
-                    ))
+                    .Select(course => CourseMapper.FromCourseToCourseDto(
+                                    course.Course, 
+                                    course.Course.Activities.Select(a => ActivityMapper.FromActivityToActivityDto(a, null, null)).ToList(), 
+                                    course.User.SolvedActivities
+                                        .Where(s => s.Status == SolvedActivityStatus.Completed && course.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
+                                        .DistinctBy(s => s.ActivityId)
+                                        .ToList()
+                                    )
+                    )
                     .ToList()
             );
     }
 
-    public async Task<CourseDetailsDto?> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<CourseDto?> GetById(Guid id, CancellationToken cancellationToken)
     {
         var course = await _courseRepository.GetById(id, cancellationToken);
 
@@ -100,21 +97,46 @@ public class CourseService : ICourseService
             throw new NotFoundException("The course does not exist");
         }
 
-        return
-            new CourseDetailsDto(
-                course.Id,
-                course.Name,
-                course.Description,
-                course.CourseDomain.Name,
-                course.Activities
-                    .OrderBy(c => c.CreatedOn)
+        return CourseMapper.FromCourseToCourseDto(
+            course,
+            course.Activities.OrderByDescending(activity => activity.CreatedOn).Select(activity => ActivityMapper.FromActivityToActivityDto(
+                activity,
+                null,
+                activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList())
+            ).ToList(),
+            null
+        );
+    }
+
+    public async Task<CourseDto?> GetByIdStudent(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var course = await _courseRepository.GetById(id, cancellationToken);
+
+        if (course == null)
+        {
+            _logger.LogInformation($"The course {id} is not available");
+
+            throw new NotFoundException("The course does not exist");
+        }
+
+        course.Activities.ForEach(activity => activity.SolvedActivities = activity.SolvedActivities
+            .OrderByDescending(sa => sa.CreatedOn)
+            .Where(sa => sa.User.Id == loggedUserId)
+            .ToList()
+        );
+
+        return CourseMapper.FromCourseToCourseDto(
+            course,
+            course.Activities
+                    .OrderBy(activity => activity.CreatedOn)
                     .Select(activity => ActivityMapper.FromActivityToActivityDto(
                         activity,
-                        null,
-                        activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList()  )
+                        activity.SolvedActivities.Select(solvedActivity => SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(solvedActivity, null, null)).ToList(),
+                        activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList()
                     )
-                    .ToList()
-            );
+                ).ToList(),
+            null
+        );
     }
 
     public async Task<Guid> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken)
@@ -166,39 +188,5 @@ public class CourseService : ICourseService
         course.Description = updateCourseDto.Description;
 
         return await _courseRepository.Update(course, cancellationToken);
-    }
-
-    public async Task<CourseDetailsStudentDto?> GetByIdStudent(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
-    {
-        var course = await _courseRepository.GetById(id, cancellationToken);
-
-        if (course == null)
-        {
-            _logger.LogInformation($"The course {id} is not available");
-
-            throw new NotFoundException("The course does not exist");
-        }
-
-        course.Activities.ForEach(activity => activity.SolvedActivities = activity.SolvedActivities
-            .OrderByDescending(sa => sa.CreatedOn)
-            .Where(sa => sa.User.Id == loggedUserId)
-            .ToList()
-        );
-
-        return
-            new CourseDetailsStudentDto(
-                course.Id,
-                course.Name,
-                course.Description,
-                course.CourseDomain.Name,           
-                course.Activities
-                    .OrderBy(activity => activity.CreatedOn)
-                    .Select(activity => ActivityMapper.FromActivityToActivityDto(
-                        activity,
-                        activity.SolvedActivities.Select(solvedActivity => SolvedActivityMapper.FromSolvedActivityToSolvedActivityDto(solvedActivity, null, null)).ToList(),
-                        activity.ActivityDocuments.Select(activityDocument => DocumentMapper.FromActivityDocumentToDocumentDto(activityDocument)).ToList()
-                    )
-                ).ToList()
-            );
     }
 }

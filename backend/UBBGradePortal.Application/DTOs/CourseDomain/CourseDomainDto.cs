@@ -1,4 +1,4 @@
-﻿namespace UBBGradePortal.Application.DTOs.Course;
+﻿namespace UBBGradePortal.Application.DTOs.CourseDomain;
 
 public record CourseDomainDto(
     Guid CourseDomainId,

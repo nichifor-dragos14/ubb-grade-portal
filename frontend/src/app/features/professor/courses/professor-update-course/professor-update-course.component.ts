@@ -22,7 +22,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 
-import { CourseDetailsDto, CourseService } from '$backend/services';
+import { CourseDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -67,7 +67,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
     ProfessorCoursesEventService
   );
 
-  @Input() course!: CourseDetailsDto;
+  @Input() course!: CourseDto;
 
   updateCourseFormGroup = this.formBuilder.group({
     courseId: ['', Validators.required],

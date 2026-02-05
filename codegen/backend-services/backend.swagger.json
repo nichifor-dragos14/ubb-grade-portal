@@ -616,7 +616,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseDetailsDto"
+                  "$ref": "#/components/schemas/CourseDto"
                 }
               }
             }
@@ -734,7 +734,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseDetailsStudentDto"
+                  "$ref": "#/components/schemas/CourseDto"
                 }
               }
             }
@@ -1394,70 +1394,6 @@
         },
         "additionalProperties": false
       },
-      "CourseDetailsDto": {
-        "required": [
-          "activities",
-          "courseDomainName",
-          "id",
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseDomainName": {
-            "type": "string"
-          },
-          "activities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ActivityDto"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "CourseDetailsStudentDto": {
-        "required": [
-          "activities",
-          "courseDomainName",
-          "id",
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "courseDomainName": {
-            "type": "string"
-          },
-          "activities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ActivityDto"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
       "CourseDomainDto": {
         "required": [
           "courseDomainId",
@@ -1477,21 +1413,57 @@
       },
       "CourseDto": {
         "required": [
-          "courseDomainName",
-          "courseId",
-          "name"
+          "id"
         ],
         "type": "object",
         "properties": {
-          "courseId": {
+          "id": {
             "type": "string",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "courseDomainName": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "courseDomainId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "numberOfEntrollments": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numberOfActivities": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numberOfSolvedActivities": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1586,7 +1558,7 @@
           "courses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProfessorCreatedCourseDto"
+              "$ref": "#/components/schemas/CourseDto"
             }
           }
         },
@@ -1626,7 +1598,7 @@
           "enrollments": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/StudentEnrollmentDto"
+              "$ref": "#/components/schemas/CourseDto"
             }
           }
         },
@@ -1718,42 +1690,6 @@
           }
         },
         "additionalProperties": { }
-      },
-      "ProfessorCreatedCourseDto": {
-        "required": [
-          "courseDomainName",
-          "courseId",
-          "name",
-          "numberOfActivities",
-          "numberOfEntrollments"
-        ],
-        "type": "object",
-        "properties": {
-          "courseId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "courseDomainName": {
-            "type": "string"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "numberOfEntrollments": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "numberOfActivities": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
       },
       "RegisterRequest": {
         "required": [
@@ -1861,42 +1797,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "StudentEnrollmentDto": {
-        "required": [
-          "courseDomainName",
-          "courseId",
-          "courseName",
-          "numberOfSolvedActivities",
-          "totalNumberOfActivities"
-        ],
-        "type": "object",
-        "properties": {
-          "courseId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "courseName": {
-            "type": "string"
-          },
-          "courseDomainName": {
-            "type": "string"
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "totalNumberOfActivities": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "numberOfSolvedActivities": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
       },
       "UpdateActivityDto": {
         "type": "object",

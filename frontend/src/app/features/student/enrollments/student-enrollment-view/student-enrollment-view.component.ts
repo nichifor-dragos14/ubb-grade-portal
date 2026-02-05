@@ -17,7 +17,7 @@ import { NgZone } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
   ActivityDto,
-  CourseDetailsStudentDto,
+  CourseDto,
   CourseService,
   SolvedActivityStatus,
 } from '$backend/services';
@@ -73,7 +73,7 @@ export class StudentEnrollmentViewComponent
   @ViewChild('board', { static: false }) boardRef?: ElementRef<HTMLElement>;
   @ViewChild(MatTooltip, { static: false }) tooltipDir?: MatTooltip;
 
-  @Input() course!: CourseDetailsStudentDto;
+  @Input() course!: CourseDto;
 
   private courseReady = false;
   private svgReady = false;

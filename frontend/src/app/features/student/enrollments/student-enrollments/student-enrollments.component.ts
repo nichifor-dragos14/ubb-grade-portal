@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -16,11 +16,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DateConverterModule } from '$shared/date-converter';
 
-import {
-  CourseService,
-  ProfessorCreatedCourseDto,
-  StudentEnrollmentDto,
-} from '$backend/services';
+import { CourseDto, CourseService } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppToastService } from '$shared/toast';
@@ -56,7 +52,7 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   private readonly destroy$ = new Subject<void>();
 
-  enrollments: StudentEnrollmentDto[] = [];
+  enrollments: CourseDto[] = [];
   enrollmentsCount = 0;
 
   pageIndex = 0;

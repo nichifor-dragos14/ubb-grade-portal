@@ -4,7 +4,7 @@
   </a>
 </app-page-header>
 
-<div class="legend" *ngIf="course.activities.length">
+<div class="legend" *ngIf="course.activities?.length">
   <span><span class="dot completed"></span> Completed</span>
   <span><span class="dot submitted"></span> Submitted</span>
   <span><span class="dot returned"></span> Returned</span>
@@ -12,7 +12,7 @@
   <span><span class="dot locked"></span> Locked</span>
 </div>
 
-<div class="board" #board *ngIf="course.activities.length; else noActivities">
+<div class="board" #board *ngIf="course.activities?.length; else noActivities">
   <svg
     #svg
     class="map"

@@ -17,7 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
-import { ActivityService, CourseDetailsDto } from '$backend/services';
+import { ActivityService, CourseDto } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { ProfessorCoursesEventService } from './professor-courses-event.service';
 
@@ -83,7 +83,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
         </mat-form-field>
 
         <p class="hint-text">
-          You can add documents after the activity is created.
+          After creating this activity, you will be redirected to add resources.
         </p>
       </section>
     </form>
@@ -176,7 +176,7 @@ export class ProfessorAddActivityComponent {
     ProfessorCoursesEventService
   );
 
-  @Input() course!: CourseDetailsDto;
+  @Input() course!: CourseDto;
 
   addActivityFormGroup = this.formBuilder.group({
     name: ['', Validators.required],
