@@ -17,11 +17,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { CourseDto, CourseService } from '$backend/services';
 import { StudentEnrollmentEventService } from '$features/student/student-enrollment-event.service';
+import {
+  ConfirmEnrollDialog,
+  ConfirmEnrollDialogData,
+} from '$shared/dialogs/confirm-enroll-dialog.component';
 
 @Component({
   selector: 'app-student-find-courses',
@@ -36,6 +42,7 @@ import { StudentEnrollmentEventService } from '$features/student/student-enrollm
     MatIconModule,
     MatListModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     AppPageHeaderComponent,
   ],
   templateUrl: './student-find-courses.component.html',
@@ -49,6 +56,7 @@ export class StudentFindCoursesComponent implements OnInit {
   private readonly courseService = inject(CourseService);
   private readonly toastService = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
   private readonly studentEnrollmentEventService = inject(
     StudentEnrollmentEventService
   );
@@ -132,8 +140,15 @@ export class StudentFindCoursesComponent implements OnInit {
     }
   }
 
-  enroll(course: CourseDto) {
+  async enroll(course: CourseDto) {
     if (!course.id || this.enrollingIds.has(course.id)) {
+      return;
+    }
+
+    const courseName = course.name ?? 'this course';
+    const confirmed = await this.confirmEnroll({ courseName });
+
+    if (!confirmed) {
       return;
     }
 
@@ -143,7 +158,10 @@ export class StudentFindCoursesComponent implements OnInit {
     this.courseService
       .apiCourseIdEnrollPostAsync({ id: course.id })
       .then(() => {
-        this.toastService.open(`You are enrolled in ${course.name}.`, 'info');
+        this.toastService.open(
+          `You successfully enrolled in ${course.name}.`,
+          'info'
+        );
         this.studentEnrollmentEventService.emitEnrolledToCourse({
           courseId: course.id,
         });
@@ -158,6 +176,16 @@ export class StudentFindCoursesComponent implements OnInit {
         this.enrollingIds.delete(course.id);
         this.cdr.detectChanges();
       });
+  }
+
+  private async confirmEnroll(data: ConfirmEnrollDialogData): Promise<boolean> {
+    const ref = this.dialog.open(ConfirmEnrollDialog, {
+      data,
+      disableClose: true,
+      width: '520px',
+    });
+
+    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   isEnrolling(course: CourseDto): boolean {

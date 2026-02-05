@@ -5,24 +5,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-export interface ConfirmUnenrollDialogData {
+export interface ConfirmEnrollDialogData {
   courseName: string;
 }
 
 @Component({
-  selector: 'app-confirm-unenroll-dialog',
+  selector: 'app-confirm-enroll-dialog',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
     <div class="dialog-container">
       <div class="dialog-title-row">
         <mat-icon class="title-icon">help_outline</mat-icon>
-        <h2 class="dialog-title">Unenroll from course</h2>
+        <h2 class="dialog-title">Enroll in course</h2>
       </div>
 
       <p class="dialog-message">
-        Are you sure you want to unenroll from '{{ data.courseName }}'? Your
-        progress will be saved if you decide to re-enroll later on.
+        Are you sure you want to enroll in '{{ data.courseName }}'?
       </p>
 
       <div class="dialog-actions">
@@ -31,11 +30,11 @@ export interface ConfirmUnenrollDialogData {
         </button>
         <button
           mat-raised-button
-          color="warn"
+          color="primary"
           (click)="onConfirm()"
           class="confirm-btn"
         >
-          Unenroll
+          Enroll
         </button>
       </div>
     </div>
@@ -99,10 +98,10 @@ export interface ConfirmUnenrollDialogData {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmUnenrollDialog {
+export class ConfirmEnrollDialog {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmUnenrollDialogData,
-    private dialogRef: MatDialogRef<ConfirmUnenrollDialog>
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmEnrollDialogData,
+    private dialogRef: MatDialogRef<ConfirmEnrollDialog>
   ) {}
 
   onCancel(): void {
