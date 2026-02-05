@@ -24,14 +24,19 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AppPageHeaderComponent } from '$shared/page-header';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   StudentEnrollmentEventService,
   StudentSolvedActivityEventService,
 } from '$features/student/student-enrollment-event.service';
 import { AppToastService } from '$shared/toast';
+import {
+  ConfirmUnenrollDialog,
+  ConfirmUnenrollDialogData,
+} from '$shared/dialogs/confirm-unenroll-dialog.component';
 
 type CPState = 'submitted' | 'completed' | 'returned' | 'unlocked' | 'locked';
 
@@ -51,6 +56,7 @@ interface RoadmapPosition {
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
+    MatDialogModule,
     AppPageHeaderComponent,
     RouterModule,
   ],
@@ -65,6 +71,7 @@ export class StudentEnrollmentViewComponent
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
   private readonly enrollmentService = inject(
     StudentSolvedActivityEventService
   );
@@ -197,6 +204,15 @@ export class StudentEnrollmentViewComponent
       return;
     }
 
+    const courseName = this.course?.name ?? 'this course';
+    const confirmed = await this.confirmAction({
+      courseName,
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
     this.isUnenrolling = true;
     this.cdr.markForCheck();
 
@@ -221,6 +237,18 @@ export class StudentEnrollmentViewComponent
       this.isUnenrolling = false;
       this.cdr.markForCheck();
     }
+  }
+
+  private async confirmAction(
+    data: ConfirmUnenrollDialogData
+  ): Promise<boolean> {
+    const ref = this.dialog.open(ConfirmUnenrollDialog, {
+      data,
+      disableClose: true,
+      width: '520px',
+    });
+
+    return (await firstValueFrom(ref.afterClosed())) === true;
   }
 
   onActivityHover(event: MouseEvent, cp: RoadmapPosition): void {
