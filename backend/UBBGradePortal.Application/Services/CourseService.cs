@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Course;
 using UBBGradePortal.Application.DTOs.CourseDomain;
@@ -232,7 +231,7 @@ public class CourseService : ICourseService
         {
             _logger.LogInformation($"The user {loggedUserId} is already enrolled to course {id}");
 
-            throw new ForbiddenException("You already enrolled for this course");
+            throw new ForbiddenException("You already enrolled to this course");
         }
 
         var enrollment = new CourseEnrollment
@@ -245,5 +244,19 @@ public class CourseService : ICourseService
         };
 
         return await _courseEnrollmentRepository.Add([enrollment], cancellationToken);
+    }
+
+    public async Task<bool> UnenrollFromCourse(Guid id, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var enrollment = await _courseEnrollmentRepository.GetByCourseIdAndUserId(id, loggedUserId, cancellationToken);
+
+        if (enrollment == null)
+        {
+            _logger.LogInformation($"The user {loggedUserId} is not enrolled to course {id}");
+
+            throw new ForbiddenException("You are not enrolled to this course");
+        }
+
+        return await _courseEnrollmentRepository.Delete(enrollment, cancellationToken);
     }
 }

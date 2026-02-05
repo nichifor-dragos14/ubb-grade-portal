@@ -13,6 +13,10 @@ export interface EnrolledToCourseEvent {
   courseId: string;
 }
 
+export interface UnenrolledFromCourseEvent {
+  courseId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudentSolvedActivityEventService {
   private addedSolvedActivitySubject = new Subject<AddedSolvedActivityEvent>();
@@ -35,7 +39,15 @@ export class StudentEnrollmentEventService {
   private enrolledToCourseSubject = new Subject<EnrolledToCourseEvent>();
   enrolledToCourse$ = this.enrolledToCourseSubject.asObservable();
 
+  private unenrolledFromCourseSubject =
+    new Subject<UnenrolledFromCourseEvent>();
+  unenrolledFromCourse$ = this.unenrolledFromCourseSubject.asObservable();
+
   emitEnrolledToCourse(e: EnrolledToCourseEvent) {
     this.enrolledToCourseSubject.next(e);
+  }
+
+  emitUnenrolledFromCourse(e: UnenrolledFromCourseEvent) {
+    this.unenrolledFromCourseSubject.next(e);
   }
 }

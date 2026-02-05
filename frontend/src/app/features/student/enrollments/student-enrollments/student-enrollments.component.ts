@@ -86,6 +86,12 @@ export class StudentEnrollmentsComponent implements OnInit {
       .subscribe(() => {
         this.loadPage();
       });
+
+    this.studentEnrollmentEventService.unenrolledFromCourse$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPage();
+      });
   }
 
   private async loadPage() {

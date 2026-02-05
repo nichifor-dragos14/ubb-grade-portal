@@ -27,7 +27,11 @@ import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StudentSolvedActivityEventService } from '$features/student/student-enrollment-event.service';
+import {
+  StudentEnrollmentEventService,
+  StudentSolvedActivityEventService,
+} from '$features/student/student-enrollment-event.service';
+import { AppToastService } from '$shared/toast';
 
 type CPState = 'submitted' | 'completed' | 'returned' | 'unlocked' | 'locked';
 
@@ -64,7 +68,11 @@ export class StudentEnrollmentViewComponent
   private readonly enrollmentService = inject(
     StudentSolvedActivityEventService
   );
+  private readonly studentEnrollmentEventService = inject(
+    StudentEnrollmentEventService
+  );
   private readonly courseService = inject(CourseService);
+  private readonly toastService = inject(AppToastService);
   private readonly destroy$ = new Subject<void>();
 
   @ViewChild('roadPath', { static: false })
@@ -82,6 +90,7 @@ export class StudentEnrollmentViewComponent
     'M 80 520 C 220 420, 540 560, 700 500 S 600 260, 420 260 S 220 200, 300 120';
 
   positions: RoadmapPosition[] = [];
+  isUnenrolling = false;
 
   tooltip = {
     visible: false,
@@ -181,6 +190,37 @@ export class StudentEnrollmentViewComponent
     void this.router.navigate(['activities', activity.id, route], {
       relativeTo: this.route,
     });
+  }
+
+  async unenroll() {
+    if (!this.course?.id || this.isUnenrolling) {
+      return;
+    }
+
+    this.isUnenrolling = true;
+    this.cdr.markForCheck();
+
+    try {
+      await this.courseService.apiCourseIdUnenrollDeleteAsync({
+        id: this.course.id,
+      });
+
+      this.toastService.open(
+        `You unenrolled from ${this.course.name}.`,
+        'info'
+      );
+      this.studentEnrollmentEventService.emitUnenrolledFromCourse({
+        courseId: this.course.id,
+      });
+      await this.router.navigate(['../../'], { relativeTo: this.route });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+    } finally {
+      this.isUnenrolling = false;
+      this.cdr.markForCheck();
+    }
   }
 
   onActivityHover(event: MouseEvent, cp: RoadmapPosition): void {

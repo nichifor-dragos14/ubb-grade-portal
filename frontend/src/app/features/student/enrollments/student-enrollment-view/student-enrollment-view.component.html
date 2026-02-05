@@ -1,5 +1,21 @@
 <app-page-header title="Your roadmap for '{{ course.name }}' 🧭">
-  <a mat-icon-button button routerLink="../../" color="accent">
+  <button
+    mat-button
+    color="warn"
+    class="header-action"
+    (click)="unenroll()"
+    [disabled]="isUnenrolling"
+    button
+  >
+    UNENROLL
+  </button>
+  <a
+    mat-icon-button
+    button
+    routerLink="../../"
+    color="accent"
+    class="header-action"
+  >
     <mat-icon>close</mat-icon>
   </a>
 </app-page-header>

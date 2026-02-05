@@ -31,9 +31,26 @@ public class CourseEnrollmentRepository : ICourseEnrollmentRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<CourseEnrollment?> GetByCourseIdAndUserId(Guid courseId, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .CourseEnrollments
+            .Include(ce => ce.Course)
+            .Include(ce => ce.User)
+            .FirstOrDefaultAsync(ce => ce.Course.Id == courseId && ce.User.Id == loggedUserId, cancellationToken: cancellationToken);
+    }
+
     public async Task<bool> Add(List<CourseEnrollment> courseEnrollments, CancellationToken cancellationToken)
     {
         await _dbContext.CourseEnrollments.AddRangeAsync(courseEnrollments, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    public async Task<bool> Delete(CourseEnrollment courseEnrollment, CancellationToken cancellationToken)
+    {
+        _dbContext.Remove(courseEnrollment);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return true;

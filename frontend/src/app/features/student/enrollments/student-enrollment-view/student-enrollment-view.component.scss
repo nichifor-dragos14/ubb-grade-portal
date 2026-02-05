@@ -20,6 +20,10 @@ section[role='course-actions'] {
   gap: 8px;
 }
 
+.header-action {
+  align-self: center;
+}
+
 .legend {
   display: flex;
   flex-direction: row-reverse;

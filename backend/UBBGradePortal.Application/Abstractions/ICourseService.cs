@@ -16,4 +16,5 @@ public interface ICourseService
     public Task<Guid> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Update(UpdateCourseDto updateCourseDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<bool> EnrollToCourse(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
+    public Task<bool> UnenrollFromCourse(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
 }

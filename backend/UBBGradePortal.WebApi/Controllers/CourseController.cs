@@ -257,8 +257,8 @@ public class CourseController : ControllerBase
         }
     }
 
-    /// <summary> Enroll tp a course </summary>
-    [HttpPut("{id}/enroll")]
+    /// <summary> Enroll to a course </summary>
+    [HttpPost("{id}/enroll")]
     [Authorize(Roles = "Student")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -283,6 +283,45 @@ public class CourseController : ControllerBase
         try
         {
             var result = await _courseService.EnrollToCourse(id, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(result);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
+    }
+
+    /// <summary> Unenroll from a course </summary>
+    [HttpDelete("{id}/unenroll")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<bool>, NotFound<string>, ForbidHttpResult, BadRequest<string>>> UnenrollFromCourse(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
+        try
+        {
+            var result = await _courseService.UnenrollFromCourse(id, loggedUserId, cancellationToken);
 
             return TypedResults.Ok(result);
         }

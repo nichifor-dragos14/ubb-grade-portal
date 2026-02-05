@@ -141,7 +141,7 @@ export class StudentFindCoursesComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.courseService
-      .apiCourseIdEnrollPutAsync({ id: course.id })
+      .apiCourseIdEnrollPostAsync({ id: course.id })
       .then(() => {
         this.toastService.open(`You are enrolled in ${course.name}.`, 'info');
         this.studentEnrollmentEventService.emitEnrolledToCourse({
