@@ -257,7 +257,7 @@ import { DateConverterModule } from '$shared/date-converter';
       .status-submitted,
       .status-submitted .value,
       .status-submitted.status-message {
-        color: #2e7d32;
+        color: #1d4ed8;
       }
       .status-completed,
       .status-completed .value,
@@ -270,7 +270,7 @@ import { DateConverterModule } from '$shared/date-converter';
         color: #c62828;
       }
       .status-submitted.status-chip {
-        background: rgba(76, 175, 80, 0.12);
+        background: rgba(59, 130, 246, 0.12);
       }
       .status-completed.status-chip {
         background: rgba(46, 125, 50, 0.14);
