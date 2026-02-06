@@ -174,7 +174,15 @@
                   >
                     @for (course of courses; track course.id) {
                       <mat-list-option [value]="course.id">
-                        {{ course.name }}
+                        <div class="course-option-content">
+                          <div class="course-name">{{ course.name }}</div>
+                          <div class="course-description">
+                            {{
+                              course.description ||
+                                'No description was provided by the professor.'
+                            }}
+                          </div>
+                        </div>
                       </mat-list-option>
                     }
                   </mat-selection-list>
