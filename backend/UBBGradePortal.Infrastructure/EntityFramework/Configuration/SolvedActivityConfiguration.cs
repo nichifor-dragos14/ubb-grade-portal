@@ -14,6 +14,9 @@ internal class SolvedActivityEntityConfiguration : IEntityTypeConfiguration<Solv
             .HasDefaultValue(SolvedActivityStatus.Submitted);
         builder.Property(u => u.Grade);
         builder.Property(u => u.ProfessorComment);
+        builder.Property(u => u.AiDetectedSummary);
+        builder.Property(u => u.AiDetectedGoodPoints);
+        builder.Property(u => u.AiDetectedBadPoints);
 
         builder.Property(u => u.CreatedOn);
         builder.Property(u => u.UpdatedOn);

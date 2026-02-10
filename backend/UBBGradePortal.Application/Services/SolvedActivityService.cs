@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using UBBGradePortal.Application.Abstractions;
-using UBBGradePortal.Application.DTOs.Activity;
-using UBBGradePortal.Application.DTOs.Document;
+using UBBGradePortal.Application.DTOs.Ai;
 using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
 using UBBGradePortal.Application.Exceptions;
@@ -16,18 +15,21 @@ public class SolvedActivityService : ISolvedActivityService
     private readonly ICourseRepository _courseRepository;
     private readonly IActivityRepository _activityRepository;
     private readonly ISolvedActivityRepository _solvedActivityRepository;
+    private readonly IOpenAiService _genAiFeedbackService;
     private readonly ILogger<SolvedActivityService> _logger;
 
     public SolvedActivityService(
         ICourseRepository courseRepository,
         IActivityRepository activityRepository,
         ISolvedActivityRepository solvedActivityRepository,
+        IOpenAiService genAiFeedbackService,
         ILogger<SolvedActivityService> logger
     )
     {
         _courseRepository = courseRepository;
         _activityRepository = activityRepository;
         _solvedActivityRepository = solvedActivityRepository;
+        _genAiFeedbackService = genAiFeedbackService;
         _logger = logger;
     }
 
@@ -194,7 +196,27 @@ public class SolvedActivityService : ISolvedActivityService
             await _solvedActivityRepository.AddDocument(solvedActivityDocument, cancellationToken);
         }
 
-        return await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+        var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+        if (solvedActivity.Status == SolvedActivityStatus.Submitted)
+        {
+            var aiDetection = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+
+            if (aiDetection == null)
+            {
+                // complete after flag on user for ai detection
+            }
+            else
+            {
+                solvedActivity.AiDetectedSummary = aiDetection.Summary;
+                solvedActivity.AiDetectedGoodPoints = aiDetection.GoodPoints;
+                solvedActivity.AiDetectedBadPoints = aiDetection.BadPoints;
+
+                solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+            }
+        }     
+
+        return solvedActivityId;
     }
 
     public async Task<Guid> GradeSolvedActivity(GradeSolvedActivityDto gradeSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)
@@ -241,5 +263,19 @@ public class SolvedActivityService : ISolvedActivityService
         }
 
         await _solvedActivityRepository.DeleteDocument(solvedActivityDocument, cancellationToken);
+    }
+
+    private async Task<OpenAiSolvedActivityFeedback?> TryGenerateAiSummary(Guid solvedActivityId, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _genAiFeedbackService.GenerateSolvedActivitySummary(solvedActivityId, loggedUserId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AI summary generation failed for solved activity {SolvedActivityId}", solvedActivityId);
+
+            return null;
+        }
     }
 }

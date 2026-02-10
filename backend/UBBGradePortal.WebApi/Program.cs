@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args)
                          .ConfigureSerilog();
 
 builder.Services.Configure<MinioConfigurationOptions>(builder.Configuration.GetSection("Minio"));
+builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAi"));
 
 builder.Services
        .AddDomain()

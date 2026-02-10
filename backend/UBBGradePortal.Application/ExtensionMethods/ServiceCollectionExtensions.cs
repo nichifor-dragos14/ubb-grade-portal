@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddHttpClient();
+
         services.AddSingleton<IAmazonS3>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<MinioConfigurationOptions>>().Value;
@@ -24,6 +26,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddScoped<IUploadPresignService, S3UploadPresignService>();
+        services.AddScoped<IOpenAiService, OpenAiService>();
 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICourseService, CourseService>();
