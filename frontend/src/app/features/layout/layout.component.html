@@ -6,19 +6,18 @@
 
     <div class="nav-scroll">
       <mat-nav-list class="nav-list">
-        <!-- COMMON -->
-        <a
-          mat-list-item
-          routerLink="/main/dashboard"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          <mat-icon matListItemIcon>dashboard</mat-icon>
-          <div matListItemTitle>Dashboard</div>
-        </a>
-
         <!-- STUDENT -->
         <ng-container *ngIf="hasRole('Student')">
+          <a
+            mat-list-item
+            routerLink="/main/dashboard"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <div matListItemTitle>Dashboard</div>
+          </a>
+
           <a
             mat-list-item
             routerLink="/main/student/enrollments"
@@ -30,11 +29,11 @@
 
           <a
             mat-list-item
-            routerLink="/main/achievements"
+            routerLink="/main/statistics"
             routerLinkActive="active"
           >
             <mat-icon matListItemIcon>emoji_events</mat-icon>
-            <div matListItemTitle>My Achievements</div>
+            <div matListItemTitle>My Statistics</div>
           </a>
 
           <a
@@ -49,6 +48,15 @@
 
         <!-- PROFESSOR -->
         <ng-container *ngIf="hasRole('Professor')">
+          <a
+            mat-list-item
+            routerLink="/main/dashboard"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <div matListItemTitle>Dashboard</div>
+          </a>
           <a
             mat-list-item
             routerLink="/main/professor/courses"
@@ -69,11 +77,11 @@
 
           <a
             mat-list-item
-            routerLink="/main/professor/library"
+            routerLink="/main/professor/statistics"
             routerLinkActive="active"
           >
-            <mat-icon matListItemIcon>collections_bookmark</mat-icon>
-            <div matListItemTitle>My Library</div>
+            <mat-icon matListItemIcon>emoji_events</mat-icon>
+            <div matListItemTitle>My Statistics</div>
           </a>
         </ng-container>
 
