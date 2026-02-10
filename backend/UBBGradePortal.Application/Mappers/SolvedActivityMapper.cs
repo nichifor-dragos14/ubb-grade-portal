@@ -25,6 +25,9 @@ public static class SolvedActivityMapper
             CourseName = solvedActivity?.Activity?.Course != null ? solvedActivity.Activity.Course.Name : null,
             Activity = activity,
             Documents = solvedActivityDocuments,
+            AiDetectedSummary = solvedActivity.AiDetectedSummary,
+            AiDetectedBadPoints = solvedActivity.AiDetectedBadPoints,
+            AiDetectedGoodPoints = solvedActivity.AiDetectedGoodPoints,
         };
     }
 }

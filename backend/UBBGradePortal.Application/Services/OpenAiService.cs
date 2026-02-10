@@ -103,7 +103,7 @@ public class OpenAiService : IOpenAiService
                 new
                 {
                     role = "system",
-                    content = "You are a teaching assistant. Provide a concise summary of the student's submission with good points and bad points. Return valid JSON only."
+                    content = "You are a teaching assistant. Use only the provided text. Do not mention screenshots, images, videos, or other media. If the submission text is not related to the assessment, set goodPoints to an empty string and state the irrelevance in badPoints. Return valid JSON only."
                 },
                 new
                 {
@@ -135,6 +135,8 @@ public class OpenAiService : IOpenAiService
     {
         var builder = new StringBuilder();
         builder.AppendLine("Task: Summarize the submission and list good and bad points.");
+        builder.AppendLine("If the submission text is unrelated to the assessment, set goodPoints to an empty string and say so in badPoints.");
+        builder.AppendLine("Do not mention screenshots, images, videos, or other media.");
         builder.AppendLine("Return JSON with keys: summary (string), goodPoints (string), badPoints (string).");
         builder.AppendLine();
         builder.AppendLine("Activity description:");

@@ -151,6 +151,24 @@ public class SolvedActivityService : ISolvedActivityService
             await _solvedActivityRepository.AddDocument(solvedActivityDocument, cancellationToken);
         }
 
+        if (solvedActivity.Status == SolvedActivityStatus.Submitted)
+        {
+            var aiDetection = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+
+            if (aiDetection == null)
+            {
+                // complete after flag on user for ai detection
+            }
+            else
+            {
+                solvedActivity.AiDetectedSummary = aiDetection.Summary;
+                solvedActivity.AiDetectedGoodPoints = aiDetection.GoodPoints;
+                solvedActivity.AiDetectedBadPoints = aiDetection.BadPoints;
+
+                solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+            }
+        }
+
         return solvedActivity.Id;
     }
 

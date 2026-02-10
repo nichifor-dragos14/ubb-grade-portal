@@ -56,6 +56,7 @@ import { DateConverterModule } from '$shared/date-converter';
           color="primary"
           (click)="done()"
           [disabled]="
+            submitting ||
             !canEdit ||
             !(dropzone?.hasUploadedFiles || dropzone?.hasPendingDeletions)
           "
@@ -422,6 +423,10 @@ export class SolvedActivityUpdateComponent {
   async done() {
     const solvedActivityId = this.solvedActivity.id;
 
+    if (this.submitting) {
+      return;
+    }
+
     if (!this.canEdit) {
       this.toast.open('Resubmission is not allowed for completed activities');
       return;
@@ -433,6 +438,7 @@ export class SolvedActivityUpdateComponent {
     }
 
     try {
+      this.submitting = true;
       const hasUploads = !!this.dropzone?.hasUploadedFiles;
       const hasDeletions = !!this.dropzone?.hasPendingDeletions;
 
@@ -464,6 +470,8 @@ export class SolvedActivityUpdateComponent {
       await this.router.navigate(['../../../'], { relativeTo: this.route });
     } catch (error: any) {
       this.toast.open(error?.message || 'Update submission failed', 'error');
+    } finally {
+      this.submitting = false;
     }
   }
 

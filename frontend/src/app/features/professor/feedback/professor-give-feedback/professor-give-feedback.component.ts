@@ -158,6 +158,22 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     );
   }
 
+  get aiSummary(): string {
+    return (this.solvedActivity as any)?.aiDetectedSummary?.trim() || '';
+  }
+
+  get aiGoodPoints(): string {
+    return (this.solvedActivity as any)?.aiDetectedGoodPoints?.trim() || '';
+  }
+
+  get aiBadPoints(): string {
+    return (this.solvedActivity as any)?.aiDetectedBadPoints?.trim() || '';
+  }
+
+  get hasAiFeedback(): boolean {
+    return !!(this.aiSummary || this.aiGoodPoints || this.aiBadPoints);
+  }
+
   get submissionDocuments() {
     return ((this.solvedActivity as any)?.documents ?? []) as any[];
   }

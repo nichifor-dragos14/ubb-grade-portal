@@ -42,7 +42,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
           mat-button
           color="primary"
           (click)="done()"
-          [disabled]="!dropzone?.hasUploadedFiles"
+          [disabled]="submitting || !dropzone?.hasUploadedFiles"
           button
         >
           SUBMIT
@@ -196,6 +196,10 @@ export class SolveActivityComponent {
   async done() {
     const activityId = this.activity.id;
 
+    if (this.submitting) {
+      return;
+    }
+
     if (!activityId) {
       this.toast.open('Something went wrong', 'error');
       return;
@@ -211,6 +215,7 @@ export class SolveActivityComponent {
     }
 
     try {
+      this.submitting = true;
       const documents = this.dropzone?.getUploadedDocuments();
 
       if (!documents || documents.length === 0) {
@@ -233,6 +238,8 @@ export class SolveActivityComponent {
       }
     } catch (error: any) {
       this.toast.open(error?.message || 'Submit failed', 'error');
+    } finally {
+      this.submitting = false;
     }
   }
 

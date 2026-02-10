@@ -125,6 +125,27 @@
     </div>
   </section>
 
+  <section class="card" *ngIf="hasAiFeedback">
+    <div class="card-title">AI feedback 🤖</div>
+
+    <div class="detail-stack">
+      <div class="detail-pair" *ngIf="aiSummary">
+        <span class="label">Summary 🧠</span>
+        <span class="value">{{ aiSummary }}</span>
+      </div>
+
+      <div class="detail-pair" *ngIf="aiGoodPoints">
+        <span class="label">Good points ✅</span>
+        <span class="value">{{ aiGoodPoints }}</span>
+      </div>
+
+      <div class="detail-pair" *ngIf="aiBadPoints">
+        <span class="label">Bad points ⚠️</span>
+        <span class="value">{{ aiBadPoints }}</span>
+      </div>
+    </div>
+  </section>
+
   <form *ngIf="!isReadOnly" [formGroup]="feedbackForm">
     <section class="card">
       <div class="card-title">My feedback ✍️</div>

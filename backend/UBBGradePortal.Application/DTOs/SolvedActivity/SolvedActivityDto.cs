@@ -10,6 +10,9 @@ public class SolvedActivityDto
     public SolvedActivityStatus? Status { get; set; }
     public int? Grade { get; set; }
     public string? ProfessorComment { get; set; }
+    public string AiDetectedSummary { get; set; }
+    public string AiDetectedGoodPoints { get; set; }
+    public string AiDetectedBadPoints { get; set; }
     public DateTime? CreatedOn { get; set; }
     public DateTime? UpdatedOn { get; set; }
     public string? SolvedByName { get; set; }
