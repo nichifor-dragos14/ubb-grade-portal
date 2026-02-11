@@ -19,6 +19,7 @@ public static class CourseMapper
             Description = course?.Description,
             CourseDomainName = course?.CourseDomain.Name,
             CourseDomainId = course?.CourseDomain.Id,
+            AssistedLlmEvaluation = course?.AssistedLlmEvaluation,
             CreatedOn = course?.CreatedOn,
             NumberOfEntrollments = course?.CourseEnrollments?.Count,
             NumberOfActivities = activities?.Count,

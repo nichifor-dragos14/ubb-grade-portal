@@ -1444,6 +1444,7 @@
       },
       "AddCourseDto": {
         "required": [
+          "assistedLlmEvaluation",
           "courseDomainId",
           "description",
           "name"
@@ -1455,6 +1456,9 @@
           },
           "description": {
             "type": "string"
+          },
+          "assistedLlmEvaluation": {
+            "type": "boolean"
           },
           "courseDomainId": {
             "type": "string",
@@ -1565,6 +1569,10 @@
           },
           "courseDomainName": {
             "type": "string",
+            "nullable": true
+          },
+          "assistedLlmEvaluation": {
+            "type": "boolean",
             "nullable": true
           },
           "courseDomainId": {
@@ -1956,12 +1964,16 @@
       },
       "UpdateCourseDto": {
         "required": [
+          "assistedLlmEvaluation",
           "description"
         ],
         "type": "object",
         "properties": {
           "description": {
             "type": "string"
+          },
+          "assistedLlmEvaluation": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

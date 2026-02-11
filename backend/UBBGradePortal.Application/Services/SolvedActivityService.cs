@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Ai;
 using UBBGradePortal.Application.DTOs.Pagination;
@@ -151,23 +152,36 @@ public class SolvedActivityService : ISolvedActivityService
             await _solvedActivityRepository.AddDocument(solvedActivityDocument, cancellationToken);
         }
 
-        if (solvedActivity.Status == SolvedActivityStatus.Submitted)
+        if (activity.Course == null)
         {
-            var aiDetection = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+            _logger.LogInformation($"Cannot get Ai summary for {addSolvedActivityDto.ActivityId}");
 
-            if (aiDetection == null)
-            {
-                // complete after flag on user for ai detection
-            }
-            else
-            {
-                solvedActivity.AiDetectedSummary = aiDetection.Summary;
-                solvedActivity.AiDetectedGoodPoints = aiDetection.GoodPoints;
-                solvedActivity.AiDetectedBadPoints = aiDetection.BadPoints;
-
-                solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
-            }
+            return solvedActivity.Id;
         }
+
+        if (!activity.Course.AssistedLlmEvaluation)
+        {
+            _logger.LogInformation($"Assisted LLM evaluation is not enabled for {activity.Course.Id}");
+
+            solvedActivity.AiDetectedSummary = null;
+            solvedActivity.AiDetectedGoodPoints = null;
+            solvedActivity.AiDetectedBadPoints = null;
+
+            return solvedActivity.Id;
+        }
+
+        var aiSummary = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+
+        if (aiSummary == null)
+        {
+            return solvedActivity.Id;
+        }
+
+        solvedActivity.AiDetectedSummary = aiSummary.Summary;
+        solvedActivity.AiDetectedGoodPoints = aiSummary.GoodPoints;
+        solvedActivity.AiDetectedBadPoints = aiSummary.BadPoints;
+
+        solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
 
         return solvedActivity.Id;
     }
@@ -216,25 +230,45 @@ public class SolvedActivityService : ISolvedActivityService
 
         var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
 
-        if (solvedActivity.Status == SolvedActivityStatus.Submitted)
+        if (solvedActivity.Status != SolvedActivityStatus.Submitted)
         {
-            var aiDetection = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+            return solvedActivityId;
+        }
 
-            if (aiDetection == null)
-            {
-                // complete after flag on user for ai detection
-            }
-            else
-            {
-                solvedActivity.AiDetectedSummary = aiDetection.Summary;
-                solvedActivity.AiDetectedGoodPoints = aiDetection.GoodPoints;
-                solvedActivity.AiDetectedBadPoints = aiDetection.BadPoints;
+        if (solvedActivity.Activity.Course == null)
+        {
+            _logger.LogInformation($"Cannot get Ai summary for {solvedActivity.ActivityId}");
 
-                solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
-            }
-        }     
+            return solvedActivity.Id;
+        }
 
-        return solvedActivityId;
+        if (!solvedActivity.Activity.Course.AssistedLlmEvaluation)
+        {
+            _logger.LogInformation($"Assisted LLM evaluation is not enabled for {solvedActivity.Activity.Course.Id}");
+
+            solvedActivity.AiDetectedSummary = null;
+            solvedActivity.AiDetectedGoodPoints = null;
+            solvedActivity.AiDetectedBadPoints = null;
+
+            solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+            return solvedActivity.Id;
+        }
+
+        var aiSummary = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
+
+        if (aiSummary == null)
+        {
+            return solvedActivity.Id;
+        }
+
+        solvedActivity.AiDetectedSummary = aiSummary.Summary;
+        solvedActivity.AiDetectedGoodPoints = aiSummary.GoodPoints;
+        solvedActivity.AiDetectedBadPoints = aiSummary.BadPoints;
+
+        solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+        return solvedActivity.Id;
     }
 
     public async Task<Guid> GradeSolvedActivity(GradeSolvedActivityDto gradeSolvedActivityDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken)

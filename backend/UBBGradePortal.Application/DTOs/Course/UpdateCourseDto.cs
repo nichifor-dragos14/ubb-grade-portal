@@ -1,5 +1,6 @@
 ﻿namespace UBBGradePortal.Application.DTOs.Course;
 
 public record UpdateCourseDto(
-    string Description
+    string Description,
+    bool AssistedLlmEvaluation
 );

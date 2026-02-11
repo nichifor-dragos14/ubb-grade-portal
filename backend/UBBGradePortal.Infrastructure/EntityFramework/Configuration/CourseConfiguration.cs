@@ -12,6 +12,7 @@ internal class CourseEntityConfiguration : IEntityTypeConfiguration<Course>
 
         builder.Property(u => u.Name).IsRequired();
         builder.Property(u => u.Description);
+        builder.Property(u => u.AssistedLlmEvaluation);
 
         builder.Property(u => u.CreatedOn);
         builder.Property(u => u.UpdatedOn);

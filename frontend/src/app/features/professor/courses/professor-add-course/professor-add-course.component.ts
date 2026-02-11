@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { CourseDomainDto, CourseService } from '$backend/services';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -38,6 +39,7 @@ import { AppToastService } from '$shared/toast';
     MatSelectModule,
     CommonModule,
     MatTooltipModule,
+    MatSlideToggleModule,
     MatProgressSpinner,
   ],
   standalone: true,
@@ -59,6 +61,7 @@ export class ProfessorAddCourseComponent implements OnInit {
     name: ['', Validators.required],
     description: [''],
     courseDomainId: ['', Validators.required],
+    assistedLlmEvaluation: [false],
   });
 
   courseDomains: CourseDomainDto[] = [];
@@ -105,6 +108,8 @@ export class ProfessorAddCourseComponent implements OnInit {
       this.addCourseFormGroup.controls.courseDomainId.value?.toString();
     const name = this.addCourseFormGroup.controls.name.value;
     const description = this.addCourseFormGroup.controls.description.value;
+    const assistedLlmEvaluation =
+      this.addCourseFormGroup.controls.assistedLlmEvaluation.value ?? false;
 
     if (courseDomainId == null || name == null || description == null) {
       return;
@@ -123,6 +128,7 @@ export class ProfessorAddCourseComponent implements OnInit {
           name: name,
           description: description,
           courseDomainId: courseDomainId,
+          assistedLlmEvaluation: assistedLlmEvaluation,
         },
       });
 

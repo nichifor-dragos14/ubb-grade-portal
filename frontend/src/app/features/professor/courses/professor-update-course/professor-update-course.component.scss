@@ -54,6 +54,15 @@ section[role='course-actions'] {
   width: 100%;
 }
 
+.course-details-card mat-slide-toggle {
+  display: block;
+  margin-bottom: 24px;
+}
+
+.course-details-card mat-slide-toggle .mdc-form-field {
+  column-gap: 16px;
+}
+
 .course-details-card {
   margin-bottom: 12px;
 }

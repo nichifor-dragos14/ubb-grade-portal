@@ -55,6 +55,11 @@ section[role='course-actions'] {
   width: 100%;
 }
 
+.course-details-card mat-slide-toggle {
+  display: block;
+  margin-bottom: 24px;
+}
+
 .domain-field {
   display: flex;
   flex-direction: column;
@@ -68,7 +73,7 @@ section[role='course-actions'] {
 }
 
 .scrollable-list-container {
-  max-height: 180px;
+  max-height: 140px;
   overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 12px;

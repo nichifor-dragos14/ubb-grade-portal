@@ -190,6 +190,7 @@ public class CourseService : ICourseService
             Id = courseId,
             Name = addCourseDto.Name,
             Description = addCourseDto.Description,
+            AssistedLlmEvaluation = addCourseDto.AssistedLlmEvaluation,
             CreatedByUserId = loggedUserId,
             CourseDomainId = courseDomain.Id,
             CreatedOn = DateTime.UtcNow,
@@ -219,6 +220,7 @@ public class CourseService : ICourseService
         }
 
         course.Description = updateCourseDto.Description;
+        course.AssistedLlmEvaluation = updateCourseDto.AssistedLlmEvaluation;
 
         return await _courseRepository.Update(course, cancellationToken);
     }

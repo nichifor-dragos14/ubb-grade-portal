@@ -74,6 +74,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
     name: [''],
     description: [''],
     courseDomainName: [''],
+    assistedLlmEvaluation: [false],
   });
 
   submitting = false;
@@ -123,6 +124,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
       description: this.course?.description,
       courseId: this.course?.id,
       courseDomainName: (this.course as any)?.courseDomainName ?? '',
+      assistedLlmEvaluation: this.course?.assistedLlmEvaluation ?? false,
     });
 
     this.updateCourseFormGroup.get('name')?.disable();
@@ -163,6 +165,8 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
 
     const courseId = this.course.id;
     const description = this.updateCourseFormGroup.controls.description.value;
+    const assistedLlmEvaluation =
+      this.updateCourseFormGroup.controls.assistedLlmEvaluation.value ?? false;
 
     if (courseId == null || description == null) {
       return;
@@ -180,6 +184,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
         id: courseId,
         body: {
           description: description,
+          assistedLlmEvaluation: assistedLlmEvaluation,
         },
       });
 

@@ -8,6 +8,7 @@ public class CourseDto
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? CourseDomainName { get; set; }
+    public bool? AssistedLlmEvaluation { get; set; }
     public Guid? CourseDomainId { get; set; }
     public DateTime? CreatedOn { get; set; }
     public int? NumberOfEntrollments { get; set; }
