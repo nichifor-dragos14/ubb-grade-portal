@@ -148,7 +148,17 @@
 .step-body {
   height: var(--body-height);
   overflow: auto;
-  padding: 8px 8px 72px;
+  padding: 8px 8px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-body > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 #personal-information-form-container {
@@ -176,12 +186,18 @@
 
 .recommendation-note {
   margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  color: #1f2937;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(
+    120deg,
+    rgba(94, 53, 177, 0.08) 0%,
+    rgba(94, 53, 177, 0.02) 100%
+  );
+  border: 1px solid rgba(94, 53, 177, 0.18);
+  color: #312e81;
   font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
 }
 
 #course-domain-form {
@@ -225,12 +241,20 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
+  align-items: center;
+  flex: 1 1 auto;
 }
 
-img {
+.done-text {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.done-logo {
   width: 200px;
   height: auto;
-  place-self: center;
   opacity: 0.8;
+  margin-top: auto;
   margin-bottom: 10px;
 }
