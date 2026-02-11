@@ -55,13 +55,19 @@ app-page-header {
   min-width: 240px;
 }
 
+.filter-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .filter-title {
   font-size: 12px;
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #6b7280;
-  margin-bottom: 16px;
 }
 
 .header-filter {

@@ -10,7 +10,12 @@
     </button>
 
     <div class="filter-popover" *ngIf="filtersOpen">
-      <div class="filter-title">Filter your search 🔎</div>
+      <div class="filter-title-row">
+        <div class="filter-title">Filter your search 🔎</div>
+        <button mat-icon-button class="filter-close" (click)="toggleFilters()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
       <mat-form-field appearance="outline" class="header-filter">
         <mat-label>Status</mat-label>
         <mat-select
