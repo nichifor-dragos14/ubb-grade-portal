@@ -84,10 +84,8 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
           #dropzone
           [activityId]="activity.id"
           [tenantId]="'default'"
-          [accept]="
-            '.pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed'
-          "
-          [maxSizeMB]="10"
+          [accept]="'.pdf, .docx, .zip'"
+          [maxSizeMB]="5"
           [multiple]="true"
           [queue]="mapExistingToQueue(activity.documents || [])"
           (stateChanged)="onDocsStateChanged()"

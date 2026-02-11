@@ -136,8 +136,8 @@ import { DateConverterModule } from '$shared/date-converter';
             [disabled]="!canEdit"
             [allowDelete]="canEdit"
             [queue]="mapExistingToQueue(solvedActivity.documents || [])"
-            accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
-            [maxSizeMB]="15"
+            accept=".pdf, .docx, .zip"
+            [maxSizeMB]="5"
             [multiple]="true"
           >
           </app-submission-docs-dropzone>

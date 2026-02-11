@@ -290,8 +290,8 @@ export class SubmissionDocsDropzoneComponent {
 
     this.cdr.markForCheck();
   }
-  @Input() accept = '';
-  @Input() maxSizeMB = 10;
+  @Input() accept = '.pdf, .docx, .zip';
+  @Input() maxSizeMB = 5;
   @Input() multiple = true;
   @Input() disabled = false;
   @Input() allowDelete = true;

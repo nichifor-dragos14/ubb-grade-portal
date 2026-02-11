@@ -82,8 +82,8 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
           #dropzone
           [solvedActivityId]="activity.id!"
           [tenantId]="'default'"
-          accept=".pdf, .doc, .docx, image/*, application/zip, application/x-zip-compressed"
-          [maxSizeMB]="15"
+          accept=".pdf, .docx, .zip"
+          [maxSizeMB]="5"
           [multiple]="true"
         >
         </app-submission-docs-dropzone>

@@ -297,8 +297,8 @@ export class ActivityDocsDropzoneComponent {
 
     this.cdr.markForCheck();
   }
-  @Input() accept = '';
-  @Input() maxSizeMB = 10;
+  @Input() accept = '.pdf, .docx, .zip';
+  @Input() maxSizeMB = 5;
   @Input() multiple = true;
   @Input() disabled = false;
   @Output() stateChanged = new EventEmitter<void>();
