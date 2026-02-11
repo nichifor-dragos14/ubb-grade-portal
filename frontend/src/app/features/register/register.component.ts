@@ -63,6 +63,7 @@ export class RegisterComponent implements OnInit {
   loadingRecommendations = false;
   submitting = false;
   redirecting = false;
+  showRecommendationsNote = false;
 
   hide = true;
   activeTabIndex = 0;
@@ -118,6 +119,10 @@ export class RegisterComponent implements OnInit {
 
   get lastName() {
     return this.personalInformationFormGroup.controls.lastName;
+  }
+
+  get hasInterestPhrase(): boolean {
+    return !!this.personalInformationFormGroup.controls.csInterest.value?.trim();
   }
 
   async ngOnInit() {
@@ -233,6 +238,7 @@ export class RegisterComponent implements OnInit {
       this.personalInformationFormGroup.controls.csInterest.value?.trim() || '';
 
     if (!phrase) {
+      this.showRecommendationsNote = false;
       return;
     }
 
@@ -251,6 +257,9 @@ export class RegisterComponent implements OnInit {
       const courseIds = (recommendations?.courseIds ?? []).map((id: string) =>
         id.toString()
       );
+
+      this.showRecommendationsNote =
+        domainIds.length > 0 || courseIds.length > 0;
 
       this.pendingCourseIds = courseIds;
 

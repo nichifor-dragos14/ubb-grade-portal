@@ -15,8 +15,13 @@
 
     <div class="stepper-card" #card>
       <div class="overlay" *ngIf="isLoading">
-        <mat-progress-spinner mode="indeterminate" diameter="56">
-        </mat-progress-spinner>
+        <div class="overlay-content">
+          <mat-progress-spinner mode="indeterminate" diameter="56">
+          </mat-progress-spinner>
+          <p class="overlay-text" *ngIf="loadingRecommendations">
+            Working on finding the best courses for you...
+          </p>
+        </div>
       </div>
 
       <mat-tab-group
@@ -28,7 +33,7 @@
             <div class="step-body">
               <div #stepBody>
                 <div id="personal-information-form-container">
-                  <mat-form-field>
+                  <mat-form-field appearance="outline">
                     <mat-label>First name</mat-label>
                     <input
                       matInput
@@ -46,7 +51,7 @@
                     </mat-error>
                   </mat-form-field>
 
-                  <mat-form-field>
+                  <mat-form-field appearance="outline">
                     <mat-label>Last name</mat-label>
                     <input
                       matInput
@@ -62,7 +67,7 @@
                     </mat-error>
                   </mat-form-field>
 
-                  <mat-form-field>
+                  <mat-form-field appearance="outline">
                     <mat-label>Email</mat-label>
                     <input
                       matInput
@@ -82,7 +87,7 @@
                     </mat-error>
                   </mat-form-field>
 
-                  <mat-form-field>
+                  <mat-form-field appearance="outline">
                     <mat-label>Password</mat-label>
                     <input
                       matInput
@@ -109,26 +114,33 @@
                     </mat-error>
 
                     <mat-error
-                      *ngIf="password.touched && password.hasError('minlength')"
+                      *ngIf="
+                        password.touched &&
+                        password.hasError('minlength') &&
+                        !password.hasError('required')
+                      "
                     >
                       Must have at least 8 characters
                     </mat-error>
 
                     <mat-error
-                      *ngIf="password.touched && password.hasError('pattern')"
+                      *ngIf="
+                        password.touched &&
+                        password.hasError('pattern') &&
+                        !password.hasError('required') &&
+                        !password.hasError('minlength')
+                      "
                     >
                       Must include at least one letter and one number
                     </mat-error>
                   </mat-form-field>
 
-                  <mat-form-field>
-                    <mat-label>
-                      What do you like about computer science? (optional)
-                    </mat-label>
+                  <mat-form-field appearance="outline">
+                    <mat-label> Share your interests (optional) </mat-label>
                     <textarea
                       matInput
                       rows="3"
-                      placeholder="Share your interests"
+                      placeholder="Tell us what you like so we can find the best courses for you"
                       formControlName="csInterest"
                     >
                     </textarea>
@@ -146,6 +158,17 @@
           <div class="step-body">
             <div #stepBody>
               <div id="course-domain-form-container">
+                <div
+                  class="recommendation-note"
+                  *ngIf="showRecommendationsNote"
+                >
+                  We found some subject areas based on your interests and
+                  checked them below for you.
+                </div>
+                <div class="recommendation-note" *ngIf="!hasInterestPhrase">
+                  Please select the subject areas that feel like the best fit
+                  for you.
+                </div>
                 <form
                   [formGroup]="courseDomainFormGroup"
                   id="course-domain-form"
@@ -182,6 +205,16 @@
           <div class="step-body">
             <div #stepBody>
               <div id="course-form-container">
+                <div
+                  class="recommendation-note"
+                  *ngIf="showRecommendationsNote"
+                >
+                  We selected a few courses based on your interests and checked
+                  them below for you.
+                </div>
+                <div class="recommendation-note" *ngIf="!hasInterestPhrase">
+                  Please select the courses that you are most interested in.
+                </div>
                 <form [formGroup]="courseFormGroup" id="course-form">
                   <mat-selection-list
                     formControlName="courses"
@@ -194,8 +227,10 @@
                           <div class="course-name">{{ course.name }}</div>
                           <div class="course-description">
                             {{
-                              course.description ||
-                                'No description was provided by the professor.'
+                              course.description
+                                ? (course.description | slice: 0 : 120) +
+                                  (course.description.length > 120 ? '...' : '')
+                                : 'No description was provided by the professor.'
                             }}
                           </div>
                         </div>
