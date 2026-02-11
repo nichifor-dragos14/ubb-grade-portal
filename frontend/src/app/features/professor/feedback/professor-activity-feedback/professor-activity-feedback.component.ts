@@ -71,6 +71,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   private studentNameTimer?: ReturnType<typeof setTimeout>;
 
   statusFilter: SolvedActivityStatusFilter = SolvedActivityStatusFilter.$0;
+  filtersOpen = false;
 
   isLoading = false;
 
@@ -116,6 +117,11 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     this.studentNameTimer = setTimeout(() => {
       this.loadPage();
     }, 400);
+  }
+
+  toggleFilters() {
+    this.filtersOpen = !this.filtersOpen;
+    this.cdr.markForCheck();
   }
 
   getStatusLabel(status?: SolvedActivityStatus) {
