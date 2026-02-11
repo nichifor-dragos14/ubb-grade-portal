@@ -13,6 +13,7 @@ public interface ICourseService
     public Task<PaginatedProfessorCreatedCourseDto> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<PaginatedStudentCourseEnrollmentDto> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<List<CourseDomainDto>> GetAllCourseDomains(CancellationToken cancellationToken);
+    public Task<CourseRecommendationResultDto> GetRegistrationRecommendations(string? phrase, CancellationToken cancellationToken);
     public Task<Guid> Add(AddCourseDto addCourseDto, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Update(UpdateCourseDto updateCourseDto, Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<bool> EnrollToCourse(Guid id, Guid loggedUserId, CancellationToken cancellationToken);

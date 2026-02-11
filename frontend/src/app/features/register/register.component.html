@@ -19,11 +19,12 @@
         </mat-progress-spinner>
       </div>
 
-      <mat-stepper [linear]="true" #stepper>
-        <mat-step [stepControl]="personalInformationFormGroup">
+      <mat-tab-group
+        [selectedIndex]="activeTabIndex"
+        (selectedTabChange)="onStepChange($event)"
+      >
+        <mat-tab label="Enter your details">
           <form [formGroup]="personalInformationFormGroup">
-            <ng-template matStepLabel> Enter your details </ng-template>
-
             <div class="step-body">
               <div #stepBody>
                 <div id="personal-information-form-container">
@@ -120,19 +121,27 @@
                     </mat-error>
                   </mat-form-field>
 
-                  <span class="personal-information-form-info">
-                    * Your personal data remains private—we will not share it.
-                    It's processed only for your account and service experience.
-                  </span>
+                  <mat-form-field>
+                    <mat-label>
+                      What do you like about computer science? (optional)
+                    </mat-label>
+                    <textarea
+                      matInput
+                      rows="3"
+                      placeholder="Share your interests"
+                      formControlName="csInterest"
+                    >
+                    </textarea>
+                  </mat-form-field>
                 </div>
               </div>
             </div>
           </form>
-        </mat-step>
+        </mat-tab>
 
-        <mat-step
-          [stepControl]="courseDomainFormGroup"
+        <mat-tab
           label="Select your subject areas"
+          [disabled]="personalInformationFormGroup.invalid"
         >
           <div class="step-body">
             <div #stepBody>
@@ -160,9 +169,16 @@
               </div>
             </div>
           </div>
-        </mat-step>
+        </mat-tab>
 
-        <mat-step [stepControl]="courseFormGroup" label="Select your courses">
+        <mat-tab
+          label="Select your courses"
+          [disabled]="
+            personalInformationFormGroup.invalid ||
+            courseDomainFormGroup.invalid ||
+            loadingCourses
+          "
+        >
           <div class="step-body">
             <div #stepBody>
               <div id="course-form-container">
@@ -190,11 +206,16 @@
               </div>
             </div>
           </div>
-        </mat-step>
+        </mat-tab>
 
-        <mat-step>
-          <ng-template matStepLabel>Confirm & enroll</ng-template>
-
+        <mat-tab
+          label="Confirm & enroll"
+          [disabled]="
+            personalInformationFormGroup.invalid ||
+            courseDomainFormGroup.invalid ||
+            courseFormGroup.invalid
+          "
+        >
           <div class="step-body">
             <div #stepBody>
               <div id="done-container">
@@ -210,15 +231,15 @@
               </div>
             </div>
           </div>
-        </mat-step>
-      </mat-stepper>
+        </mat-tab>
+      </mat-tab-group>
 
       <div class="card-actions">
         <button
           mat-stroked-button
           color="accent"
-          (click)="stepper.previous()"
-          [disabled]="stepper.selectedIndex === 0 || submitting || redirecting"
+          (click)="onPreviousTab()"
+          [disabled]="activeTabIndex === 0 || submitting || redirecting"
         >
           Back
         </button>
@@ -226,21 +247,19 @@
         <button
           mat-raised-button
           color="primary"
-          (click)="
-            stepper.selectedIndex === 3 ? onSubmitForm() : stepper.next()
-          "
+          (click)="activeTabIndex === 3 ? onSubmitForm() : onNextTab()"
           [disabled]="
             [
               personalInformationFormGroup.invalid,
               courseDomainFormGroup.invalid || loadingCourses,
               courseFormGroup.invalid,
               false,
-            ][stepper.selectedIndex] ||
+            ][activeTabIndex] ||
             submitting ||
             redirecting
           "
         >
-          {{ stepper.selectedIndex === 3 ? 'Register now' : 'Next' }}
+          {{ activeTabIndex === 3 ? 'Register now' : 'Next' }}
         </button>
       </div>
     </div>

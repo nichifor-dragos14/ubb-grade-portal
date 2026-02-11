@@ -52,6 +52,21 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(courseDomains);
     }
 
+    /// <summary> Get course domain and course recommendations for registration </summary>
+    [HttpPost("recommendations")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<Results<Ok<CourseRecommendationResultDto>, BadRequest>> GetRegistrationRecommendations(
+        [FromBody] CourseRecommendationRequestDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        var recommendations = await _courseService.GetRegistrationRecommendations(request.Phrase, cancellationToken);
+
+        return TypedResults.Ok(recommendations);
+    }
+
     /// <summary> Get all the courses created by professor </summary>
     [HttpGet("created")]
     [Authorize(Roles = "Professor")]

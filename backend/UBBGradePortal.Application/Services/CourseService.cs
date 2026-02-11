@@ -15,18 +15,21 @@ public class CourseService : ICourseService
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseDomainRepository _courseDomainRepository;
     private readonly ICourseEnrollmentRepository _courseEnrollmentRepository;
+    private readonly IOpenAiService _openAiService;
     private readonly ILogger<CourseService> _logger;
 
     public CourseService(
         ICourseRepository courseRepository,
         ICourseDomainRepository courseDomainRepository,
         ICourseEnrollmentRepository courseEnrollmentRepository,
+        IOpenAiService openAiService,
         ILogger<CourseService> logger
     )
     {
         _courseRepository = courseRepository;
         _courseDomainRepository = courseDomainRepository;
         _courseEnrollmentRepository = courseEnrollmentRepository;
+        _openAiService = openAiService;
         _logger = logger;
     }
 
@@ -46,6 +49,33 @@ public class CourseService : ICourseService
         return courseDomains
             .Select(c => new CourseDomainDto(c.Id, c.Name))
             .ToList();
+    }
+
+    public async Task<CourseRecommendationResultDto> GetRegistrationRecommendations(string? phrase, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(phrase))
+        {
+            return new CourseRecommendationResultDto();
+        }
+
+        var courseDomains = await _courseDomainRepository.GetAll(cancellationToken);
+        var courses = await _courseRepository.GetAll(cancellationToken);
+
+        try
+        {
+            var aiResult = await _openAiService.RecommendCourseSelections(phrase, courseDomains, courses, cancellationToken);
+
+            return new CourseRecommendationResultDto
+            {
+                CourseDomainIds = aiResult.CourseDomainIds,
+                CourseIds = aiResult.CourseIds
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "AI course recommendations failed");
+            return new CourseRecommendationResultDto();
+        }
     }
 
     public async Task<PaginatedProfessorCreatedCourseDto> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)

@@ -12,6 +12,7 @@ using UBBGradePortal.Application.DTOs.Ai;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Application.Options;
 using UBBGradePortal.Infrastructure.Abstractions;
+using UBBGradePortal.Domain.Entities;
 
 namespace UBBGradePortal.Application.Services;
 
@@ -129,6 +130,130 @@ public class OpenAiService : IOpenAiService
         }
 
         return ParseResponse(responseBody);
+    }
+
+    public async Task<OpenAiCourseRecommendationResult> RecommendCourseSelections(string phrase, List<CourseDomain> courseDomains, List<Course> courses, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(phrase))
+        {
+            return new OpenAiCourseRecommendationResult();
+        }
+
+        if (string.IsNullOrWhiteSpace(_openAiOptions.ApiKey))
+        {
+            throw new InvalidOperationException("OpenAI API key is not configured");
+        }
+
+        var payload = new
+        {
+            phrase = phrase.Trim(),
+            courseDomains = courseDomains
+                .Select(cd => new
+                {
+                    domainId = cd.Id,
+                    domainName = cd.Name,
+                    courses = courses
+                        .Where(c => c.CourseDomainId == cd.Id)
+                        .Select(c => new { courseId = c.Id, courseName = c.Name })
+                        .ToList()
+                })
+                .ToList()
+        };
+
+        var prompt = new StringBuilder()
+            .AppendLine("Task: pick the most relevant course domains and courses for the user's interests.")
+            .AppendLine("Return JSON with keys: courseDomainIds (array of GUIDs), courseIds (array of GUIDs).")
+            .AppendLine("Use only the provided IDs. Do not invent new IDs.")
+            .AppendLine()
+            .AppendLine("Input:")
+            .AppendLine(JsonSerializer.Serialize(payload))
+            .ToString();
+
+        var request = new
+        {
+            model = _openAiOptions.Model,
+            temperature = _openAiOptions.Temperature,
+            max_tokens = _openAiOptions.MaxTokens,
+            response_format = new { type = "json_object" },
+            messages = new object[]
+            {
+                new { role = "system", content = "You are a helpful academic advisor. Return valid JSON only." },
+                new { role = "user", content = prompt }
+            }
+        };
+
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiOptions.ApiKey);
+        client.Timeout = TimeSpan.FromSeconds(Math.Max(10, _openAiOptions.RequestTimeoutSeconds));
+
+        var requestBody = JsonSerializer.Serialize(request);
+        using var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        using var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content, cancellationToken);
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("OpenAI recommendation request failed: {Status} {Body}", response.StatusCode, responseBody);
+            throw new InvalidOperationException("AI recommendation request failed");
+        }
+
+        return ParseRecommendationResponse(responseBody);
+    }
+
+    private OpenAiCourseRecommendationResult ParseRecommendationResponse(string responseBody)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(responseBody);
+            var root = doc.RootElement;
+            var content = root
+                .GetProperty("choices")[0]
+                .GetProperty("message")
+                .GetProperty("content")
+                .GetString();
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return new OpenAiCourseRecommendationResult();
+            }
+
+            var json = NormalizeJsonContent(content);
+            var result = JsonSerializer.Deserialize<OpenAiCourseRecommendationResult>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+            return result ?? new OpenAiCourseRecommendationResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse OpenAI recommendation response");
+            return new OpenAiCourseRecommendationResult();
+        }
+    }
+
+    private static string NormalizeJsonContent(string content)
+    {
+        var trimmed = content.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        var firstNewline = trimmed.IndexOf('\n');
+        if (firstNewline < 0)
+        {
+            return trimmed.Trim('`');
+        }
+
+        var withoutFenceStart = trimmed[(firstNewline + 1)..];
+        var fenceEnd = withoutFenceStart.LastIndexOf("```", StringComparison.Ordinal);
+        if (fenceEnd < 0)
+        {
+            return withoutFenceStart.Trim();
+        }
+
+        return withoutFenceStart[..fenceEnd].Trim();
     }
 
     private string BuildPrompt(string activityDescription, string activityText, string solvedText, int activityDocCount, int solvedDocCount)

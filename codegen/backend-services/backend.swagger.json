@@ -514,6 +514,47 @@
         }
       }
     },
+    "/api/Course/recommendations": {
+      "post": {
+        "tags": [
+          "Course"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseRecommendationRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseRecommendationRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseRecommendationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseRecommendationResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/api/Course/created": {
       "get": {
         "tags": [
@@ -1613,6 +1654,38 @@
               "$ref": "#/components/schemas/ActivityDto"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CourseRecommendationRequestDto": {
+        "type": "object",
+        "properties": {
+          "phrase": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CourseRecommendationResultDto": {
+        "required": [
+          "courseDomainIds",
+          "courseIds"
+        ],
+        "type": "object",
+        "properties": {
+          "courseDomainIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "courseIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": false

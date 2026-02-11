@@ -10,7 +10,7 @@ import { Router, RouterModule } from '@angular/router';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,7 +34,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
-    MatStepperModule,
+    MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
     MatListModule,
@@ -60,10 +60,12 @@ export class RegisterComponent implements OnInit {
 
   loadingDomains = false;
   loadingCourses = false;
+  loadingRecommendations = false;
   submitting = false;
   redirecting = false;
 
   hide = true;
+  activeTabIndex = 0;
 
   personalInformationFormGroup = this.formBuilder.group({
     firstName: ['', Validators.required],
@@ -77,6 +79,7 @@ export class RegisterComponent implements OnInit {
         Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d).*$/),
       ],
     ],
+    csInterest: [''],
   });
 
   courseDomainFormGroup = this.formBuilder.group({
@@ -95,6 +98,7 @@ export class RegisterComponent implements OnInit {
     return (
       this.loadingDomains ||
       this.loadingCourses ||
+      this.loadingRecommendations ||
       this.submitting ||
       this.redirecting
     );
@@ -122,19 +126,27 @@ export class RegisterComponent implements OnInit {
 
       return;
     }
+  }
 
-    this.loadingDomains = true;
-    this.cdr.detectChanges();
+  async onStepChange(event: MatTabChangeEvent) {
+    this.activeTabIndex = event.index;
 
-    try {
-      this.courseDomains = await this.courseService.apiCourseDomainsGetAsync();
-    } catch (error) {
-      if (error instanceof Error) {
-        this.toastService.open(error.message, 'warning');
-      }
-    } finally {
-      this.loadingDomains = false;
-      this.cdr.detectChanges();
+    if (event.index !== 1) {
+      return;
+    }
+    await this.loadCourseDomains();
+    await this.loadRecommendations();
+  }
+
+  onPreviousTab() {
+    if (this.activeTabIndex > 0) {
+      this.activeTabIndex -= 1;
+    }
+  }
+
+  onNextTab() {
+    if (this.activeTabIndex < 3) {
+      this.activeTabIndex += 1;
     }
   }
 
@@ -149,7 +161,12 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    if (this.isLoading) {
+    if (
+      this.loadingCourses ||
+      this.loadingDomains ||
+      this.submitting ||
+      this.redirecting
+    ) {
       return;
     }
 
@@ -160,6 +177,16 @@ export class RegisterComponent implements OnInit {
       this.courses = await this.courseService.apiCourseGetAsync({
         courseDomainIds: courseDomainIds,
       });
+
+      if (this.pendingCourseIds.length) {
+        const availableIds = new Set(this.courses.map((course) => course.id));
+        const selectedCourses = this.pendingCourseIds.filter((id) =>
+          availableIds.has(id)
+        );
+        this.courseFormGroup.controls.courses.setValue(selectedCourses);
+        this.courseFormGroup.markAsDirty();
+        this.pendingCourseIds = [];
+      }
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'warning');
@@ -168,6 +195,77 @@ export class RegisterComponent implements OnInit {
       this.courseDomains = [];
     } finally {
       this.loadingCourses = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private domainsLoaded = false;
+  private recommendationsLoaded = false;
+  private pendingCourseIds: string[] = [];
+
+  private async loadCourseDomains() {
+    if (this.domainsLoaded || this.loadingDomains) {
+      return;
+    }
+
+    this.loadingDomains = true;
+    this.cdr.detectChanges();
+
+    try {
+      this.courseDomains = await this.courseService.apiCourseDomainsGetAsync();
+      this.domainsLoaded = true;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'warning');
+      }
+    } finally {
+      this.loadingDomains = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private async loadRecommendations() {
+    if (this.recommendationsLoaded || this.loadingRecommendations) {
+      return;
+    }
+
+    const phrase =
+      this.personalInformationFormGroup.controls.csInterest.value?.trim() || '';
+
+    if (!phrase) {
+      return;
+    }
+
+    this.loadingRecommendations = true;
+    this.cdr.detectChanges();
+
+    try {
+      const recommendations =
+        await this.courseService.apiCourseRecommendationsPostAsync({
+          body: { phrase: phrase },
+        });
+
+      const domainIds = (recommendations?.courseDomainIds ?? []).map(
+        (id: string) => id.toString()
+      );
+      const courseIds = (recommendations?.courseIds ?? []).map((id: string) =>
+        id.toString()
+      );
+
+      this.pendingCourseIds = courseIds;
+
+      if (domainIds.length) {
+        this.courseDomainFormGroup.controls.courseDomains.setValue(domainIds);
+        await this.onCourseDomainsSelectionChange();
+      }
+
+      this.recommendationsLoaded = true;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'warning');
+      }
+    } finally {
+      this.loadingRecommendations = false;
       this.cdr.detectChanges();
     }
   }
