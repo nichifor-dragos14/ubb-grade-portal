@@ -6,8 +6,8 @@
   <div class="center">
     <mat-card class="auth-card">
       <header class="heading">
-        <h1>Welcome back</h1>
-        <p>Log in to resume your journey!</p>
+        <h1>Welcome back ✨</h1>
+        <p>Log in to continue your learning journey.</p>
       </header>
 
       <div class="overlay" *ngIf="isLoading">
@@ -20,7 +20,7 @@
         (ngSubmit)="onSubmitForm()"
         class="form"
       >
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
           <mat-icon matPrefix>mail</mat-icon>
           <input
@@ -41,7 +41,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input
             matInput
