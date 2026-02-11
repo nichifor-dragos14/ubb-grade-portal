@@ -19,7 +19,13 @@
 
 <mat-nav-list *ngIf="!isLoading" class="list">
   @if (solvedActivities.length === 0) {
-    <div class="empty-state">No submissions found.</div>
+    <div class="empty-state">
+      <mat-icon class="empty-icon">assignment</mat-icon>
+      <div class="empty-title">No submissions found</div>
+      <div class="empty-subtitle">
+        {{ getEmptySubtitle() }}
+      </div>
+    </div>
   }
 
   @for (solvedActivity of solvedActivities; track solvedActivity.id) {

@@ -158,8 +158,28 @@ mat-paginator {
 }
 
 .empty-state {
-  padding: 16px;
+  padding: 24px 16px;
   color: #6b7280;
   font-size: 14px;
   text-align: center;
+  display: grid;
+  gap: 6px;
+  place-items: center;
+}
+
+.empty-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #d1d5db;
+}
+
+.empty-title {
+  color: #374151;
+}
+
+.empty-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  max-width: 260px;
 }

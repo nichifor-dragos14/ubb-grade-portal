@@ -19,16 +19,23 @@ public class SolvedActivityRepository : ISolvedActivityRepository
         _dbContext = dbContext;
         _logger = logger;
     }
-    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus status, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus? status, Guid loggedUserId, CancellationToken cancellationToken)
     {
-        var solvedActivities = await _dbContext
+        var query = _dbContext
             .SolvedActivities
             .AsNoTracking()
             .Include(sa => sa.User)
             .Include(sa => sa.Activity)
                 .ThenInclude(a => a.Course)
                 .ThenInclude(a => a.CreatedByUser)
-            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId && sa.Status == status)
+            .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId);
+
+        if (status.HasValue)
+        {
+            query = query.Where(sa => sa.Status == status.Value);
+        }
+
+        var solvedActivities = await query
             .OrderByDescending(sa => sa.UpdatedOn)
             .ToListAsync(cancellationToken);
 

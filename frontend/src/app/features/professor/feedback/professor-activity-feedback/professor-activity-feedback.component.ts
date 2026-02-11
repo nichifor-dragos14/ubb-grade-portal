@@ -20,13 +20,12 @@ import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { DateConverterModule } from '$shared/date-converter';
 import {
-  ActivityService,
   PaginatedProfessorSolvedActivityDto,
   SolvedActivityDto,
   SolvedActivityService,
   SolvedActivityStatus,
+  SolvedActivityStatusFilter,
 } from '$backend/services';
-import { ProfessorCoursesEventService } from '$features/professor/courses/professor-courses-event.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProfessorFeedbackEventService } from '../professor-feedback-event.service';
 
@@ -66,22 +65,22 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   pageIndex = 0;
   pageSize = 6;
 
-  statusFilter: SolvedActivityStatus = SolvedActivityStatus.$0;
+  statusFilter: SolvedActivityStatusFilter = SolvedActivityStatusFilter.$0;
 
   isLoading = false;
 
   readonly statusOptions = [
-    { value: SolvedActivityStatus.$0, label: 'Submitted' },
-    { value: SolvedActivityStatus.$2, label: 'Returned' },
-    { value: SolvedActivityStatus.$1, label: 'Completed' },
+    { value: SolvedActivityStatusFilter.$0, label: 'Submitted' },
+    { value: SolvedActivityStatusFilter.$1, label: 'Completed' },
+    { value: SolvedActivityStatusFilter.$2, label: 'Returned' },
+    { value: SolvedActivityStatusFilter.$3, label: 'All' },
   ];
 
   async ngOnInit() {
     this.professorFeedbackEventService.gradedSolvedActivity$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
-        console.log('Received gradedSolvedActivity event');
-        this.loadPage();
+        await this.loadPage();
       });
 
     await this.loadPage();
@@ -94,7 +93,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     await this.loadPage();
   }
 
-  async onStatusChange(value: SolvedActivityStatus) {
+  async onStatusChange(value: SolvedActivityStatusFilter) {
     this.statusFilter = value;
     this.pageIndex = 0;
 
@@ -133,6 +132,21 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
 
   getSubmitterName(solvedActivity: SolvedActivityDto) {
     return solvedActivity?.solvedByName || 'Unknown student';
+  }
+
+  getStatusFilterLabel(): string {
+    return (
+      this.statusOptions.find((option) => option.value === this.statusFilter)
+        ?.label ?? 'Selected'
+    );
+  }
+
+  getEmptySubtitle(): string {
+    if (this.getStatusFilterLabel() === 'All') {
+      return 'No submissions yet.';
+    }
+
+    return `No submissions matching status ${this.getStatusFilterLabel()} yet.`;
   }
 
   private async loadPage() {

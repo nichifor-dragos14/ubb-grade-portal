@@ -30,7 +30,7 @@ namespace UBBGradePortal.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<Results<Ok<PaginatedProfessorSolvedActivityDto>, BadRequest, ForbidHttpResult>> GetAllByStatusForProfessorCourses(
-            [FromQuery] SolvedActivityStatus status,
+            [FromQuery] SolvedActivityStatusFilter status,
             [FromQuery] int pageNumber,
             [FromQuery] int pageSize,
             CancellationToken cancellationToken
