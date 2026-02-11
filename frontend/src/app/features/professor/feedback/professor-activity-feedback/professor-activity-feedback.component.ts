@@ -170,7 +170,10 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       return 'No submissions yet.';
     }
 
-    return `No submissions matching status ${this.getStatusFilterLabel()} and search "${this.studentNameFilter}" yet.`;
+    const trimmedFilter = this.studentNameFilter.trim();
+    const searchPart = trimmedFilter ? ` and search "${trimmedFilter}"` : '';
+
+    return `No submissions matching status ${this.getStatusFilterLabel()}${searchPart} yet.`;
   }
 
   private async loadPage() {
