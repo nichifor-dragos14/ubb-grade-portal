@@ -31,6 +31,7 @@ namespace UBBGradePortal.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<Results<Ok<PaginatedProfessorSolvedActivityDto>, BadRequest, ForbidHttpResult>> GetAllByStatusForProfessorCourses(
             [FromQuery] SolvedActivityStatusFilter status,
+            [FromQuery] string? studentName,
             [FromQuery] int pageNumber,
             [FromQuery] int pageSize,
             CancellationToken cancellationToken
@@ -43,7 +44,7 @@ namespace UBBGradePortal.WebApi.Controllers
                 return TypedResults.Forbid();
             }
 
-            var paginatedResponse = await _solvedActivityService.GetAllByStatusForProfessorCourses(pageNumber, pageSize, status, loggedUserId, cancellationToken);
+            var paginatedResponse = await _solvedActivityService.GetAllByStatusForProfessorCourses(pageNumber, pageSize, status, studentName, loggedUserId, cancellationToken);
 
             return TypedResults.Ok(paginatedResponse);
         }

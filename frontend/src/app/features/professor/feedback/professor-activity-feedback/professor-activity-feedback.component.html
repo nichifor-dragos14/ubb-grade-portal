@@ -10,6 +10,21 @@
       }
     </mat-select>
   </mat-form-field>
+
+  <mat-form-field
+    appearance="outline"
+    class="header-filter header-search"
+    button
+  >
+    <mat-label>Student name</mat-label>
+    <input
+      matInput
+      type="text"
+      [value]="studentNameFilter"
+      (input)="onStudentNameInput($any($event.target).value)"
+      placeholder="Search by student name"
+    />
+  </mat-form-field>
 </app-page-header>
 
 <div class="overlay" *ngIf="isLoading">

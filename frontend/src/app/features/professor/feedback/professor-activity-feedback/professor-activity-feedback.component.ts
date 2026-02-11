@@ -15,6 +15,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
@@ -42,6 +43,7 @@ import { ProfessorFeedbackEventService } from '../professor-feedback-event.servi
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatInputModule,
     AppPageHeaderComponent,
     DateConverterModule,
   ],
@@ -64,6 +66,9 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
 
   pageIndex = 0;
   pageSize = 6;
+
+  studentNameFilter = '';
+  private studentNameTimer?: ReturnType<typeof setTimeout>;
 
   statusFilter: SolvedActivityStatusFilter = SolvedActivityStatusFilter.$0;
 
@@ -98,6 +103,19 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     this.pageIndex = 0;
 
     await this.loadPage();
+  }
+
+  onStudentNameInput(value: string) {
+    this.studentNameFilter = value;
+    this.pageIndex = 0;
+
+    if (this.studentNameTimer) {
+      clearTimeout(this.studentNameTimer);
+    }
+
+    this.studentNameTimer = setTimeout(() => {
+      this.loadPage();
+    }, 400);
   }
 
   getStatusLabel(status?: SolvedActivityStatus) {
@@ -146,7 +164,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       return 'No submissions yet.';
     }
 
-    return `No submissions matching status ${this.getStatusFilterLabel()} yet.`;
+    return `No submissions matching status ${this.getStatusFilterLabel()} and search "${this.studentNameFilter}" yet.`;
   }
 
   private async loadPage() {
@@ -159,7 +177,8 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
           pageNumber: this.pageIndex + 1,
           pageSize: this.pageSize,
           status: this.statusFilter,
-        });
+          studentName: this.studentNameFilter.trim() || undefined,
+        } as any);
 
       this.solvedActivities = result.solvedActivities ?? [];
       this.totalCount = result.count ?? 0;

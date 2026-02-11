@@ -19,6 +19,16 @@ app-page-header {
   margin-bottom: 24px;
 }
 
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
 .header-filter {
   min-width: 220px;
   margin: 0;
