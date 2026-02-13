@@ -1274,6 +1274,78 @@
         }
       }
     },
+    "/api/Statistics/student/general": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentGeneralStatisticsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/Statistics/student/course/{courseId}": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentCourseStatisticsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Upload/presign": {
       "post": {
         "tags": [
@@ -1593,6 +1665,23 @@
           },
           "name": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CourseDomainStatDto": {
+        "required": [
+          "coursesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "coursesCount": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -2041,6 +2130,146 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "StudentCourseOptionDto": {
+        "required": [
+          "id",
+          "solvedActivitiesCount",
+          "totalActivitiesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "solvedActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentCourseStatisticsDto": {
+        "required": [
+          "activitiesWithSolvedCount",
+          "allStudentsAverageGrade",
+          "completedCount",
+          "completionPercentage",
+          "courseId",
+          "returnedCount",
+          "studentAverageGrade",
+          "submittedCount",
+          "totalActivitiesCount",
+          "totalSolvedActivitiesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courseName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activitiesWithSolvedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalSolvedActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submittedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "returnedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completionPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "studentAverageGrade": {
+            "type": "number",
+            "format": "double"
+          },
+          "allStudentsAverageGrade": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentGeneralStatisticsDto": {
+        "required": [
+          "courses",
+          "enrolledCoursesCount",
+          "solvedActivitiesCount",
+          "topDomains",
+          "totalActivitiesCount",
+          "totalCoursesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrolledCoursesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCoursesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "solvedActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "defaultCourseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentCourseOptionDto"
+            }
+          },
+          "topDomains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDomainStatDto"
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateActivityDto": {
         "type": "object",

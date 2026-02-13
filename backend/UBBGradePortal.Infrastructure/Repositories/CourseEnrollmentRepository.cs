@@ -26,6 +26,8 @@ public class CourseEnrollmentRepository : ICourseEnrollmentRepository
             .CourseEnrollments
             .Include(ce => ce.Course)
                 .ThenInclude(ce => ce.Activities)
+            .Include(ce => ce.Course)
+                .ThenInclude(ce => ce.CourseDomain)
             .Include(ce => ce.User)
             .Where(ce => ce.UserId == loggedUserId)
             .ToListAsync(cancellationToken);

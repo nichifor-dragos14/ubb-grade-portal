@@ -13,7 +13,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      text-align: center;
+      text-align: left;
       margin-bottom: 16px;
       z-index: 1001;
     }
@@ -26,7 +26,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       display: flex;
       flex-direction: row;
       gap: 8px;
-      justify-content: center;
+      justify-content: flex-end;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

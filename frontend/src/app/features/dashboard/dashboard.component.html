@@ -1,1 +1,6 @@
-<p>dashboard works!</p>
+<app-student-dashboard *ngIf="hasRole('Student'); else fallback">
+</app-student-dashboard>
+
+<ng-template #fallback>
+  <p>Dashboard is not configured for this role yet.</p>
+</ng-template>

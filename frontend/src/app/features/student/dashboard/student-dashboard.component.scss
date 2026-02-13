@@ -1,0 +1,176 @@
+:host {
+  display: block;
+}
+
+app-page-header {
+  margin-top: 14.5px;
+  margin-bottom: 32px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  position: relative;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 400;
+  color: #1f2937;
+  margin-bottom: 28px;
+}
+
+.course-select {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.hello {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--mat-sys-primary, var(--mdc-theme-primary, #3f51b5));
+  margin-bottom: 48px;
+}
+
+.stat-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.stat {
+  display: grid;
+  gap: 14px;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.value {
+  font-size: 16px;
+  color: #111827;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.gap {
+  margin-bottom: 8px;
+}
+
+.completion-percent {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.value-line {
+  display: block;
+}
+
+.status-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-chip {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-submitted {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.status-returned {
+  background: rgba(239, 68, 68, 0.16);
+  color: #b91c1c;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+}
+
+.completion-red {
+  color: #d32f2f;
+}
+
+.completion-yellow {
+  color: #f9a825;
+}
+
+.completion-green {
+  color: #2e7d32;
+}
+
+.delta-positive {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.delta-negative {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.delta-neutral {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.domains {
+  margin-top: 20px;
+}
+
+.domain-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.domain-chip {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.empty {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}

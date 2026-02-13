@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IActivityService, ActivityService>();
         services.AddScoped<ISolvedActivityService, SolvedActivityService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
 
         return services;
     }
