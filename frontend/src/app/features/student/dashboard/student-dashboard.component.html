@@ -1,15 +1,19 @@
-<app-page-header title="Your dashboard ✨">
-  <button
-    mat-button
-    button
-    color="primary"
-    routerLink="/main/student/enrollments"
-  >
-    RESUME YOUR LEARNING PATH
-  </button>
-</app-page-header>
+<div class="dashboard-grid">
+  <div class="header-left">
+    <app-page-header title="Your dashboard ✨">
+      <button
+        mat-button
+        button
+        color="primary"
+        routerLink="/main/student/enrollments"
+      >
+        RESUME YOUR LEARNING PATH
+      </button>
+    </app-page-header>
+  </div>
 
-<div class="dashboard">
+  <div class="header-right"></div>
+
   <section class="card course-panel">
     <div class="card-title">Select a course to view your statistics 📚</div>
 
@@ -28,129 +32,131 @@
       </mat-select>
     </mat-form-field>
 
-    <div class="course-stats" *ngIf="courseStats; else emptyCourse">
-      <div class="stat-grid">
-        <div class="stat">
-          <div class="label">Your submissions</div>
-          <div class="value" *ngIf="hasActivities(); else noActivities">
-            <span *ngIf="allActivitiesSubmitted(); else partialSubmissions">
-              You have submitted to all activities.
-            </span>
-            <ng-template #partialSubmissions>
-              You have submitted {{ courseStats.activitiesWithSolvedCount }} out
-              of {{ courseStats.totalActivitiesCount }} activities.
+    <div *ngIf="!isLoadingCourse">
+      <div class="course-stats" *ngIf="courseStats; else emptyCourse">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="label">Your submissions</div>
+            <div class="value" *ngIf="hasActivities(); else noActivities">
+              <span *ngIf="allActivitiesSubmitted(); else partialSubmissions">
+                You have submitted to all activities.
+              </span>
+              <ng-template #partialSubmissions>
+                You have submitted {{ courseStats.activitiesWithSolvedCount }} out
+                of {{ courseStats.totalActivitiesCount }} activities.
+              </ng-template>
+            </div>
+            <ng-template #noActivities>
+              <div class="value muted">
+                No activities were added by the professor yet.
+              </div>
+            </ng-template>
+
+            <div class="status-breakdown" *ngIf="hasActivities()">
+              <span class="status-chip status-submitted">
+                {{ courseStats.submittedCount }} Submitted
+              </span>
+              <span class="status-chip status-completed">
+                {{ courseStats.completedCount }} Completed
+              </span>
+              <span class="status-chip status-returned">
+                {{ courseStats.returnedCount }} Returned
+              </span>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Completion</div>
+            <div class="value" *ngIf="hasActivities(); else noCompletion">
+              <div *ngIf="hasSubmissions(); else noSubmissions">
+                <div class="value-line gap">
+                  <span *ngIf="allActivitiesSolved(); else partialReviewed">
+                    The professor successfully reviewed and graded all of your
+                    submissions.
+                  </span>
+                  <ng-template #partialReviewed>
+                    The professor has successfully reviewed and graded
+                    {{ courseStats.completedCount }} out of your
+                    {{ courseStats.activitiesWithSolvedCount }} submissions.
+                  </ng-template>
+                </div>
+                <div
+                  class="value-line completion-percent"
+                  [ngClass]="getCompletionClass(getCompletionPercent())"
+                >
+                  Course completion is
+                  {{ getCompletionPercent() | number: '1.0-1' }}%
+                </div>
+              </div>
+              <ng-template #noSubmissions>
+                <div class="value muted">
+                  You have not completed any activities yet.
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #noCompletion>
+              <div class="value muted">
+                There are no activities available to complete yet.
+              </div>
             </ng-template>
           </div>
-          <ng-template #noActivities>
-            <div class="value muted">
-              No activities were added by the professor yet.
-            </div>
-          </ng-template>
 
-          <div class="status-breakdown" *ngIf="hasActivities()">
-            <span class="status-chip status-submitted">
-              {{ courseStats.submittedCount }} Submitted
-            </span>
-            <span class="status-chip status-completed">
-              {{ courseStats.completedCount }} Completed
-            </span>
-            <span class="status-chip status-returned">
-              {{ courseStats.returnedCount }} Returned
-            </span>
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="label">Completion</div>
-          <div class="value" *ngIf="hasActivities(); else noCompletion">
-            <div *ngIf="hasSubmissions(); else noSubmissions">
-              <div class="value-line gap">
-                <span *ngIf="allActivitiesSolved(); else partialReviewed">
-                  The professor successfully reviewed and graded all of your
-                  submissions.
-                </span>
-                <ng-template #partialReviewed>
-                  The professor has successfully reviewed and graded
-                  {{ courseStats.completedCount }} out of your
-                  {{ courseStats.activitiesWithSolvedCount }} submissions.
-                </ng-template>
-              </div>
-              <div
-                class="value-line completion-percent"
-                [ngClass]="getCompletionClass(getCompletionPercent())"
-              >
-                Course completion is
-                {{ getCompletionPercent() | number: '1.0-1' }}%
-              </div>
+          <div class="stat">
+            <div class="label">
+              {{
+                allActivitiesSolved()
+                  ? 'Your average grade'
+                  : 'Your current grade'
+              }}
             </div>
-            <ng-template #noSubmissions>
+            <div class="value" *ngIf="hasStudentGrades(); else noStudentGrades">
+              {{ courseStats.studentAverageGrade | number: '1.1-2' }}
+            </div>
+            <ng-template #noStudentGrades>
               <div class="value muted">
                 You have not completed any activities yet.
               </div>
             </ng-template>
           </div>
-          <ng-template #noCompletion>
-            <div class="value muted">
-              There are no activities available to complete yet.
-            </div>
-          </ng-template>
-        </div>
 
-        <div class="stat">
-          <div class="label">
-            {{
-              allActivitiesSolved()
-                ? 'Your average grade'
-                : 'Your current grade'
-            }}
-          </div>
-          <div class="value" *ngIf="hasStudentGrades(); else noStudentGrades">
-            {{ courseStats.studentAverageGrade | number: '1.1-2' }}
-          </div>
-          <ng-template #noStudentGrades>
-            <div class="value muted">
-              You have not completed any activities yet.
+          <div class="stat">
+            <div class="label">Class average grade</div>
+            <div class="value" *ngIf="hasAllStudentsAverage(); else noAllGrades">
+              {{ courseStats.allStudentsAverageGrade | number: '1.1-2' }}
             </div>
-          </ng-template>
-        </div>
-
-        <div class="stat">
-          <div class="label">Class average grade</div>
-          <div class="value" *ngIf="hasAllStudentsAverage(); else noAllGrades">
-            {{ courseStats.allStudentsAverageGrade | number: '1.1-2' }}
+            <ng-template #noAllGrades>
+              <div class="value muted">
+                There is no class average grade available yet.
+              </div>
+            </ng-template>
           </div>
-          <ng-template #noAllGrades>
-            <div class="value muted">
-              There is no class average grade available yet.
+
+          <div class="stat">
+            <div class="label">
+              {{
+                allActivitiesSolved()
+                  ? 'Your performance compared to class'
+                  : 'Your current performance compared to class'
+              }}
             </div>
-          </ng-template>
-        </div>
-
-        <div class="stat">
-          <div class="label">
-            {{
-              allActivitiesSolved()
-                ? 'Your performance compared to class'
-                : 'Your current performance compared to class'
-            }}
+            <div
+              class="value"
+              *ngIf="canCompareAverage(); else noDelta"
+              [ngClass]="getDeltaClass()"
+            >
+              {{ getAverageDeltaLabel() }}
+            </div>
+            <ng-template #noDelta>
+              <div class="value muted">No data available yet.</div>
+            </ng-template>
           </div>
-          <div
-            class="value"
-            *ngIf="canCompareAverage(); else noDelta"
-            [ngClass]="getDeltaClass()"
-          >
-            {{ getAverageDeltaLabel() }}
-          </div>
-          <ng-template #noDelta>
-            <div class="value muted">No data available yet.</div>
-          </ng-template>
         </div>
       </div>
-    </div>
 
-    <ng-template #emptyCourse>
-      <div class="empty">No course selected.</div>
-    </ng-template>
+      <ng-template #emptyCourse>
+        <div class="empty">No course selected.</div>
+      </ng-template>
+    </div>
 
     <div class="overlay" *ngIf="isLoadingCourse">
       <mat-progress-spinner mode="indeterminate" diameter="48">
@@ -159,36 +165,70 @@
   </section>
 
   <aside class="card general-panel">
-    <div class="hello">
-      Welcome back, {{ generalStats?.studentName || 'student' }} 👋
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat">
-        <div class="label">Enrolled courses</div>
-        <div class="value">
-          You are enrolled in {{ generalStats?.enrolledCoursesCount || 0 }} out
-          of {{ generalStats?.totalCoursesCount || 0 }} available courses.
-        </div>
+    <div *ngIf="!isLoadingGeneral">
+      <div class="hello">
+        Welcome back, {{ generalStats?.studentName || 'student' }} 👋
       </div>
 
-      <div class="stat">
-        <div class="label">Activities solved</div>
-        <div class="value">
-          You submitted {{ generalStats?.solvedActivitiesCount || 0 }} out of
-          {{ generalStats?.totalActivitiesCount || 0 }} available activities.
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="label">Enrolled courses</div>
+          <div class="value">
+            You are enrolled in {{ generalStats?.enrolledCoursesCount || 0 }} out
+            of {{ generalStats?.totalCoursesCount || 0 }} available courses on our
+            platform.
+          </div>
         </div>
-      </div>
 
-      <div class="domains" *ngIf="generalStats?.topDomains?.length">
-        <div class="label">Top domains by enrolled courses ✨</div>
-        <div class="domain-list">
-          <span
-            class="domain-chip"
-            *ngFor="let domain of generalStats?.topDomains"
+        <div class="stat">
+          <div class="label">Activities solved</div>
+          <div class="value">
+            You added submissions for
+            {{ generalStats?.solvedActivitiesCount || 0 }} out of
+            {{ generalStats?.totalActivitiesCount || 0 }} available activities in
+            your courses.
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Your submissions over the last 12 weeks</div>
+          <div
+            class="weekly-chart"
+            *ngIf="weeklySubmissions.length; else noWeekly"
           >
-            {{ domain.name }} ({{ domain.coursesCount }})
-          </span>
+            <div
+              class="weekly-column"
+              *ngFor="let week of weeklySubmissions; let index = index"
+              [style.height.px]="getWeeklyHeight(week.count)"
+              [attr.aria-label]="
+                'Week ' + (index + 1) + ': ' + week.count + ' submissions'
+              "
+            >
+              <span class="weekly-value" *ngIf="week.count > 0">
+                {{ week.count }}
+              </span>
+            </div>
+          </div>
+          <div class="weekly-labels" *ngIf="weeklySubmissions.length">
+            <span *ngFor="let week of weeklySubmissions">
+              {{ week.weekStart | date: 'MMM d' }}
+            </span>
+          </div>
+          <ng-template #noWeekly>
+            <div class="value muted">No submissions in the last 12 weeks.</div>
+          </ng-template>
+        </div>
+
+        <div class="domains" *ngIf="generalStats?.topDomains?.length">
+          <div class="label">Top domains by enrolled courses ✨</div>
+          <div class="domain-list">
+            <span
+              class="domain-chip"
+              *ngFor="let domain of generalStats?.topDomains"
+            >
+              {{ domain.name }} ({{ domain.coursesCount }})
+            </span>
+          </div>
         </div>
       </div>
     </div>

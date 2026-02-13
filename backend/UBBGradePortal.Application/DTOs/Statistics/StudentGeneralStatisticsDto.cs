@@ -10,4 +10,5 @@ public class StudentGeneralStatisticsDto
     public Guid? DefaultCourseId { get; set; }
     public List<StudentCourseOptionDto> Courses { get; set; } = [];
     public List<CourseDomainStatDto> TopDomains { get; set; } = [];
+    public List<WeeklySubmissionDto> WeeklySubmissions { get; set; } = [];
 }

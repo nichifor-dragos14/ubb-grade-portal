@@ -209,4 +209,23 @@ export class StudentDashboardComponent implements OnInit {
 
     return 'delta-neutral';
   }
+
+  get weeklySubmissions() {
+    return this.generalStats?.weeklySubmissions ?? [];
+  }
+
+  getWeeklyMax(): number {
+    if (this.weeklySubmissions.length === 0) {
+      return 1;
+    }
+
+    return Math.max(...this.weeklySubmissions.map((week) => week.count), 1);
+  }
+
+  getWeeklyHeight(count: number): number {
+    const maxHeight = 120;
+    const max = this.getWeeklyMax();
+
+    return Math.round((count / max) * maxHeight);
+  }
 }

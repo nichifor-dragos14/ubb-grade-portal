@@ -104,6 +104,8 @@ public class StatisticsService : IStatisticsService
             .Take(3)
             .ToList();
 
+        var weeklySubmissions = BuildWeeklySubmissions(solvedActivitiesForEnrollments);
+
         return new StudentGeneralStatisticsDto
         {
             StudentName = string.Join(" ", new[] { user.FirstName, user.LastName }.Where(part => !string.IsNullOrWhiteSpace(part))),
@@ -113,7 +115,8 @@ public class StatisticsService : IStatisticsService
             TotalActivitiesCount = totalActivitiesCount,
             DefaultCourseId = defaultCourseId,
             Courses = courseOptions,
-            TopDomains = topDomains
+            TopDomains = topDomains,
+            WeeklySubmissions = weeklySubmissions
         };
     }
 
@@ -400,5 +403,48 @@ public class StatisticsService : IStatisticsService
             .Sum(sa => sa.Grade);
 
         return Math.Round(totalGrades / (double)(totalActivitiesCount * completedStudents.Count), 2);
+    }
+
+    private static List<WeeklySubmissionDto> BuildWeeklySubmissions(List<SolvedActivity> solvedActivities)
+    {
+        var now = DateTime.UtcNow.Date;
+        var currentWeekStart = GetWeekStart(now);
+        var firstWeekStart = currentWeekStart.AddDays(-7 * 11);
+
+        var activityCounts = solvedActivities
+            .Where(sa => sa.CreatedOn.HasValue)
+            .Select(sa => new
+            {
+                WeekStart = GetWeekStart(sa.CreatedOn!.Value.Date),
+                sa.ActivityId
+            })
+            .Where(item => item.WeekStart >= firstWeekStart && item.WeekStart <= currentWeekStart)
+            .GroupBy(item => item.WeekStart)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(item => item.ActivityId).Distinct().Count()
+            );
+
+        var result = new List<WeeklySubmissionDto>();
+
+        for (var i = 11; i >= 0; i -= 1)
+        {
+            var weekStart = currentWeekStart.AddDays(-7 * i);
+            activityCounts.TryGetValue(weekStart, out var count);
+
+            result.Add(new WeeklySubmissionDto
+            {
+                WeekStart = weekStart,
+                Count = count
+            });
+        }
+
+        return result;
+    }
+
+    private static DateTime GetWeekStart(DateTime date)
+    {
+        var diff = (7 + (int)date.DayOfWeek - (int)DayOfWeek.Monday) % 7;
+        return date.AddDays(-diff).Date;
     }
 }

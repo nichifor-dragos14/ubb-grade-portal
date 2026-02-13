@@ -2479,7 +2479,8 @@
           "solvedActivitiesCount",
           "topDomains",
           "totalActivitiesCount",
-          "totalCoursesCount"
+          "totalCoursesCount",
+          "weeklySubmissions"
         ],
         "type": "object",
         "properties": {
@@ -2518,6 +2519,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CourseDomainStatDto"
+            }
+          },
+          "weeklySubmissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklySubmissionDto"
             }
           }
         },
@@ -2560,6 +2567,24 @@
             "items": {
               "$ref": "#/components/schemas/AddDocumentDto"
             }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklySubmissionDto": {
+        "required": [
+          "count",
+          "weekStart"
+        ],
+        "type": "object",
+        "properties": {
+          "weekStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
