@@ -228,6 +228,8 @@ public class StatisticsService : IStatisticsService
             })
             .ToList();
 
+        var weeklySubmissions = BuildWeeklySubmissionsForProfessor(courses);
+
         return new ProfessorGeneralStatisticsDto
         {
             ProfessorName = string.Join(" ", new[] { user.FirstName, user.LastName }.Where(part => !string.IsNullOrWhiteSpace(part))),
@@ -235,7 +237,8 @@ public class StatisticsService : IStatisticsService
             TotalActivitiesCreated = totalActivitiesCreated,
             DefaultCourseId = defaultCourseId,
             Courses = courseOptions,
-            MostEnrolledCourses = mostEnrolledCourses
+            MostEnrolledCourses = mostEnrolledCourses,
+            WeeklySubmissions = weeklySubmissions
         };
     }
 
@@ -431,6 +434,44 @@ public class StatisticsService : IStatisticsService
         {
             var weekStart = currentWeekStart.AddDays(-7 * i);
             activityCounts.TryGetValue(weekStart, out var count);
+
+            result.Add(new WeeklySubmissionDto
+            {
+                WeekStart = weekStart,
+                Count = count
+            });
+        }
+
+        return result;
+    }
+
+    private static List<WeeklySubmissionDto> BuildWeeklySubmissionsForProfessor(List<Course> courses)
+    {
+        var solvedActivities = courses
+            .SelectMany(course => course.Activities)
+            .SelectMany(activity => activity.SolvedActivities)
+            .ToList();
+
+        var now = DateTime.UtcNow.Date;
+        var currentWeekStart = GetWeekStart(now);
+        var firstWeekStart = currentWeekStart.AddDays(-7 * 11);
+
+        var submissionCounts = solvedActivities
+            .Where(sa => sa.CreatedOn.HasValue || sa.UpdatedOn.HasValue)
+            .Select(sa => new
+            {
+                WeekStart = GetWeekStart((sa.CreatedOn ?? sa.UpdatedOn)!.Value.Date)
+            })
+            .Where(item => item.WeekStart >= firstWeekStart && item.WeekStart <= currentWeekStart)
+            .GroupBy(item => item.WeekStart)
+            .ToDictionary(group => group.Key, group => group.Count());
+
+        var result = new List<WeeklySubmissionDto>();
+
+        for (var i = 11; i >= 0; i -= 1)
+        {
+            var weekStart = currentWeekStart.AddDays(-7 * i);
+            submissionCounts.TryGetValue(weekStart, out var count);
 
             result.Add(new WeeklySubmissionDto
             {

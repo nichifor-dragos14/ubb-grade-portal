@@ -2,16 +2,24 @@
   display: block;
 }
 
-app-page-header {
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-
-.dashboard {
+.dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 3fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'header-left header-right'
+    'left-card right-card';
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
+}
+
+.header-left {
+  grid-area: header-left;
+  padding-top: 14.5px;
+}
+
+.header-right {
+  grid-area: header-right;
 }
 
 .card {
@@ -21,35 +29,46 @@ app-page-header {
   padding: 20px;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
   position: relative;
+  height: clamp(580px, 70vh, 720px);
+  display: flex;
+  flex-direction: column;
+}
+
+.course-panel {
+  grid-area: left-card;
+}
+
+.general-panel {
+  grid-area: right-card;
 }
 
 .card-title {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 400;
   color: #1f2937;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .course-select {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .hello {
   font-size: 28px;
   font-weight: 700;
   color: var(--mat-sys-primary, var(--mdc-theme-primary, #3f51b5));
-  margin-bottom: 24px;
+  margin-bottom: 48px;
 }
 
 .stat-grid {
   display: grid;
-  gap: 20px;
+  gap: 24px;
 }
 
 .stat {
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
 .label {
@@ -95,7 +114,7 @@ app-page-header {
 }
 
 .activity-scroll {
-  max-height: 260px;
+  max-height: 200px;
   overflow-y: auto;
   display: grid;
   gap: 12px;
@@ -106,20 +125,29 @@ app-page-header {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 12px;
-  display: grid;
-  gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .activity-name {
   font-weight: 600;
   color: #111827;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .activity-metrics {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
   color: #374151;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .metric {
@@ -130,7 +158,8 @@ app-page-header {
 }
 
 .course-list {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -142,6 +171,65 @@ app-page-header {
   display: inline-flex;
   gap: 6px;
   align-items: center;
+}
+
+.course-stats {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.general-panel .stat-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.weekly-chart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(8px, 1fr));
+  gap: 6px;
+  align-items: end;
+  height: 140px;
+  padding: 12px 8px 6px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.weekly-column {
+  background: linear-gradient(180deg, #93c5fd, #2563eb);
+  border-radius: 8px 8px 4px 4px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 6px;
+  position: relative;
+}
+
+.weekly-value {
+  font-size: 10px;
+  color: #0f172a;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  transform: translateY(-16px);
+}
+
+.weekly-labels {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(8px, 1fr));
+  gap: 6px;
+  font-size: 10px;
+  color: #6b7280;
+  margin-top: 8px;
+}
+
+.weekly-labels span {
+  text-align: center;
+  white-space: nowrap;
 }
 
 .empty {
@@ -159,7 +247,16 @@ app-page-header {
 }
 
 @media (max-width: 900px) {
-  .dashboard {
+  .dashboard-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'header-left'
+      'left-card'
+      'right-card';
+  }
+
+  .header-right {
+    display: none;
   }
 }

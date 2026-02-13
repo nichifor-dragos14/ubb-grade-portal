@@ -8,4 +8,5 @@ public class ProfessorGeneralStatisticsDto
     public Guid? DefaultCourseId { get; set; }
     public List<ProfessorCourseOptionDto> Courses { get; set; } = [];
     public List<ProfessorCoursePopularityDto> MostEnrolledCourses { get; set; } = [];
+    public List<WeeklySubmissionDto> WeeklySubmissions { get; set; } = [];
 }

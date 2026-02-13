@@ -42,8 +42,9 @@
                 You have submitted to all activities.
               </span>
               <ng-template #partialSubmissions>
-                You have submitted {{ courseStats.activitiesWithSolvedCount }} out
-                of {{ courseStats.totalActivitiesCount }} activities.
+                You have submitted
+                {{ courseStats.activitiesWithSolvedCount }} out of
+                {{ courseStats.totalActivitiesCount }} activities.
               </ng-template>
             </div>
             <ng-template #noActivities>
@@ -121,7 +122,10 @@
 
           <div class="stat">
             <div class="label">Class average grade</div>
-            <div class="value" *ngIf="hasAllStudentsAverage(); else noAllGrades">
+            <div
+              class="value"
+              *ngIf="hasAllStudentsAverage(); else noAllGrades"
+            >
               {{ courseStats.allStudentsAverageGrade | number: '1.1-2' }}
             </div>
             <ng-template #noAllGrades>
@@ -174,8 +178,9 @@
         <div class="stat">
           <div class="label">Enrolled courses</div>
           <div class="value">
-            You are enrolled in {{ generalStats?.enrolledCoursesCount || 0 }} out
-            of {{ generalStats?.totalCoursesCount || 0 }} available courses on our
+            You are enrolled in
+            {{ generalStats?.enrolledCoursesCount || 0 }} out of
+            {{ generalStats?.totalCoursesCount || 0 }} available courses on our
             platform.
           </div>
         </div>
@@ -185,8 +190,8 @@
           <div class="value">
             You added submissions for
             {{ generalStats?.solvedActivitiesCount || 0 }} out of
-            {{ generalStats?.totalActivitiesCount || 0 }} available activities in
-            your courses.
+            {{ generalStats?.totalActivitiesCount || 0 }} available activities
+            in your courses.
           </div>
         </div>
 

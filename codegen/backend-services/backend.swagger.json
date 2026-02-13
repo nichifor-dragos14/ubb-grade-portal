@@ -2218,7 +2218,8 @@
           "courses",
           "mostEnrolledCourses",
           "totalActivitiesCreated",
-          "totalCoursesCreated"
+          "totalCoursesCreated",
+          "weeklySubmissions"
         ],
         "type": "object",
         "properties": {
@@ -2249,6 +2250,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProfessorCoursePopularityDto"
+            }
+          },
+          "weeklySubmissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklySubmissionDto"
             }
           }
         },
