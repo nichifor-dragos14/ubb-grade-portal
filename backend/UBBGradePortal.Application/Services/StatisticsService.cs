@@ -177,6 +177,173 @@ public class StatisticsService : IStatisticsService
         };
     }
 
+    public async Task<ProfessorGeneralStatisticsDto> GetProfessorGeneralStatistics(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetById(loggedUserId, cancellationToken);
+
+        if (user == null)
+        {
+            _logger.LogInformation("User {UserId} not found", loggedUserId);
+            throw new NotFoundException("The user does not exist");
+        }
+
+        var courses = await _courseRepository.GetAllProfessorCreated(loggedUserId, cancellationToken);
+        var totalCoursesCreated = courses.Count;
+        var totalActivitiesCreated = courses.Sum(course => course.Activities.Count);
+
+        var courseOptions = courses
+            .Select(course => new ProfessorCourseOptionDto
+            {
+                Id = course.Id,
+                Name = course.Name,
+                ActivitiesCount = course.Activities.Count,
+                SubmissionsCount = course.Activities.SelectMany(a => a.SolvedActivities).Count()
+            })
+            .OrderBy(course => course.Name)
+            .ToList();
+
+        Guid? defaultCourseId = null;
+
+        if (courseOptions.Count != 0)
+        {
+            defaultCourseId = courseOptions
+                .OrderByDescending(course => course.SubmissionsCount)
+                .ThenBy(course => course.Name)
+                .Select(course => course.Id)
+                .FirstOrDefault();
+        }
+
+        var mostEnrolledCourses = courses
+            .OrderByDescending(course => course.CourseEnrollments.Count)
+            .ThenBy(course => course.Name)
+            .Take(3)
+            .Select(course => new ProfessorCoursePopularityDto
+            {
+                CourseId = course.Id,
+                CourseName = course.Name,
+                EnrolledCount = course.CourseEnrollments.Count
+            })
+            .ToList();
+
+        return new ProfessorGeneralStatisticsDto
+        {
+            ProfessorName = string.Join(" ", new[] { user.FirstName, user.LastName }.Where(part => !string.IsNullOrWhiteSpace(part))),
+            TotalCoursesCreated = totalCoursesCreated,
+            TotalActivitiesCreated = totalActivitiesCreated,
+            DefaultCourseId = defaultCourseId,
+            Courses = courseOptions,
+            MostEnrolledCourses = mostEnrolledCourses
+        };
+    }
+
+    public async Task<ProfessorCourseStatisticsDto> GetProfessorCourseStatistics(Guid courseId, Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var course = await _courseRepository.GetById(courseId, cancellationToken);
+
+        if (course == null)
+        {
+            _logger.LogInformation("Course {CourseId} not found", courseId);
+            throw new NotFoundException("The course does not exist");
+        }
+
+        if (course.CreatedByUserId != loggedUserId)
+        {
+            _logger.LogInformation("User {UserId} is not owner of course {CourseId}", loggedUserId, courseId);
+            throw new ForbiddenException("Not allowed to access this course");
+        }
+
+        var totalActivitiesCount = course.Activities.Count;
+        var enrolledStudentIds = course.CourseEnrollments.Select(e => e.UserId).Distinct().ToList();
+        var enrolledStudentsCount = enrolledStudentIds.Count;
+
+        var latestByStudentAndActivity = course.Activities
+            .SelectMany(activity => activity.SolvedActivities
+                .Where(sa => enrolledStudentIds.Contains(sa.UserId))
+                .GroupBy(sa => sa.UserId)
+                .Select(group => group
+                    .OrderByDescending(sa => sa.UpdatedOn ?? sa.CreatedOn ?? DateTime.MinValue)
+                    .First())
+                .Select(sa => new { ActivityId = activity.Id, SolvedActivity = sa }))
+            .ToList();
+
+        var completedStudents = enrolledStudentIds
+            .Where(studentId =>
+            {
+                var completedCount = latestByStudentAndActivity
+                    .Where(item => item.SolvedActivity.UserId == studentId)
+                    .Count(item => item.SolvedActivity.Status == SolvedActivityStatus.Completed);
+                return totalActivitiesCount > 0 && completedCount == totalActivitiesCount;
+            })
+            .ToList();
+
+        var studentsCompletedCount = completedStudents.Count;
+        var completionPercentage = enrolledStudentsCount == 0 || totalActivitiesCount == 0
+            ? 0
+            : Math.Round((double)studentsCompletedCount * 100 / enrolledStudentsCount, 2);
+
+        var averageGrade = 0d;
+
+        if (studentsCompletedCount > 0 && totalActivitiesCount > 0)
+        {
+            var completedStudentGrades = latestByStudentAndActivity
+                .Where(item => completedStudents.Contains(item.SolvedActivity.UserId))
+                .Sum(item => item.SolvedActivity.Grade);
+
+            averageGrade = Math.Round(completedStudentGrades / (double)(studentsCompletedCount * totalActivitiesCount), 2);
+        }
+
+        var activityStats = course.Activities
+            .Select(activity =>
+            {
+                var latestForActivity = activity.SolvedActivities
+                    .Where(sa => enrolledStudentIds.Contains(sa.UserId))
+                    .GroupBy(sa => sa.UserId)
+                    .Select(group => group
+                        .OrderByDescending(sa => sa.UpdatedOn ?? sa.CreatedOn ?? DateTime.MinValue)
+                        .First())
+                    .ToList();
+
+                var completedForActivity = latestForActivity
+                    .Where(sa => sa.Status == SolvedActivityStatus.Completed)
+                    .ToList();
+
+                var avgGrade = completedForActivity.Count == 0
+                    ? 0
+                    : Math.Round(completedForActivity.Sum(sa => sa.Grade) / (double)completedForActivity.Count, 2);
+
+                return new ProfessorActivityStatDto
+                {
+                    ActivityId = activity.Id,
+                    ActivityName = activity.Name,
+                    CompletedCount = completedForActivity.Count,
+                    AverageGrade = avgGrade
+                };
+            })
+            .OrderByDescending(stat => stat.CompletedCount)
+            .ThenBy(stat => stat.ActivityName)
+            .ToList();
+
+        var leastSolvedActivity = activityStats
+            .OrderBy(stat => stat.CompletedCount)
+            .ThenBy(stat => stat.ActivityName)
+            .FirstOrDefault();
+
+        return new ProfessorCourseStatisticsDto
+        {
+            CourseId = course.Id,
+            CourseName = course.Name,
+            TotalActivitiesCount = totalActivitiesCount,
+            EnrolledStudentsCount = enrolledStudentsCount,
+            StudentsCompletedCount = studentsCompletedCount,
+            CompletionPercentage = completionPercentage,
+            AverageGrade = averageGrade,
+            LeastSolvedActivityId = leastSolvedActivity?.ActivityId,
+            LeastSolvedActivityName = leastSolvedActivity?.ActivityName,
+            LeastSolvedActivitySubmissions = leastSolvedActivity?.CompletedCount ?? 0,
+            ActivityStats = activityStats
+        };
+    }
+
     private static IEnumerable<SolvedActivity> GetLatestSolvedActivities(IEnumerable<SolvedActivity> solvedActivities)
     {
         return solvedActivities

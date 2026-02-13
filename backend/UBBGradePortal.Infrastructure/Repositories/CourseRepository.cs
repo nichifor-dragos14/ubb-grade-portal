@@ -76,6 +76,20 @@ public class CourseRepository : ICourseRepository
         );
     }
 
+    public async Task<List<Course>> GetAllProfessorCreated(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Include(c => c.CourseEnrollments)
+            .Include(c => c.Activities)
+                .ThenInclude(a => a.SolvedActivities)
+            .Include(c => c.CreatedByUser)
+            .Where(c => c.CreatedByUserId == loggedUserId)
+            .OrderByDescending(c => c.UpdatedOn)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<(int Count, List<CourseEnrollment> CourseEnrollments)> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var courseEnrollments = await _dbContext

@@ -3,17 +3,12 @@ import { LayoutComponent } from '../features/layout/layout.component';
 import { LoginComponent } from '../features/login/login.component';
 import { RegisterComponent } from '../features/register/register.component';
 import { roleGuard } from './auth/role.guard';
-import { DashboardComponent } from '$features/dashboard/dashboard.component';
+import { RoleDashboardRedirectComponent } from './role-dashboard-redirect.component';
 
 export const routes: Routes = [
   {
-    path: 'main',
-    redirectTo: '/main/dashboard',
-    pathMatch: 'full',
-  },
-  {
     path: '',
-    redirectTo: '/main/dashboard',
+    redirectTo: '/main',
     pathMatch: 'full',
   },
   {
@@ -31,10 +26,10 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
-        path: 'dashboard',
+        path: '',
         canActivate: [roleGuard],
         data: { roles: ['Student', 'Professor', 'Admin'] },
-        component: DashboardComponent,
+        component: RoleDashboardRedirectComponent,
       },
       {
         path: 'professor',

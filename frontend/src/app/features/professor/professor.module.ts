@@ -19,11 +19,18 @@ import { ProfessorAddActivityComponent } from './courses/professor-add-activity.
 import { ProfessorUpdateActivityComponent } from './courses/professor-update-activity.component';
 import { ProfessorActivityFeedbackComponent } from './feedback/professor-activity-feedback/professor-activity-feedback.component';
 import { ProfessorGiveFeedbackComponent } from './feedback/professor-give-feedback/professor-give-feedback.component';
+import { ProfessorDashboardComponent } from './dashboard/professor-dashboard.component';
 
 const PROFESSOR_ROUTES: Routes = [
   {
     path: '',
     children: [
+      {
+        path: 'dashboard',
+        canActivate: [roleGuard],
+        data: { roles: ['Professor'] },
+        component: ProfessorDashboardComponent,
+      },
       {
         path: 'courses',
         canActivate: [roleGuard],

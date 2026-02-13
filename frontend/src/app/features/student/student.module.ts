@@ -17,11 +17,18 @@ import { StudentFindCoursesComponent } from './enrollments/student-find-courses/
 import { DialogPageComponent } from '$shared/dialog-page';
 import { SolveActivityComponent } from './activities/solve-activity.component';
 import { SolvedActivityUpdateComponent } from './activities/solved-activity-update.component';
+import { StudentDashboardComponent } from './dashboard/student-dashboard.component';
 
 const STUDENT_ROUTES: Routes = [
   {
     path: '',
     children: [
+      {
+        path: 'dashboard',
+        canActivate: [roleGuard],
+        data: { roles: ['Student'] },
+        component: StudentDashboardComponent,
+      },
       {
         path: 'enrollments',
         canActivate: [roleGuard],
@@ -125,4 +132,3 @@ const STUDENT_ROUTES: Routes = [
   exports: [RouterModule],
 })
 export class StudentModule {}
-

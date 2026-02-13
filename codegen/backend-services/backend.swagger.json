@@ -1346,6 +1346,78 @@
         }
       }
     },
+    "/api/Statistics/professor/general": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessorGeneralStatisticsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/Statistics/professor/course/{courseId}": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessorCourseStatisticsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Upload/presign": {
       "post": {
         "tags": [
@@ -2001,6 +2073,186 @@
           }
         },
         "additionalProperties": { }
+      },
+      "ProfessorActivityStatDto": {
+        "required": [
+          "activityId",
+          "averageGrade",
+          "completedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "activityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "activityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageGrade": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorCourseOptionDto": {
+        "required": [
+          "activitiesCount",
+          "id",
+          "submissionsCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "submissionsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorCoursePopularityDto": {
+        "required": [
+          "courseId",
+          "enrolledCount"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courseName": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrolledCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorCourseStatisticsDto": {
+        "required": [
+          "activityStats",
+          "averageGrade",
+          "completionPercentage",
+          "courseId",
+          "enrolledStudentsCount",
+          "leastSolvedActivitySubmissions",
+          "studentsCompletedCount",
+          "totalActivitiesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courseName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalActivitiesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enrolledStudentsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentsCompletedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completionPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageGrade": {
+            "type": "number",
+            "format": "double"
+          },
+          "leastSolvedActivityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "leastSolvedActivityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "leastSolvedActivitySubmissions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activityStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfessorActivityStatDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProfessorGeneralStatisticsDto": {
+        "required": [
+          "courses",
+          "mostEnrolledCourses",
+          "totalActivitiesCreated",
+          "totalCoursesCreated"
+        ],
+        "type": "object",
+        "properties": {
+          "professorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalCoursesCreated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalActivitiesCreated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "defaultCourseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfessorCourseOptionDto"
+            }
+          },
+          "mostEnrolledCourses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfessorCoursePopularityDto"
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "RegisterRequest": {
         "required": [

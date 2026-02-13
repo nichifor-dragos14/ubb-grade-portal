@@ -1,0 +1,165 @@
+:host {
+  display: block;
+}
+
+app-page-header {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  position: relative;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 20px;
+}
+
+.course-select {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.hello {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--mat-sys-primary, var(--mdc-theme-primary, #3f51b5));
+  margin-bottom: 24px;
+}
+
+.stat-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.stat {
+  display: grid;
+  gap: 10px;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.value {
+  font-size: 16px;
+  color: #111827;
+}
+
+.value-line {
+  display: block;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.completion-percent {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.completion-red {
+  color: #d32f2f;
+}
+
+.completion-yellow {
+  color: #f9a825;
+}
+
+.completion-green {
+  color: #2e7d32;
+}
+
+.activity-board {
+  margin-top: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.activity-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+.activity-row {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.activity-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.activity-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #374151;
+}
+
+.metric {
+  font-size: 13px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.course-list {
+  display: grid;
+  gap: 8px;
+}
+
+.course-chip {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.empty {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}

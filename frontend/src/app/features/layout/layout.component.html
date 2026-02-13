@@ -10,15 +10,15 @@
         <ng-container *ngIf="hasRole('Student')">
           <a
             mat-list-item
-            routerLink="/main/dashboard"
+            routerLink="/main/student/dashboard"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
           >
             <mat-icon matListItemIcon>dashboard</mat-icon>
             <div matListItemTitle>Dashboard</div>
           </a>
-
           <a
+            routerLink="/main/student/dashboard"
             mat-list-item
             routerLink="/main/student/enrollments"
             routerLinkActive="active"
@@ -41,7 +41,7 @@
         <ng-container *ngIf="hasRole('Professor')">
           <a
             mat-list-item
-            routerLink="/main/dashboard"
+            routerLink="/main/professor/dashboard"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
           >
@@ -50,6 +50,7 @@
           </a>
           <a
             mat-list-item
+            routerLink="/main/professor/dashboard"
             routerLink="/main/professor/courses"
             routerLinkActive="active"
           >

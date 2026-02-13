@@ -82,4 +82,66 @@ public class StatisticsController : ControllerBase
             return TypedResults.Forbid();
         }
     }
+
+    /// <summary> Get general statistics for the logged professor </summary>
+    [HttpGet("professor/general")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<ProfessorGeneralStatisticsDto>, BadRequest, ForbidHttpResult>> GetProfessorGeneralStatistics(
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var statistics = await _statisticsService.GetProfessorGeneralStatistics(loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(statistics);
+    }
+
+    /// <summary> Get statistics for the selected course for a professor </summary>
+    [HttpGet("professor/course/{courseId}")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<Results<Ok<ProfessorCourseStatisticsDto>, BadRequest<string>, NotFound<string>, ForbidHttpResult>> GetProfessorCourseStatistics(
+        [FromRoute] Guid courseId,
+        CancellationToken cancellationToken
+    )
+    {
+        if (courseId == Guid.Empty)
+        {
+            return TypedResults.BadRequest("No course id was specified");
+        }
+
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        try
+        {
+            var statistics = await _statisticsService.GetProfessorCourseStatistics(courseId, loggedUserId, cancellationToken);
+
+            return TypedResults.Ok(statistics);
+        }
+        catch (NotFoundException ex)
+        {
+            return TypedResults.NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return TypedResults.Forbid();
+        }
+    }
 }
