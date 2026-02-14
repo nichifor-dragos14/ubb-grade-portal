@@ -309,6 +309,11 @@ public class StatisticsService : IStatisticsService
                         .First())
                     .ToList();
 
+                var submissionCount = latestForActivity.Count(sa =>
+                    sa.Status == SolvedActivityStatus.Submitted ||
+                    sa.Status == SolvedActivityStatus.Completed ||
+                    sa.Status == SolvedActivityStatus.Returned);
+
                 var completedForActivity = latestForActivity
                     .Where(sa => sa.Status == SolvedActivityStatus.Completed)
                     .ToList();
@@ -317,22 +322,30 @@ public class StatisticsService : IStatisticsService
                     ? 0
                     : Math.Round(completedForActivity.Sum(sa => sa.Grade) / (double)completedForActivity.Count, 2);
 
-                return new ProfessorActivityStatDto
+                return new
                 {
-                    ActivityId = activity.Id,
-                    ActivityName = activity.Name,
-                    CompletedCount = completedForActivity.Count,
-                    AverageGrade = avgGrade
+                    SubmissionCount = submissionCount,
+                    Stat = new ProfessorActivityStatDto
+                    {
+                        ActivityId = activity.Id,
+                        ActivityName = activity.Name,
+                        CompletedCount = completedForActivity.Count,
+                        AverageGrade = avgGrade
+                    }
                 };
             })
-            .OrderByDescending(stat => stat.CompletedCount)
-            .ThenBy(stat => stat.ActivityName)
             .ToList();
 
         var leastSolvedActivity = activityStats
-            .OrderBy(stat => stat.CompletedCount)
-            .ThenBy(stat => stat.ActivityName)
+            .OrderBy(stat => stat.SubmissionCount)
+            .ThenBy(stat => stat.Stat.ActivityName)
             .FirstOrDefault();
+
+        var orderedActivityStats = activityStats
+            .Select(stat => stat.Stat)
+            .OrderByDescending(stat => stat.CompletedCount)
+            .ThenBy(stat => stat.ActivityName)
+            .ToList();
 
         return new ProfessorCourseStatisticsDto
         {
@@ -343,10 +356,10 @@ public class StatisticsService : IStatisticsService
             StudentsCompletedCount = studentsCompletedCount,
             CompletionPercentage = completionPercentage,
             AverageGrade = averageGrade,
-            LeastSolvedActivityId = leastSolvedActivity?.ActivityId,
-            LeastSolvedActivityName = leastSolvedActivity?.ActivityName,
-            LeastSolvedActivitySubmissions = leastSolvedActivity?.CompletedCount ?? 0,
-            ActivityStats = activityStats
+            LeastSolvedActivityId = leastSolvedActivity?.Stat.ActivityId,
+            LeastSolvedActivityName = leastSolvedActivity?.Stat.ActivityName,
+            LeastSolvedActivitySubmissions = leastSolvedActivity?.SubmissionCount ?? 0,
+            ActivityStats = orderedActivityStats
         };
     }
 

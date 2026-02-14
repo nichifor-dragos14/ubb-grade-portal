@@ -1,6 +1,15 @@
 <div class="dashboard-grid">
   <div class="header-left">
-    <app-page-header title="Your dashboard 📊"> </app-page-header>
+    <app-page-header title="Your dashboard 📊">
+      <button
+        mat-button
+        button
+        color="primary"
+        routerLink="/main/professor/feedback"
+      >
+        GO TO FEEDBACK
+      </button>
+    </app-page-header>
   </div>
 
   <div class="header-right"></div>
@@ -77,7 +86,7 @@
             >
               {{ courseStats.leastSolvedActivityName }} has only
               {{ courseStats.leastSolvedActivitySubmissions }}
-              graded submission
+              submission
               <span *ngIf="courseStats.leastSolvedActivitySubmissions > 1">
                 s
               </span>
@@ -104,10 +113,10 @@
               </div>
               <div class="activity-metrics">
                 <span class="metric">
-                  Avg. grade: {{ activity.averageGrade | number: '1.1-2' }}
+                  Average grade: {{ activity.averageGrade | number: '1.1-2' }}
                 </span>
                 <span class="metric">
-                  Completions: {{ activity.completedCount }}
+                  Number of completions: {{ activity.completedCount }}
                 </span>
               </div>
             </div>
@@ -193,3 +202,5 @@
     </div>
   </aside>
 </div>
+
+<router-outlet hidden />

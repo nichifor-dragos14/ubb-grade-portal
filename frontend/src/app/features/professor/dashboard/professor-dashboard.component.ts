@@ -17,6 +17,8 @@ import {
 } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-professor-dashboard',
@@ -27,6 +29,8 @@ import { AppToastService } from '$shared/toast';
     MatSelectModule,
     MatProgressSpinnerModule,
     AppPageHeaderComponent,
+    MatButtonModule,
+    RouterModule,
   ],
   templateUrl: './professor-dashboard.component.html',
   styleUrl: './professor-dashboard.component.scss',
