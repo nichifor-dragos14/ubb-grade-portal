@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -45,6 +45,8 @@ import { AppToastService } from '$shared/toast';
 export class ProfessorCoursesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
@@ -62,6 +64,7 @@ export class ProfessorCoursesComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPage();
+    this.navigateToFirstCourse();
 
     this.professorCoursesEventService.activityCreated$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -74,6 +77,19 @@ export class ProfessorCoursesComponent implements OnInit {
       .subscribe(async () => {
         this.loadPage();
       });
+  }
+
+  private navigateToFirstCourse() {
+    if (this.route.firstChild) {
+      return;
+    }
+
+    const firstCourseId = this.courses[0]?.id;
+    if (!firstCourseId) {
+      return;
+    }
+
+    this.router.navigate([firstCourseId], { relativeTo: this.route });
   }
 
   private async loadPage() {

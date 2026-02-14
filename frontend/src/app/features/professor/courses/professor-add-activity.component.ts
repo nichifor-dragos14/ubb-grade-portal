@@ -90,7 +90,8 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
   `,
   styles: `
     :host {
-      padding: 32px 24px;
+      padding: 24px;
+      padding-bottom: 36px;
       width: 56vw;
       height: 64vh;
       display: flex;
@@ -106,9 +107,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
       overflow-y: auto;
       overflow-x: visible;
       scrollbar-width: none;
-      padding-bottom: 24px;
-      padding-right: 16px;
-      padding-left: 16px;
+      padding: 16px;
     }
 
     .form-loader {
@@ -127,7 +126,7 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
 
     .card-title {
       font-size: 16px;
-      font-weight: 400;
+      font-weight: 600;
       color: #1f2937;
       margin-bottom: 18px;
     }

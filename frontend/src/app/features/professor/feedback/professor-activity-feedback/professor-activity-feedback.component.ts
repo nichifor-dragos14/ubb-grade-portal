@@ -7,7 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -55,6 +55,8 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toastService = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly professorFeedbackEventService = inject(
@@ -90,6 +92,20 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       });
 
     await this.loadPage();
+    this.navigateToFirstSubmission();
+  }
+
+  private navigateToFirstSubmission() {
+    if (this.route.firstChild) {
+      return;
+    }
+
+    const firstSubmissionId = this.solvedActivities[0]?.id;
+    if (!firstSubmissionId) {
+      return;
+    }
+
+    this.router.navigate([firstSubmissionId], { relativeTo: this.route });
   }
 
   async onPageChange(event: PageEvent) {
