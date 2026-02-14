@@ -14,5 +14,6 @@ public class CourseDto
     public int? NumberOfEntrollments { get; set; }
     public int? NumberOfActivities { get; set; }
     public int? NumberOfSolvedActivities { get; set; }
+    public int? NumberOfSubmittedActivities { get; set; }
     public List<ActivityDto>? Activities { get; set; } = [];
 }

@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -46,6 +46,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class StudentEnrollmentsComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
@@ -68,6 +69,7 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPage();
+    this.navigateToMostSubmittedEnrollment();
 
     this.enrollmentService.addedSolvedActivity$
       .pipe(takeUntil(this.destroy$))
@@ -117,6 +119,48 @@ export class StudentEnrollmentsComponent implements OnInit {
     }
   }
 
+  private navigateToMostSubmittedEnrollment(): void {
+    const candidate = this.enrollments
+      .map((enrollment) => {
+        const totalActivities = enrollment.numberOfActivities ?? 0;
+        const submittedActivities = enrollment.numberOfSubmittedActivities ?? 0;
+        const completedActivities = enrollment.numberOfSolvedActivities ?? 0;
+
+        return {
+          enrollment,
+          totalActivities,
+          submittedActivities,
+          completedActivities,
+        };
+      })
+      .filter(
+        (entry) =>
+          entry.totalActivities > 0 &&
+          entry.submittedActivities > 0 &&
+          entry.completedActivities < entry.submittedActivities
+      )
+      .sort((a, b) => {
+        if (b.submittedActivities !== a.submittedActivities) {
+          return b.submittedActivities - a.submittedActivities;
+        }
+
+        if (b.totalActivities !== a.totalActivities) {
+          return b.totalActivities - a.totalActivities;
+        }
+
+        return (a.enrollment.name ?? '').localeCompare(b.enrollment.name ?? '');
+      })[0]?.enrollment;
+
+    if (!candidate) {
+      return;
+    }
+
+    void this.router.navigate([
+      '/main/student/enrollments/course',
+      candidate.id,
+    ]);
+  }
+
   async onPageChange(e: PageEvent) {
     this.pageIndex = e.pageIndex;
     this.pageSize = e.pageSize;
@@ -124,16 +168,12 @@ export class StudentEnrollmentsComponent implements OnInit {
     await this.loadPage();
   }
 
-  getCompletionRate(totalNumber: number, solvedNumber: number): number {
+  getCompletionRate(totalNumber: number, completedNumber: number): number {
     if (totalNumber === 0) {
       return 0;
     }
 
-    if (solvedNumber === 0) {
-      return 0;
-    }
-
-    return (solvedNumber * 100) / totalNumber;
+    return (completedNumber * 100) / totalNumber;
   }
 
   getCompletionPercentText(totalNumber: number, solvedNumber: number): string {
@@ -145,12 +185,23 @@ export class StudentEnrollmentsComponent implements OnInit {
     return `${pct}%`;
   }
 
-  getCompletionLineText(totalNumber: number, solvedNumber: number): string {
+  getCompletionLineText(
+    totalNumber: number,
+    submittedNumber: number,
+    completedNumber: number
+  ): string {
     if (totalNumber === 0) {
       return 'No activities were added by the professor yet';
     }
 
-    return `You completed ${solvedNumber} / ${totalNumber} activities`;
+    const inactiveCount = Math.max(
+      totalNumber - submittedNumber - completedNumber,
+      0
+    );
+    const activityLabel = inactiveCount === 1 ? 'activity' : 'activities';
+    const verbLabel = inactiveCount === 1 ? "doesn't" : "don't";
+
+    return `${inactiveCount} ${activityLabel} ${verbLabel} have an active submission`;
   }
 
   getCompletionClass(value: number): string {

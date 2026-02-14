@@ -1815,6 +1815,11 @@
               "$ref": "#/components/schemas/ActivityDto"
             },
             "nullable": true
+          },
+          "numberOfSubmittedActivities": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false

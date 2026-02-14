@@ -51,8 +51,4 @@ export class LayoutComponent {
   toggleSidenav() {
     this.drawer.toggle();
   }
-
-  async goToProfile() {
-    await this.router.navigateByUrl('/main/profile');
-  }
 }

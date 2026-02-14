@@ -47,7 +47,8 @@
         {{
           getCompletionLineText(
             enrollment.numberOfActivities!,
-            enrollment.numberOfSolvedActivities!
+            enrollment.numberOfSubmittedActivities || 0,
+            enrollment.numberOfSolvedActivities || 0
           )
         }}
       </span>

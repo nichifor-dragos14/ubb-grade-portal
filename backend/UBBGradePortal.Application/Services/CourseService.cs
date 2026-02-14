@@ -103,15 +103,40 @@ public class CourseService : ICourseService
             new PaginatedStudentCourseEnrollmentDto(
                 Count,
                 Courses
-                    .Select(course => CourseMapper.FromCourseToCourseDto(
-                                    course.Course,
-                                    course.Course.Activities.Select(a => ActivityMapper.FromActivityToActivityDto(a, null, null)).ToList(),
-                                    course.User.SolvedActivities
-                                        .Where(s => s.Status == SolvedActivityStatus.Completed && course.Course.Activities.Select(a => a.Id).Contains(s.ActivityId))
-                                        .DistinctBy(s => s.ActivityId)
-                                        .ToList()
-                                    )
-                    )
+                    .Select(course =>
+                    {
+                        var activityIds = course.Course.Activities
+                            .Select(a => a.Id)
+                            .ToHashSet();
+
+                        var latestSolvedByActivity = course.User.SolvedActivities
+                            .Where(s => activityIds.Contains(s.ActivityId))
+                            .GroupBy(s => s.ActivityId)
+                            .Select(group => group
+                                .OrderByDescending(s => s.UpdatedOn ?? s.CreatedOn ?? DateTime.MinValue)
+                                .First())
+                            .ToList();
+
+                        var completedCount = latestSolvedByActivity
+                            .Count(s => s.Status == SolvedActivityStatus.Completed);
+                        var submittedCount = latestSolvedByActivity
+                            .Count(s => s.Status == SolvedActivityStatus.Submitted);
+
+                        var dto = CourseMapper.FromCourseToCourseDto(
+                            course.Course,
+                            course.Course.Activities
+                                .Select(a => ActivityMapper.FromActivityToActivityDto(a, null, null))
+                                .ToList(),
+                            latestSolvedByActivity
+                                .Where(s => s.Status == SolvedActivityStatus.Completed)
+                                .ToList()
+                        );
+
+                        dto.NumberOfSolvedActivities = completedCount;
+                        dto.NumberOfSubmittedActivities = submittedCount;
+
+                        return dto;
+                    })
                     .ToList()
             );
     }
