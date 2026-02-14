@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   ActivityDocsService,
@@ -36,6 +37,7 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -135,6 +137,10 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
         align-items: center;
       }
 
+      .tooltip-wrapper {
+        display: inline-flex;
+      }
+
       input[type='file'] {
         display: none;
       }
@@ -173,14 +179,20 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
         >
           Choose files
         </button>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="startAll()"
-          [disabled]="disabled || !hasQueued"
+        <span
+          class="tooltip-wrapper"
+          [matTooltip]="getUploadAllTooltip()"
+          [matTooltipDisabled]="!getUploadAllTooltip()"
         >
-          Upload all
-        </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="startAll()"
+            [disabled]="disabled || !hasQueued"
+          >
+            Upload all
+          </button>
+        </span>
       </div>
 
       <input
@@ -335,6 +347,14 @@ export class ActivityDocsDropzoneComponent {
 
   get hasQueued() {
     return this.queue.some((file) => file.status === 'queued' && !!file.file);
+  }
+
+  getUploadAllTooltip() {
+    if (!this.hasQueued) {
+      return 'Please add the activity documents first';
+    }
+
+    return '';
   }
 
   get hasPendingDeletions() {

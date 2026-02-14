@@ -67,10 +67,16 @@
                 </button>
               </div>
               <div class="course-description">
-                {{
-                  course.description ||
-                    'No description was provided by the professor.'
-                }}
+                {{ getDescriptionText(course) }}
+                <button
+                  *ngIf="isDescriptionLong(course)"
+                  mat-button
+                  type="button"
+                  class="see-more-button"
+                  (click)="toggleDescription(course)"
+                >
+                  {{ isDescriptionExpanded(course) ? 'See less' : 'See all' }}
+                </button>
               </div>
             </div>
           </div>

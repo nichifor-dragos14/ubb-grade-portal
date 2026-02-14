@@ -153,6 +153,7 @@ import { DateConverterModule } from '$shared/date-converter';
     `
       :host {
         padding: 24px;
+        padding-bottom: 36px;
         width: 56vw;
         height: 64vh;
         display: flex;
@@ -168,7 +169,7 @@ import { DateConverterModule } from '$shared/date-converter';
       .content {
         overflow-y: auto;
         overflow-x: visible;
-        padding: 0 16px 16px;
+        padding: 16px;
         display: grid;
         gap: 16px;
       }
@@ -180,18 +181,18 @@ import { DateConverterModule } from '$shared/date-converter';
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       }
       .card h2 {
-        font-weight: 400;
+        font-weight: 600;
       }
       .section-title {
         margin: 0 0 10px 0;
         font-size: 16px;
-        font-weight: 400;
+        font-weight: 600;
         color: #202124;
       }
       .submission-card h2 {
         margin: 0 0 8px 0;
         font-size: 16px;
-        font-weight: 400;
+        font-weight: 600;
         color: #202124;
       }
       .activity-description {
@@ -391,7 +392,7 @@ export class SolvedActivityUpdateComponent {
       case SolvedActivityStatus.$1:
         return 'Graded and completed. Great job!';
       case SolvedActivityStatus.$2:
-        return 'Please review the feedback and resubmit when ready.';
+        return 'Please review the professor feedback and resubmit when ready.';
       default:
         return '';
     }

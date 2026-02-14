@@ -173,14 +173,20 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
         >
           Choose files
         </button>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="submitAll()"
-          [disabled]="disabled || !hasQueued"
+        <span
+          class="tooltip-wrapper"
+          [matTooltip]="getUploadAllTooltip()"
+          [matTooltipDisabled]="!getUploadAllTooltip()"
         >
-          Upload files
-        </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="submitAll()"
+            [disabled]="disabled || !hasQueued"
+          >
+            Upload files
+          </button>
+        </span>
       </div>
 
       <input
@@ -327,6 +333,14 @@ export class SubmissionDocsDropzoneComponent {
     return this.queue.some((file) => file.status === 'queued' && !!file.file);
   }
 
+  getUploadAllTooltip() {
+    if (!this.hasQueued) {
+      return 'Please add your submission documents first';
+    }
+
+    return '';
+  }
+
   get hasUploadedFiles() {
     return this.queue.some((file) => file.status === 'done');
   }
@@ -362,11 +376,11 @@ export class SubmissionDocsDropzoneComponent {
     }
 
     if (file.status === 'uploading') {
-      return 'Please wait for the upload to finish';
+      return 'Please wait for the document upload to finish';
     }
 
     if (this.isLastSavedFile(file)) {
-      return 'Keep at least one saved document. Add another document and save changes to delete this one.';
+      return 'You must keep at least one saved document per submission. Add another document, save the changes and then delete this one.';
     }
 
     return '';

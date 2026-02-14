@@ -94,6 +94,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
     `
       :host {
         padding: 24px;
+        padding-bottom: 36px;
         width: 56vw;
         height: 64vh;
         display: flex;
@@ -109,7 +110,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
       .content {
         overflow-y: auto;
         overflow-x: visible;
-        padding: 0 16px 16px;
+        padding: 16px;
         display: grid;
         gap: 16px;
       }
@@ -122,13 +123,13 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       }
       .card h2 {
-        font-weight: 400;
+        font-weight: 600;
       }
 
       .section-title {
         margin: 0 0 10px 0;
         font-size: 16px;
-        font-weight: 400;
+        font-weight: 600;
         color: #202124;
       }
 
@@ -147,7 +148,7 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
       .submission-card h2 {
         margin: 0 0 8px 0;
         font-size: 16px;
-        font-weight: 400;
+        font-weight: 600;
         color: #202124;
       }
 

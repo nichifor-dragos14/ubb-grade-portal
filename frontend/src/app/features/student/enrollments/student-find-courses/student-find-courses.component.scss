@@ -1,5 +1,6 @@
 :host {
   padding: 24px;
+  padding-bottom: 36px;
   width: 56vw;
   height: 64vh;
   display: flex;
@@ -11,7 +12,7 @@
 .content {
   overflow-y: auto;
   overflow-x: visible;
-  padding: 0 16px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -121,4 +122,22 @@
   color: #374151;
   font-size: 13px;
   line-height: 1.4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.see-more-button {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0 4px;
+  min-width: auto;
+  height: auto;
+  color: #1d4ed8;
+}
+
+.see-more-button:hover {
+  text-decoration: underline;
 }

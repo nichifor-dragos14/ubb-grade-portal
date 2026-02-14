@@ -65,6 +65,8 @@ export class StudentFindCoursesComponent implements OnInit {
   isLoading = false;
   private requestId = 0;
   private enrollingIds = new Set<string>();
+  private expandedCourseIds = new Set<string>();
+  private readonly maxDescriptionLength = 300;
 
   searchControl = new FormControl<string>('', { nonNullable: true });
 
@@ -199,5 +201,41 @@ export class StudentFindCoursesComponent implements OnInit {
     }
 
     return `Contains ${count} ${count === 1 ? 'activity' : 'activities'} that you can solve`;
+  }
+
+  isDescriptionLong(course: CourseDto): boolean {
+    return (course.description ?? '').trim().length > this.maxDescriptionLength;
+  }
+
+  isDescriptionExpanded(course: CourseDto): boolean {
+    return !!course.id && this.expandedCourseIds.has(course.id);
+  }
+
+  toggleDescription(course: CourseDto): void {
+    if (!course.id) {
+      return;
+    }
+
+    if (this.expandedCourseIds.has(course.id)) {
+      this.expandedCourseIds.delete(course.id);
+    } else {
+      this.expandedCourseIds.add(course.id);
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  getDescriptionText(course: CourseDto): string {
+    const description = (course.description ?? '').trim();
+
+    if (!description) {
+      return 'No description was provided by the professor.';
+    }
+
+    if (!this.isDescriptionLong(course) || this.isDescriptionExpanded(course)) {
+      return description;
+    }
+
+    return `${description.slice(0, this.maxDescriptionLength).trimEnd()}...`;
   }
 }

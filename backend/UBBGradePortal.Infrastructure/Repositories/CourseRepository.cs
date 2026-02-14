@@ -50,6 +50,7 @@ public class CourseRepository : ICourseRepository
             .Courses
             .Include(c => c.CourseDomain)
             .Where(c => courseDomainIds.Contains(c.CourseDomainId))
+            .Include(c => c.Activities)
             .ToListAsync(cancellationToken);
     }
 
