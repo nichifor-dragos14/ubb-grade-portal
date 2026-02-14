@@ -139,8 +139,8 @@
             <div class="label">
               {{
                 allActivitiesSolved()
-                  ? 'Your performance compared to class'
-                  : 'Your current performance compared to class'
+                  ? 'Your performance compared to class performance'
+                  : 'Your current performance compared to class performance'
               }}
             </div>
             <div
@@ -225,7 +225,7 @@
         </div>
 
         <div class="domains" *ngIf="generalStats?.topDomains?.length">
-          <div class="label">Top domains by enrolled courses ✨</div>
+          <div class="label">Your favorite subject areas ✨</div>
           <div class="domain-list">
             <span
               class="domain-chip"
