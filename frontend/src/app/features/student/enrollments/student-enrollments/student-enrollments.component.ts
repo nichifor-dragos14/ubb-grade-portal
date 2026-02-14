@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -47,6 +47,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class StudentEnrollmentsComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
@@ -166,6 +167,19 @@ export class StudentEnrollmentsComponent implements OnInit {
     this.pageSize = e.pageSize;
 
     await this.loadPage();
+  }
+
+  openFindCourses(): void {
+    const courseId = this.route.firstChild?.snapshot?.params?.['id'];
+
+    if (courseId) {
+      void this.router.navigate(['course', courseId, 'find'], {
+        relativeTo: this.route,
+      });
+      return;
+    }
+
+    void this.router.navigate(['find'], { relativeTo: this.route });
   }
 
   getCompletionRate(totalNumber: number, completedNumber: number): number {

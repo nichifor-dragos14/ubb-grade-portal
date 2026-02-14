@@ -119,6 +119,16 @@ const STUDENT_ROUTES: Routes = [
                   },
                 ],
               },
+              {
+                path: 'find',
+                component: DialogPageComponent,
+                children: [
+                  {
+                    path: '',
+                    component: StudentFindCoursesComponent,
+                  },
+                ],
+              },
             ],
           },
         ],

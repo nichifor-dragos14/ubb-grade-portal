@@ -95,8 +95,8 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     this.navigateToFirstSubmission();
   }
 
-  private navigateToFirstSubmission() {
-    if (this.route.firstChild) {
+  private navigateToFirstSubmission(force = false) {
+    if (this.route.firstChild && !force) {
       return;
     }
 
@@ -120,6 +120,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     this.pageIndex = 0;
 
     await this.loadPage();
+    this.navigateToFirstSubmission(true);
   }
 
   onStudentNameInput(value: string) {
@@ -130,8 +131,9 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       clearTimeout(this.studentNameTimer);
     }
 
-    this.studentNameTimer = setTimeout(() => {
-      this.loadPage();
+    this.studentNameTimer = setTimeout(async () => {
+      await this.loadPage();
+      this.navigateToFirstSubmission(true);
     }, 400);
   }
 
