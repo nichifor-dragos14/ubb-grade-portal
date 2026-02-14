@@ -20,15 +20,18 @@
   </a>
 </app-page-header>
 
-<div class="legend" *ngIf="course.activities?.length">
-  <span><span class="dot completed"></span> Completed</span>
-  <span><span class="dot submitted"></span> Submitted</span>
-  <span><span class="dot returned"></span> Returned</span>
-  <span><span class="dot unlocked"></span> Unlocked</span>
-  <span><span class="dot locked"></span> Locked</span>
-</div>
-
 <div class="board" #board *ngIf="course.activities?.length; else noActivities">
+  <div class="legend">
+    <span>
+      <span class="dot completed"></span> Completed and graded by professor
+    </span>
+    <span>
+      <span class="dot submitted"></span> Submitted and waiting for feedback
+    </span>
+    <span><span class="dot returned"></span> Returned for resubmission</span>
+    <span><span class="dot unlocked"></span> Unlocked</span>
+    <span><span class="dot locked"></span> Locked</span>
+  </div>
   <svg
     #svg
     class="map"
@@ -164,6 +167,38 @@
     matTooltipPosition="above"
   ></span>
 </div>
+
+<section class="course-details">
+  <div class="note" *ngIf="course.assistedLlmEvaluation">
+    The professor activated AI-assisted evaluation for this course.
+  </div>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-label">Subject area:</span>
+      <span class="detail-value">{{ course.courseDomainName || '—' }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Created on:</span>
+      <span class="detail-value">
+        {{ course.createdOn ? (course.createdOn | date: 'mediumDate') : '—' }}
+      </span>
+    </div>
+  </div>
+  <div class="detail-item description">
+    <span class="detail-label">Description</span>
+    <span class="detail-value description-text">
+      {{ getDescriptionText() }}
+    </span>
+    <button
+      class="link-button"
+      type="button"
+      *ngIf="isDescriptionLong()"
+      (click)="toggleDescription()"
+    >
+      {{ getDescriptionToggleLabel() }}
+    </button>
+  </div>
+</section>
 
 <ng-template #noActivities>
   <div class="empty-state">

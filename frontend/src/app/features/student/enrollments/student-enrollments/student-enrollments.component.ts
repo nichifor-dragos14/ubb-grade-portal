@@ -199,9 +199,9 @@ export class StudentEnrollmentsComponent implements OnInit {
       0
     );
     const activityLabel = inactiveCount === 1 ? 'activity' : 'activities';
-    const verbLabel = inactiveCount === 1 ? "doesn't" : "don't";
+    const verbLabel = inactiveCount === 1 ? 'requires' : 'require';
 
-    return `${inactiveCount} ${activityLabel} ${verbLabel} have an active submission`;
+    return `${inactiveCount} / ${totalNumber} ${activityLabel} ${verbLabel} your submission`;
   }
 
   getCompletionClass(value: number): string {

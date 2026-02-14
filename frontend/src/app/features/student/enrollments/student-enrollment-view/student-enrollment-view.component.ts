@@ -98,6 +98,7 @@ export class StudentEnrollmentViewComponent
 
   positions: RoadmapPosition[] = [];
   isUnenrolling = false;
+  descriptionExpanded = false;
 
   tooltip = {
     visible: false,
@@ -145,6 +146,7 @@ export class StudentEnrollmentViewComponent
   ngOnChanges(changes: SimpleChanges) {
     if ('course' in changes) {
       this.courseReady = !!this.course && !!this.course.activities?.length;
+      this.descriptionExpanded = false;
 
       if (this.svgReady && this.courseReady) {
         this.safeComputeWithRetry();
@@ -155,6 +157,32 @@ export class StudentEnrollmentViewComponent
         });
       }
     }
+  }
+
+  isDescriptionLong(): boolean {
+    return (this.course?.description ?? '').length > 500;
+  }
+
+  getDescriptionText(): string {
+    const description = this.course?.description?.trim() ?? '';
+
+    if (!description) {
+      return 'No description provided.';
+    }
+
+    if (!this.isDescriptionLong() || this.descriptionExpanded) {
+      return description;
+    }
+
+    return `${description.slice(0, 200).trimEnd()}...`;
+  }
+
+  getDescriptionToggleLabel(): string {
+    return this.descriptionExpanded ? 'See less' : 'See all';
+  }
+
+  toggleDescription(): void {
+    this.descriptionExpanded = !this.descriptionExpanded;
   }
 
   private async refreshCourse() {

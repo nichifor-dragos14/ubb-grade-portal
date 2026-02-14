@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   padding: 0 32px !important;
-  gap: 20px;
+  --map-height: 440px;
+  padding-bottom: 24px !important;
 }
 
 h1 {
@@ -20,18 +21,97 @@ section[role='course-actions'] {
   gap: 8px;
 }
 
+.course-details {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.08),
+    0 2px 4px rgba(15, 23, 42, 0.06);
+  color: #1f2933;
+}
+
+.note {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #312e81;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail-label {
+  font-size: 13px;
+  color: #1f2933;
+  font-weight: 700;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #1f2933;
+  line-height: 1.5;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+
+.detail-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.detail-item.description {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.description-text {
+  max-width: 100%;
+}
+
+.link-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
 .header-action {
   align-self: center;
 }
 
 .legend {
+  position: absolute;
+  top: 12px;
+  right: 24px;
   display: flex;
-  flex-direction: row-reverse;
-  gap: 20px;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
   font-size: 13px;
   color: #5f6368;
   font-weight: 500;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
 
   span {
     display: flex;
@@ -66,14 +146,14 @@ section[role='course-actions'] {
 
 .board {
   width: 100%;
-  min-height: 560px;
+  min-height: var(--map-height);
   padding: 0 24px;
   position: relative;
 }
 
 .map {
   width: 100%;
-  height: 100%;
+  height: var(--map-height);
   overflow: visible;
 }
 
@@ -247,11 +327,11 @@ section[role='course-actions'] {
 @media (max-width: 768px) {
   :host {
     padding: 0 16px !important;
+    --map-height: 360px;
   }
 
   .board {
     padding: 16px;
-    min-height: 480px;
   }
 
   h1 {
