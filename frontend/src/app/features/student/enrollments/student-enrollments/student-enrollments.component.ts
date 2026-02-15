@@ -121,19 +121,20 @@ export class StudentEnrollmentsComponent implements OnInit {
   }
 
   private navigateToMostSubmittedEnrollment(): void {
-    const candidate = this.enrollments
-      .map((enrollment) => {
-        const totalActivities = enrollment.numberOfActivities ?? 0;
-        const submittedActivities = enrollment.numberOfSubmittedActivities ?? 0;
-        const completedActivities = enrollment.numberOfSolvedActivities ?? 0;
+    const entries = this.enrollments.map((enrollment) => {
+      const totalActivities = enrollment.numberOfActivities ?? 0;
+      const submittedActivities = enrollment.numberOfSubmittedActivities ?? 0;
+      const completedActivities = enrollment.numberOfSolvedActivities ?? 0;
 
-        return {
-          enrollment,
-          totalActivities,
-          submittedActivities,
-          completedActivities,
-        };
-      })
+      return {
+        enrollment,
+        totalActivities,
+        submittedActivities,
+        completedActivities,
+      };
+    });
+
+    const pendingCandidate = entries
       .filter(
         (entry) =>
           entry.totalActivities > 0 &&
@@ -151,6 +152,33 @@ export class StudentEnrollmentsComponent implements OnInit {
 
         return (a.enrollment.name ?? '').localeCompare(b.enrollment.name ?? '');
       })[0]?.enrollment;
+
+    const mostCompletedCandidate = entries
+      .filter((entry) => entry.completedActivities > 0)
+      .sort((a, b) => {
+        if (b.completedActivities !== a.completedActivities) {
+          return b.completedActivities - a.completedActivities;
+        }
+
+        return (a.enrollment.name ?? '').localeCompare(b.enrollment.name ?? '');
+      })[0]?.enrollment;
+
+    const mostActivitiesCandidate = entries
+      .filter((entry) => entry.totalActivities > 0)
+      .sort((a, b) => {
+        if (b.totalActivities !== a.totalActivities) {
+          return b.totalActivities - a.totalActivities;
+        }
+
+        return (a.enrollment.name ?? '').localeCompare(b.enrollment.name ?? '');
+      })[0]?.enrollment;
+
+    const fallback = this.enrollments[0];
+    const candidate =
+      pendingCandidate ??
+      mostCompletedCandidate ??
+      mostActivitiesCandidate ??
+      fallback;
 
     if (!candidate) {
       return;
