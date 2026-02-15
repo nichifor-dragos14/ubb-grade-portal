@@ -23,6 +23,7 @@ internal class UserEntityConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(u => u.CreatedCourses).WithOne(c => c.CreatedByUser);
         builder.HasMany(u => u.CourseEnrollments).WithOne(c => c.User);
         builder.HasMany(u => u.SolvedActivities).WithOne(c => c.User);
+        builder.HasMany(u => u.Notifications).WithOne(n => n.Receiver);
 
         builder.HasOne<ApplicationUser>()
               .WithOne()

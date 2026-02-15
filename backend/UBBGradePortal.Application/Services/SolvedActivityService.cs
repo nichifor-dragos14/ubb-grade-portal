@@ -4,6 +4,7 @@ using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Ai;
 using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.SolvedActivity;
+using UBBGradePortal.Application.DTOs.Notification;
 using UBBGradePortal.Application.Exceptions;
 using UBBGradePortal.Application.Mappers;
 using UBBGradePortal.Domain.Entities;
@@ -16,6 +17,7 @@ public class SolvedActivityService : ISolvedActivityService
     private readonly ICourseRepository _courseRepository;
     private readonly IActivityRepository _activityRepository;
     private readonly ISolvedActivityRepository _solvedActivityRepository;
+    private readonly INotificationService _notificationService;
     private readonly IOpenAiService _genAiFeedbackService;
     private readonly ILogger<SolvedActivityService> _logger;
 
@@ -23,6 +25,7 @@ public class SolvedActivityService : ISolvedActivityService
         ICourseRepository courseRepository,
         IActivityRepository activityRepository,
         ISolvedActivityRepository solvedActivityRepository,
+        INotificationService notificationService,
         IOpenAiService genAiFeedbackService,
         ILogger<SolvedActivityService> logger
     )
@@ -30,6 +33,7 @@ public class SolvedActivityService : ISolvedActivityService
         _courseRepository = courseRepository;
         _activityRepository = activityRepository;
         _solvedActivityRepository = solvedActivityRepository;
+        _notificationService = notificationService;
         _genAiFeedbackService = genAiFeedbackService;
         _logger = logger;
     }
@@ -296,8 +300,22 @@ public class SolvedActivityService : ISolvedActivityService
         solvedActivity.Status = gradeSolvedActivityDto.Status;
         solvedActivity.ProfessorComment = gradeSolvedActivityDto.ProfessorComment;
         solvedActivity.Grade = gradeSolvedActivityDto.Grade;
+        solvedActivity.UpdatedOn = DateTime.UtcNow;
 
-        return await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+        var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+        var activityName = solvedActivity.Activity?.Name ?? "this activity";
+        var outcome = gradeSolvedActivityDto.Status == SolvedActivityStatus.Returned
+            ? "returned"
+            : "graded";
+        var message = $"Your submission for {activityName} was {outcome} by the professor";
+
+        await _notificationService.Add(
+            new AddNotificationDto(solvedActivity.UserId, message),
+            cancellationToken
+        );
+
+        return solvedActivityId;
     }
 
     public async Task DeleteDocument(Guid id, Guid loggedUserId, CancellationToken cancellationToken)

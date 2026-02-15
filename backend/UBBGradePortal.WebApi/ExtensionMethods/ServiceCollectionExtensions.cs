@@ -2,8 +2,10 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.WebApi.Auth;
 using UBBGradePortal.WebApi.Development;
+using UBBGradePortal.WebApi.Notifications;
 using Vernou.Swashbuckle.HttpResultsAdapter;
 
 namespace UBBGradePortal.WebApi.ExtensionMethods
@@ -35,13 +37,32 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.FromMinutes(1),
                     };
+
+                    o.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrWhiteSpace(accessToken) &&
+                                path.StartsWithSegments("/hubs/notifications"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             services.AddAuthorization();
 
             services.AddScoped<TokenService>();
+            services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
 
             services.AddControllers();
+            services.AddSignalR();
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>

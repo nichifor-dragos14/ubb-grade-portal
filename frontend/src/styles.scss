@@ -4,3 +4,12 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+.cdk-overlay-pane .mat-mdc-menu-panel.notif-panel {
+  width: 720px;
+  max-width: none;
+}
+
+.cdk-overlay-pane .mat-mdc-menu-panel.notif-panel .mat-mdc-menu-content {
+  width: 100%;
+}

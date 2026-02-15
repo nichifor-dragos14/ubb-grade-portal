@@ -17,6 +17,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<SolvedActivity> SolvedActivities { get; set; } = null!;
     public DbSet<ActivityDocument> ActivityDocuments { get; set; } = null!;
     public DbSet<SolvedActivityDocument> SolvedActivityDocuments { get; set; } = null!; 
+    public DbSet<Notification> Notifications { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

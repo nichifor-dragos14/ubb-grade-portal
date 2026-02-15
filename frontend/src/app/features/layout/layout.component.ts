@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
@@ -9,8 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { NotificationsService } from '../../core/notifications/notifications.service';
 
 @Component({
   selector: 'app-layout',
@@ -25,15 +27,20 @@ import { AuthService } from '../../core/auth/auth.service';
     MatButtonModule,
     MatMenuModule,
     MatBadgeModule,
+    MatTooltipModule,
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   @ViewChild('drawer', { static: true }) drawer!: MatDrawer;
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly notificationsService = inject(NotificationsService);
+
+  notifications = this.notificationsService.notifications;
+  unreadCount = this.notificationsService.unreadCount;
 
   get roles(): string[] {
     return this.authService.roles();
@@ -43,12 +50,22 @@ export class LayoutComponent {
     return this.roles.includes(role);
   }
 
+  ngOnInit(): void {
+    this.notificationsService.connect();
+    void this.notificationsService.refresh();
+  }
+
   async onLogout() {
+    await this.notificationsService.disconnect();
     this.authService.logout();
     await this.router.navigateByUrl('/login');
   }
 
   toggleSidenav() {
     this.drawer.toggle();
+  }
+
+  async onMarkAllRead() {
+    await this.notificationsService.markAllAsRead();
   }
 }

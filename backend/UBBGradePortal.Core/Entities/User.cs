@@ -20,4 +20,7 @@ public class User
 
     // The list of activities the student completed
     public List<SolvedActivity> SolvedActivities {  get; set; } = [];
+
+    // The notifications received by the user
+    public List<Notification> Notifications { get; set; } = [];
 }

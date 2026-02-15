@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IActivityService, ActivityService>();
         services.AddScoped<ISolvedActivityService, SolvedActivityService>();
         services.AddScoped<IStatisticsService, StatisticsService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

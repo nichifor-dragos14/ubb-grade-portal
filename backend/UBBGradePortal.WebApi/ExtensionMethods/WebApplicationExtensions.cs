@@ -1,5 +1,6 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using UBBGradePortal.WebApi.Hubs;
 
 namespace UBBGradePortal.WebApi.ExtensionMethods;
 
@@ -26,6 +27,7 @@ public static class WebApplicationExtensions
         });
 
         app.MapControllers();
+        app.MapHub<NotificationsHub>("/hubs/notifications");
 
         return app;
     }
