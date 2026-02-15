@@ -305,10 +305,11 @@ public class SolvedActivityService : ISolvedActivityService
         var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
 
         var activityName = solvedActivity.Activity?.Name ?? "this activity";
+        var courseName = solvedActivity.Activity?.Course?.Name ?? "this course";
         var outcome = gradeSolvedActivityDto.Status == SolvedActivityStatus.Returned
             ? "returned"
             : "graded";
-        var message = $"Your submission for {activityName} was {outcome} by the professor";
+        var message = $"Your submission for '{activityName}' from course '{courseName}' was {outcome} by the professor";
 
         await _notificationService.Add(
             new AddNotificationDto(solvedActivity.UserId, message),

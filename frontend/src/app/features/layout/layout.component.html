@@ -183,7 +183,8 @@
             ></span>
             <span class="notif-text">{{ notification.message }}</span>
             <span class="notif-time">
-              {{ notification.createdOn | date: 'short' }}
+              {{ notification.createdOn | date: 'MMM d, y' }}
+              {{ notification.createdOn | date: 'shortTime' }}
             </span>
           </div>
         </ng-container>

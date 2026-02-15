@@ -26,7 +26,9 @@ public class NotificationRepository : INotificationRepository
             .Notifications
             .AsNoTracking()
             .Where(notification => notification.ReceiverId == receiverId)
-            .OrderByDescending(notification => notification.CreatedOn)
+            .OrderBy(notification => notification.IsRead)
+            .ThenByDescending(notification => notification.CreatedOn)
+            .Take(10)
             .ToListAsync(cancellationToken);
     }
 
