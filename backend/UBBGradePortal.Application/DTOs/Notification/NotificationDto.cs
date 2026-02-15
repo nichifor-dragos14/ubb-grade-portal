@@ -6,4 +6,6 @@ public class NotificationDto
     public string Message { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; }
     public bool IsRead { get; set; }
+    public Guid? CourseId { get; set; }
+    public Guid? ActivityId { get; set; }
 }

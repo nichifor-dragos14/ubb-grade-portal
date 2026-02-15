@@ -54,6 +54,8 @@ public class NotificationService : INotificationService
             Message = addNotificationDto.Message,
             CreatedOn = DateTime.UtcNow,
             IsRead = false,
+            CourseId = addNotificationDto.CourseId,
+            ActivityId = addNotificationDto.ActivityId,
             ReceiverId = receiver.Id,
         };
 

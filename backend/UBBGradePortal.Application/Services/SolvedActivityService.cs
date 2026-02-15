@@ -172,7 +172,7 @@ public class SolvedActivityService : ISolvedActivityService
                 var message = $"There are {pendingCount} submissions waiting for your feedback for course '{activity.Course.Name}'";
 
                 await _notificationService.Add(
-                    new AddNotificationDto(activity.Course.CreatedByUserId, message),
+                    new AddNotificationDto(activity.Course.CreatedByUserId, message, null,null),
                     cancellationToken
                 );
             }
@@ -268,7 +268,7 @@ public class SolvedActivityService : ISolvedActivityService
                 var message = $"There are {pendingCount} activities waiting for your feedback for course '{solvedActivity.Activity.Course.Name}'";
 
                 await _notificationService.Add(
-                    new AddNotificationDto(solvedActivity.Activity.Course.CreatedByUserId, message),
+                    new AddNotificationDto(solvedActivity.Activity.Course.CreatedByUserId, message, null, null),
                     cancellationToken
                 );
             }
@@ -348,7 +348,12 @@ public class SolvedActivityService : ISolvedActivityService
         var message = $"Your submission for '{activityName}' from course '{courseName}' was {outcome} by the professor";
 
         await _notificationService.Add(
-            new AddNotificationDto(solvedActivity.UserId, message),
+            new AddNotificationDto(
+                solvedActivity.UserId,
+                message,
+                solvedActivity.Activity?.CourseId,
+                solvedActivity.ActivityId
+            ),
             cancellationToken
         );
 

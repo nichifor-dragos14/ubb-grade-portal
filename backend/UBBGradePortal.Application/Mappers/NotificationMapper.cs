@@ -13,6 +13,8 @@ public static class NotificationMapper
             Message = notification.Message,
             CreatedOn = notification.CreatedOn,
             IsRead = notification.IsRead,
+            CourseId = notification.CourseId,
+            ActivityId = notification.ActivityId,
         };
     }
 }

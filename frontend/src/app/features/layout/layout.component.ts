@@ -68,4 +68,23 @@ export class LayoutComponent implements OnInit {
   async onMarkAllRead() {
     await this.notificationsService.markAllAsRead();
   }
+
+  async onNotificationClick(notification: {
+    courseId?: string | null;
+    activityId?: string | null;
+  }) {
+    const courseId = notification.courseId ?? undefined;
+    const activityId = notification.activityId ?? undefined;
+
+    if (courseId && activityId && this.hasRole('Student')) {
+      await this.router.navigateByUrl(
+        `/main/student/enrollments/course/${courseId}/activities/${activityId}/view`
+      );
+      return;
+    }
+
+    if (this.hasRole('Professor')) {
+      await this.router.navigateByUrl('/main/professor/feedback');
+    }
+  }
 }

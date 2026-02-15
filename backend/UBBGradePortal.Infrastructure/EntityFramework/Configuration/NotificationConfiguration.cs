@@ -14,6 +14,8 @@ internal class NotificationEntityConfiguration : IEntityTypeConfiguration<Notifi
         builder.Property(notification => notification.CreatedOn).IsRequired();
         builder.Property(notification => notification.IsRead).HasDefaultValue(false);
         builder.Property(notification => notification.ReadOn);
+        builder.Property(notification => notification.CourseId);
+        builder.Property(notification => notification.ActivityId);
 
         builder.HasOne(notification => notification.Receiver)
             .WithMany(user => user.Notifications)
