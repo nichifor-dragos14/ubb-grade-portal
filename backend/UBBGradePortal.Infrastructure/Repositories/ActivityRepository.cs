@@ -37,6 +37,7 @@ public class ActivityRepository : IActivityRepository
         return await _dbContext
             .Activities
             .Include(a => a.Course)
+                .ThenInclude(c => c.CreatedByUser)
             .Include(a => a.ActivityDocuments)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }

@@ -58,6 +58,17 @@ public class SolvedActivityRepository : ISolvedActivityRepository
         );
     }
 
+    public async Task<int> CountSubmittedForCourse(Guid courseId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .SolvedActivities
+            .AsNoTracking()
+            .Include(sa => sa.Activity)
+                .ThenInclude(a => a.Course)
+            .Where(sa => sa.Activity.CourseId == courseId && sa.Status == SolvedActivityStatus.Submitted)
+            .CountAsync(cancellationToken);
+    }
+
     public async Task<SolvedActivity?> GetById(Guid id, CancellationToken cancellationToken)
     {
         return await _dbContext

@@ -160,6 +160,24 @@ public class SolvedActivityService : ISolvedActivityService
             await _solvedActivityRepository.AddDocument(solvedActivityDocument, cancellationToken);
         }
 
+        if (activity.Course != null)
+        {
+            var pendingCount = await _solvedActivityRepository.CountSubmittedForCourse(
+                activity.Course.Id,
+                cancellationToken
+            );
+
+            if (pendingCount >= 5)
+            {
+                var message = $"There are {pendingCount} submissions waiting for your feedback for course '{activity.Course.Name}'";
+
+                await _notificationService.Add(
+                    new AddNotificationDto(activity.Course.CreatedByUserId, message),
+                    cancellationToken
+                );
+            }
+        }
+
         if (activity.Course == null)
         {
             _logger.LogInformation($"Cannot get Ai summary for {addSolvedActivityDto.ActivityId}");
@@ -237,6 +255,24 @@ public class SolvedActivityService : ISolvedActivityService
         }
 
         var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+        if (solvedActivity.Activity?.Course != null)
+        {
+            var pendingCount = await _solvedActivityRepository.CountSubmittedForCourse(
+                solvedActivity.Activity.CourseId,
+                cancellationToken
+            );
+
+            if (pendingCount >= 5)
+            {
+                var message = $"There are {pendingCount} activities waiting for your feedback for course '{solvedActivity.Activity.Course.Name}'";
+
+                await _notificationService.Add(
+                    new AddNotificationDto(solvedActivity.Activity.Course.CreatedByUserId, message),
+                    cancellationToken
+                );
+            }
+        }
 
         if (solvedActivity.Status != SolvedActivityStatus.Submitted)
         {
