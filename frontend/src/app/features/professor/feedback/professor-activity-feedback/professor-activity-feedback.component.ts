@@ -89,6 +89,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
         await this.loadPage();
+        this.navigateToFirstSubmission(true);
       });
 
     await this.loadPage();

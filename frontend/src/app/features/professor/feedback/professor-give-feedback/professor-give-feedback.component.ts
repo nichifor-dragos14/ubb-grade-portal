@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Input,
   OnInit,
   inject,
@@ -18,6 +19,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
   SolvedActivityDto,
@@ -59,6 +61,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(AppToastService);
   private readonly solvedActivityService = inject(SolvedActivityService);
   private readonly dialog = inject(MatDialog);
@@ -179,21 +182,38 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.activatedRoute.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        const resolved = data['solvedActivity'] as
+          | SolvedActivityDto
+          | undefined;
+        this.applySolvedActivity(resolved ?? this.solvedActivity);
+      });
+
     const state = this.router.getCurrentNavigation()?.extras
       ?.state as unknown as {
       solvedActivity?: SolvedActivityDto;
     };
 
-    const resolved = this.activatedRoute.snapshot.data['solvedActivity'] as
-      | SolvedActivityDto
-      | undefined;
-
-    // this.solvedActivity = resolved ?? state?.solvedActivity;
-
-    if (this.solvedActivity?.grade) {
-      this.feedbackForm.patchValue({ grade: this.solvedActivity.grade });
+    if (state?.solvedActivity) {
+      this.applySolvedActivity(state.solvedActivity);
     }
+  }
 
+  private applySolvedActivity(activity?: SolvedActivityDto) {
+    this.solvedActivity = activity;
+
+    const gradeValue = activity?.grade ? activity.grade : null;
+    const commentValue = activity?.professorComment ?? '';
+
+    this.feedbackForm.reset({
+      grade: gradeValue,
+      professorComment: commentValue,
+    });
+
+    this.feedbackForm.markAsPristine();
+    this.feedbackForm.markAsUntouched();
     this.cdr.markForCheck();
   }
 
