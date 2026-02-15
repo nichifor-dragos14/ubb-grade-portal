@@ -65,6 +65,29 @@ export class LayoutComponent implements OnInit {
     this.drawer.toggle();
   }
 
+  isSectionActive(prefix: string): boolean {
+    const currentUrl = this.router.url.split('?')[0];
+    return currentUrl.startsWith(prefix);
+  }
+
+  async onSectionNavigate(targetUrl: string) {
+    if (this.isSectionActive(targetUrl)) {
+      return;
+    }
+
+    await this.router.navigateByUrl(targetUrl);
+  }
+
+  onNavClick(event: MouseEvent, targetPrefix: string) {
+    const currentUrl = this.router.url.split('?')[0];
+
+    if (currentUrl.startsWith(targetPrefix)) {
+      console.log(currentUrl, targetPrefix);
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
   async onMarkAllRead() {
     await this.notificationsService.markAllAsRead();
   }

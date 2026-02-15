@@ -10,18 +10,16 @@
         <ng-container *ngIf="hasRole('Student')">
           <a
             mat-list-item
-            routerLink="/main/student/dashboard"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="onSectionNavigate('/main/student/dashboard')"
+            [class.active]="isSectionActive('/main/student/dashboard')"
           >
             <mat-icon matListItemIcon>dashboard</mat-icon>
             <div matListItemTitle>Dashboard</div>
           </a>
           <a
-            routerLink="/main/student/dashboard"
             mat-list-item
-            routerLink="/main/student/enrollments"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/student/enrollments')"
+            [class.active]="isSectionActive('/main/student/enrollments')"
           >
             <mat-icon matListItemIcon>how_to_reg</mat-icon>
             <div matListItemTitle>My Enrollments</div>
@@ -29,8 +27,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/leaderboards"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/leaderboards')"
+            [class.active]="isSectionActive('/main/leaderboards')"
           >
             <mat-icon matListItemIcon>leaderboard</mat-icon>
             <div matListItemTitle>Leaderboards</div>
@@ -41,18 +39,16 @@
         <ng-container *ngIf="hasRole('Professor')">
           <a
             mat-list-item
-            routerLink="/main/professor/dashboard"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="onSectionNavigate('/main/professor/dashboard')"
+            [class.active]="isSectionActive('/main/professor/dashboard')"
           >
             <mat-icon matListItemIcon>dashboard</mat-icon>
             <div matListItemTitle>Dashboard</div>
           </a>
           <a
             mat-list-item
-            routerLink="/main/professor/dashboard"
-            routerLink="/main/professor/courses"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/professor/courses')"
+            [class.active]="isSectionActive('/main/professor/courses')"
           >
             <mat-icon matListItemIcon>library_books</mat-icon>
             <div matListItemTitle>My Courses</div>
@@ -60,8 +56,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/professor/feedback"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/professor/feedback')"
+            [class.active]="isSectionActive('/main/professor/feedback')"
           >
             <mat-icon matListItemIcon>rule</mat-icon>
             <div matListItemTitle>Activity Feedback</div>
@@ -72,8 +68,8 @@
         <ng-container *ngIf="hasRole('Admin')">
           <a
             mat-list-item
-            routerLink="/main/admin/users"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/admin/users')"
+            [class.active]="isSectionActive('/main/admin/users')"
           >
             <mat-icon matListItemIcon>group</mat-icon>
             <div matListItemTitle>Manage Users</div>
@@ -81,8 +77,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/admin/courses"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/admin/courses')"
+            [class.active]="isSectionActive('/main/admin/courses')"
           >
             <mat-icon matListItemIcon>menu_book</mat-icon>
             <div matListItemTitle>Manage Courses</div>
@@ -90,8 +86,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/admin/enrollments"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/admin/enrollments')"
+            [class.active]="isSectionActive('/main/admin/enrollments')"
           >
             <mat-icon matListItemIcon>how_to_reg</mat-icon>
             <div matListItemTitle>Manage Enrollments</div>
@@ -99,8 +95,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/admin/course-domains"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/admin/course-domains')"
+            [class.active]="isSectionActive('/main/admin/course-domains')"
           >
             <mat-icon matListItemIcon>category</mat-icon>
             <div matListItemTitle>Manage Course Domains</div>
@@ -108,8 +104,8 @@
 
           <a
             mat-list-item
-            routerLink="/main/admin/activities"
-            routerLinkActive="active"
+            (click)="onSectionNavigate('/main/admin/activities')"
+            [class.active]="isSectionActive('/main/admin/activities')"
           >
             <mat-icon matListItemIcon>assignment</mat-icon>
             <div matListItemTitle>Manage Activities</div>

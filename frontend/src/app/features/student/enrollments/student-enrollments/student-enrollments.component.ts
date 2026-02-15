@@ -87,13 +87,13 @@ export class StudentEnrollmentsComponent implements OnInit {
     this.studentEnrollmentEventService.enrolledToCourse$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.loadPage();
+        this.loadPage().then(() => this.navigateToMostSubmittedEnrollment());
       });
 
     this.studentEnrollmentEventService.unenrolledFromCourse$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.loadPage();
+        this.loadPage().then(() => this.navigateToMostSubmittedEnrollment());
       });
   }
 
@@ -212,6 +212,15 @@ export class StudentEnrollmentsComponent implements OnInit {
       totalNumber - submittedNumber - completedNumber,
       0
     );
+
+    if (inactiveCount === 0) {
+      if (completedNumber >= totalNumber) {
+        return 'You have successfully completed this course.';
+      }
+
+      return 'Waiting for professor feedback.';
+    }
+
     const activityLabel = inactiveCount === 1 ? 'activity' : 'activities';
     const verbLabel = inactiveCount === 1 ? 'requires' : 'require';
 
