@@ -70,7 +70,10 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadPage();
-    this.navigateToMostSubmittedEnrollment();
+
+    if (this.shouldAutoNavigate()) {
+      this.navigateToMostSubmittedEnrollment();
+    }
 
     this.enrollmentService.addedSolvedActivity$
       .pipe(takeUntil(this.destroy$))
@@ -118,6 +121,14 @@ export class StudentEnrollmentsComponent implements OnInit {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
+  }
+
+  private shouldAutoNavigate(): boolean {
+    if (this.route.snapshot.queryParamMap.get('skipAutoNav') === '1') {
+      return false;
+    }
+
+    return !this.route.snapshot.firstChild;
   }
 
   private navigateToMostSubmittedEnrollment(): void {
