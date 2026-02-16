@@ -86,7 +86,10 @@ export class AdminCreateProfessorComponent {
         },
       });
 
-      this.toastService.open('Professor account created.', 'info');
+      this.toastService.open(
+        'The professor account was successfully created ✨',
+        'info'
+      );
       this.adminUsersEventService.emitProfessorCreated({
         professorId: String(value.email ?? ''),
       });

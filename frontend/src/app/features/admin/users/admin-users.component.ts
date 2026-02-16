@@ -174,7 +174,10 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       await this.adminService.apiAdminUsersIdBanPutAsync({ id: user.id });
       user.isBanned = true;
       const fullName = `${user.firstName} ${user.lastName}`.trim();
-      this.toastService.open(`User ${fullName} has been banned.`, 'info');
+      this.toastService.open(
+        `User ${fullName} has been successfully banned ✨`,
+        'info'
+      );
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =
@@ -206,7 +209,10 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       await this.adminService.apiAdminUsersIdUnbanPutAsync({ id: user.id });
       user.isBanned = false;
       const fullName = `${user.firstName} ${user.lastName}`.trim();
-      this.toastService.open(`User ${fullName} has been unbanned.`, 'info');
+      this.toastService.open(
+        `User ${fullName} has been successfully unbanned ✨`,
+        'info'
+      );
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =
