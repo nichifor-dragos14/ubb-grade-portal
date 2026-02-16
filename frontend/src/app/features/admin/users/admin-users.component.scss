@@ -48,9 +48,29 @@ app-page-header {
   place-items: center;
 }
 
-.empty {
-  color: #653b7280;
-  font-size: 14px;
+.empty-state {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #6b7280;
+  gap: 6px;
+}
+
+.empty-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #9ca3af;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.empty-subtitle {
+  font-size: 13px;
 }
 
 .user-list {
@@ -61,7 +81,7 @@ app-page-header {
 }
 
 .loader,
-.empty {
+.empty-state {
   min-height: 540px;
 }
 

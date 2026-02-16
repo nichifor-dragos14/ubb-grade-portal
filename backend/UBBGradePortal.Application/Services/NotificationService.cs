@@ -66,6 +66,11 @@ public class NotificationService : INotificationService
         return notificationId;
     }
 
+    public async Task MarkAsRead(Guid receiverId, Guid notificationId, CancellationToken cancellationToken)
+    {
+        await _notificationRepository.MarkAsRead(receiverId, notificationId, cancellationToken);
+    }
+
     public async Task MarkAllAsRead(Guid receiverId, CancellationToken cancellationToken)
     {
         await _notificationRepository.MarkAllAsRead(receiverId, cancellationToken);

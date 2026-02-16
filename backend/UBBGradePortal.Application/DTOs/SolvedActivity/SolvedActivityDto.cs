@@ -8,7 +8,7 @@ public class SolvedActivityDto
 {
     public Guid Id { get; set; }
     public SolvedActivityStatus? Status { get; set; }
-    public int? Grade { get; set; }
+    public double? Grade { get; set; }
     public string? ProfessorComment { get; set; }
     public string AiDetectedSummary { get; set; }
     public string AiDetectedGoodPoints { get; set; }

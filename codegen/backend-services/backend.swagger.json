@@ -1228,6 +1228,29 @@
         }
       }
     },
+    "/api/notifications/{id}/read": {
+      "put": {
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/SolvedActivity/professor": {
       "get": {
         "tags": [
@@ -2303,8 +2326,8 @@
             "nullable": true
           },
           "grade": {
-            "type": "integer",
-            "format": "int32"
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -2777,8 +2800,8 @@
             "$ref": "#/components/schemas/SolvedActivityStatus"
           },
           "grade": {
-            "type": "integer",
-            "format": "int32",
+            "type": "number",
+            "format": "double",
             "nullable": true
           },
           "professorComment": {

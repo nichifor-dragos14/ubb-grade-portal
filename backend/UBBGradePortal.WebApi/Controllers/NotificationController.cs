@@ -59,4 +59,26 @@ public class NotificationController : ControllerBase
 
         return TypedResults.Ok();
     }
+
+    /// <summary> Mark a notification as read for the logged in user </summary>
+    [HttpPut("{id}/read")]
+    [Authorize(Roles = "Student,Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<Results<Ok, ForbidHttpResult>> MarkAsRead(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        await _notificationService.MarkAsRead(loggedUserId, id, cancellationToken);
+
+        return TypedResults.Ok();
+    }
 }

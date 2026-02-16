@@ -78,7 +78,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   feedbackForm = this.formBuilder.group({
     grade: [
       null as number | null,
-      [Validators.required, Validators.min(1), Validators.max(10)],
+      [Validators.required, Validators.min(0.5), Validators.max(10)],
     ],
     professorComment: [''],
   });
@@ -237,7 +237,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     this.solvedActivity = activity;
     this.resolving = false;
 
-    const gradeValue = activity?.grade ? activity.grade : null;
+    const gradeValue = activity?.grade ?? null;
     const commentValue = activity?.professorComment ?? '';
 
     this.feedbackForm.reset({

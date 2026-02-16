@@ -40,6 +40,29 @@ public class NotificationRepository : INotificationRepository
         return notification.Id;
     }
 
+    public async Task MarkAsRead(Guid receiverId, Guid notificationId, CancellationToken cancellationToken)
+    {
+        var notification = await _dbContext
+            .Notifications
+            .FirstOrDefaultAsync(
+                item =>
+                    item.Id == notificationId &&
+                    item.ReceiverId == receiverId &&
+                    !item.IsRead,
+                cancellationToken
+            );
+
+        if (notification == null)
+        {
+            return;
+        }
+
+        notification.IsRead = true;
+        notification.ReadOn = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task MarkAllAsRead(Guid receiverId, CancellationToken cancellationToken)
     {
         var notifications = await _dbContext

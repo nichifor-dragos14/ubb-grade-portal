@@ -6,5 +6,6 @@ public interface INotificationService
 {
     Task<List<NotificationDto>> GetForUser(Guid receiverId, CancellationToken cancellationToken);
     Task<Guid> Add(AddNotificationDto addNotificationDto, CancellationToken cancellationToken);
+    Task MarkAsRead(Guid receiverId, Guid notificationId, CancellationToken cancellationToken);
     Task MarkAllAsRead(Guid receiverId, CancellationToken cancellationToken);
 }

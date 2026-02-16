@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { NotificationsService } from '../../core/notifications/notifications.service';
+import { NotificationDto } from '$backend/services';
 
 @Component({
   selector: 'app-layout',
@@ -92,10 +93,9 @@ export class LayoutComponent implements OnInit {
     await this.notificationsService.markAllAsRead();
   }
 
-  async onNotificationClick(notification: {
-    courseId?: string | null;
-    activityId?: string | null;
-  }) {
+  async onNotificationClick(notification: NotificationDto) {
+    await this.notificationsService.markAsRead(notification.id);
+
     const courseId = notification.courseId ?? undefined;
     const activityId = notification.activityId ?? undefined;
 

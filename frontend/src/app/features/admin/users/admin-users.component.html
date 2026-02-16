@@ -31,8 +31,10 @@
     </mat-progress-spinner>
   </div>
 
-  <div class="empty" *ngIf="!isLoading && users.length === 0">
-    No users match your search.
+  <div class="empty-state" *ngIf="!isLoading && users.length === 0">
+    <mat-icon class="empty-icon">group_off</mat-icon>
+    <div class="empty-title">No users found</div>
+    <div class="empty-subtitle">Try adjusting your search or filters.</div>
   </div>
 
   <div class="user-list" *ngIf="!isLoading && users.length > 0">

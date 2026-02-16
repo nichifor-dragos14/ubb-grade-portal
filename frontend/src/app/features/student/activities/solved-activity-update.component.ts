@@ -392,7 +392,7 @@ export class SolvedActivityUpdateComponent {
       case SolvedActivityStatus.$1:
         return 'Graded and completed. Great job!';
       case SolvedActivityStatus.$2:
-        return 'Please review the professor feedback and resubmit when ready.';
+        return "Please review the professor's feedback and resubmit when ready.";
       default:
         return '';
     }

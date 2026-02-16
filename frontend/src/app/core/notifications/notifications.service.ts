@@ -84,6 +84,31 @@ export class NotificationsService {
     }
   }
 
+  async markAsRead(notificationId: string) {
+    const current = this.notifications();
+    const target = current.find((item) => item.id === notificationId);
+
+    if (!target || target.isRead) {
+      return;
+    }
+
+    try {
+      await this.notificationApi.apiNotificationsIdReadPutAsync({
+        id: notificationId,
+      });
+
+      this.notifications.update((items) =>
+        items.map((notification) =>
+          notification.id === notificationId
+            ? { ...notification, isRead: true }
+            : notification
+        )
+      );
+    } catch {
+      return;
+    }
+  }
+
   async disconnect() {
     if (!this.connection) {
       return;
