@@ -332,7 +332,14 @@ export class RegisterComponent implements OnInit {
       await this.router.navigateByUrl('/main');
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
-        this.toastService.open(error.error.split(';')[1], 'warning');
+        const message =
+          typeof error.error === 'string' ? error.error : error.message;
+        const formatted = message
+          .split(';')
+          .map((entry) => entry.trim())
+          .filter((entry) => entry.length > 0)
+          .join(' ');
+        this.toastService.open(formatted, 'warning');
       }
     } finally {
       this.submitting = false;

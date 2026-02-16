@@ -7,9 +7,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
@@ -25,6 +27,7 @@ import { AdminService } from '$backend/services';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     AppPageHeaderComponent,
   ],
@@ -35,16 +38,25 @@ import { AdminService } from '$backend/services';
 export class AdminCreateProfessorComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly toastService = inject(AppToastService);
 
   isSubmitting = false;
+  hide = true;
 
   form = this.formBuilder.group({
     firstName: ['', [Validators.required]],
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d).*$/),
+      ],
+    ],
   });
 
   async onSubmit() {
@@ -70,11 +82,12 @@ export class AdminCreateProfessorComponent {
 
       this.toastService.open('Professor account created.', 'info');
       this.form.reset();
+      await this.router.navigateByUrl('/main/admin/users');
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =
           typeof error.error === 'string' ? error.error : error.message;
-        this.toastService.open(message, 'error');
+        this.toastService.open(this.getFirstErrorMessage(message), 'error');
       } else if (error instanceof Error) {
         this.toastService.open(error.message, 'error');
       }
@@ -82,5 +95,14 @@ export class AdminCreateProfessorComponent {
       this.isSubmitting = false;
       this.cdr.detectChanges();
     }
+  }
+
+  private getFirstErrorMessage(message: string): string {
+    const first = message
+      .split(/[;\n]/)
+      .map((entry) => entry.trim())
+      .find((entry) => entry.length > 0);
+
+    return first ?? message;
   }
 }

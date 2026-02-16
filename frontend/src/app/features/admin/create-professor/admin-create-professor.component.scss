@@ -2,27 +2,55 @@
   display: block;
 }
 
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+app-page-header {
+  margin-bottom: 24px;
 }
 
-.form {
-  display: grid;
-  gap: 16px;
-  max-width: 520px;
+.admin-panel {
+  max-width: 860px;
+  margin: 0 auto 0 0;
 }
 
-.actions {
+.header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.spinner {
+.primary-action {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header-spinner {
+  width: 22px;
+  height: 22px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  max-width: 860px;
+  margin: 0;
   display: grid;
-  place-items: center;
+  gap: 32px;
+  padding-left: 48px;
+}
+
+.intro {
+  margin: 0;
+  width: 100%;
+  color: #6b7280;
+  font-size: 14px;
+  text-align: left;
+}
+
+.form {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
 }

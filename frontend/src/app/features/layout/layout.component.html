@@ -105,69 +105,73 @@
       <span class="spacer"></span>
 
       <!-- Notifications -->
-      <button
-        mat-icon-button
-        class="notif-button"
-        [matMenuTriggerFor]="notificationsMenu"
-        [matBadge]="unreadCount()"
-        matBadgeColor="accent"
-        matBadgePosition="above after"
-        [matBadgeHidden]="unreadCount() === 0"
-        matTooltip="Notifications"
-      >
-        <mat-icon>notifications</mat-icon>
-      </button>
+      <ng-container *ngIf="!hasRole('Admin')">
+        <button
+          mat-icon-button
+          class="notif-button"
+          [matMenuTriggerFor]="notificationsMenu"
+          [matBadge]="unreadCount()"
+          matBadgeColor="accent"
+          matBadgePosition="above after"
+          [matBadgeHidden]="unreadCount() === 0"
+          matTooltip="Notifications"
+        >
+          <mat-icon>notifications</mat-icon>
+        </button>
 
-      <mat-menu
-        #notificationsMenu="matMenu"
-        xPosition="before"
-        class="notif-panel"
-      >
-        <div class="notif-header">
-          <span>Notifications 🔔</span>
-          <div class="notif-actions">
-            <span class="notif-count">{{ unreadCount() }} unread</span>
-            <button
-              mat-icon-button
-              class="notif-read-btn"
-              (click)="onMarkAllRead()"
-              [disabled]="unreadCount() === 0"
-              matTooltip="Mark all as read"
-            >
-              <mat-icon>done_all</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <ng-container *ngIf="notifications().length > 0; else noNotifications">
-          <button
-            mat-menu-item
-            type="button"
-            class="notif-item"
-            *ngFor="let notification of notifications()"
-            [class.unread]="!notification.isRead"
-            (click)="onNotificationClick(notification)"
-          >
-            <mat-icon class="notif-status" *ngIf="!notification.isRead">
-              notifications_active
-            </mat-icon>
-            <mat-icon class="notif-status read" *ngIf="notification.isRead">
-              notifications
-            </mat-icon>
-            <div class="notif-body">
-              <span class="notif-text">{{ notification.message }}</span>
-              <span class="notif-time">
-                {{ notification.createdOn | date: 'MMM d, y' }}
-                {{ notification.createdOn | date: 'shortTime' }}
-              </span>
+        <mat-menu
+          #notificationsMenu="matMenu"
+          xPosition="before"
+          class="notif-panel"
+        >
+          <div class="notif-header">
+            <span>Notifications 🔔</span>
+            <div class="notif-actions">
+              <span class="notif-count">{{ unreadCount() }} unread</span>
+              <button
+                mat-icon-button
+                class="notif-read-btn"
+                (click)="onMarkAllRead()"
+                [disabled]="unreadCount() === 0"
+                matTooltip="Mark all as read"
+              >
+                <mat-icon>done_all</mat-icon>
+              </button>
             </div>
-          </button>
-        </ng-container>
+          </div>
 
-        <ng-template #noNotifications>
-          <div class="notif-empty">No notifications yet.</div>
-        </ng-template>
-      </mat-menu>
+          <ng-container
+            *ngIf="notifications().length > 0; else noNotifications"
+          >
+            <button
+              mat-menu-item
+              type="button"
+              class="notif-item"
+              *ngFor="let notification of notifications()"
+              [class.unread]="!notification.isRead"
+              (click)="onNotificationClick(notification)"
+            >
+              <mat-icon class="notif-status" *ngIf="!notification.isRead">
+                notifications_active
+              </mat-icon>
+              <mat-icon class="notif-status read" *ngIf="notification.isRead">
+                notifications
+              </mat-icon>
+              <div class="notif-body">
+                <span class="notif-text">{{ notification.message }}</span>
+                <span class="notif-time">
+                  {{ notification.createdOn | date: 'MMM d, y' }}
+                  {{ notification.createdOn | date: 'shortTime' }}
+                </span>
+              </div>
+            </button>
+          </ng-container>
+
+          <ng-template #noNotifications>
+            <div class="notif-empty">No notifications yet.</div>
+          </ng-template>
+        </mat-menu>
+      </ng-container>
     </mat-toolbar>
 
     <div class="page">
