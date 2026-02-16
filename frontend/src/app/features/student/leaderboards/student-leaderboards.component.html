@@ -1,4 +1,13 @@
-<app-page-header title="Leaderboards 🏆"> </app-page-header>
+<app-page-header title="Leaderboards 🏆">
+  <button
+    mat-button
+    button
+    color="primary"
+    routerLink="/main/student/enrollments"
+  >
+    SOLVE ACTIVITIES TO EARN MORE POINTS
+  </button>
+</app-page-header>
 
 <div class="leaderboard-grid">
   <section class="card">
@@ -107,3 +116,5 @@
     </mat-progress-spinner>
   </div>
 </ng-template>
+
+<router-outlet hidden />

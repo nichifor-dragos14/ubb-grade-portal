@@ -1,19 +1,25 @@
 <section class="badges-card">
   <div class="card-title">Your badges 🏅</div>
 
-  <div class="badges-grid" *ngIf="badges.length > 0; else empty">
-    <div class="badge" *ngFor="let badge of pagedBadges">
-      <div class="badge-icon" [ngClass]="getBadgeClass(badge.position)">
-        <mat-icon>emoji_events</mat-icon>
-        <span class="badge-rank">#{{ badge.position }}</span>
-      </div>
-      <div class="badge-body">
-        <div class="badge-message">{{ badge.message }}</div>
-        <div class="badge-meta">
-          Awarded {{ badge.createdOn | date: 'mediumDate' }}
+  <div class="badges-body">
+    <div class="badges-grid" *ngIf="badges.length > 0; else empty">
+      <div class="badge" *ngFor="let badge of pagedBadges">
+        <div class="badge-icon" [ngClass]="getBadgeClass(badge.position)">
+          <mat-icon>emoji_events</mat-icon>
+          <span class="badge-rank">#{{ badge.position }}</span>
+        </div>
+        <div class="badge-body">
+          <div class="badge-message">{{ badge.message }}</div>
+          <div class="badge-meta">
+            Awarded {{ badge.createdOn | date: 'mediumDate' }}
+          </div>
         </div>
       </div>
     </div>
+
+    <ng-template #empty>
+      <div class="empty">No badges yet. Keep submitting activities!</div>
+    </ng-template>
   </div>
 
   <div class="pager" *ngIf="pageCount > 1">
@@ -37,8 +43,4 @@
       Next
     </button>
   </div>
-
-  <ng-template #empty>
-    <div class="empty">No badges yet. Keep submitting activities!</div>
-  </ng-template>
 </section>

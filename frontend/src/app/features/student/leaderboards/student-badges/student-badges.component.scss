@@ -17,6 +17,12 @@
   margin-bottom: 14px;
 }
 
+.badges-body {
+  min-height: 276px;
+  display: grid;
+  align-content: start;
+}
+
 .badges-grid {
   display: grid;
   gap: 12px;

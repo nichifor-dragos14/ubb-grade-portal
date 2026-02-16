@@ -21,6 +21,9 @@ import {
 import { AppToastService } from '$shared/toast';
 import { StudentBadgesComponent } from './student-badges/student-badges.component';
 import { AuthService } from '$core/auth/auth.service';
+import { MatButtonModule } from '@angular/material/button';
+import { ProfessorModule } from '$features/professor/professor.module';
+import { RouterModule } from '@angular/router';
 
 interface MonthOption {
   value: number;
@@ -39,6 +42,9 @@ interface MonthOption {
     MatProgressSpinnerModule,
     AppPageHeaderComponent,
     StudentBadgesComponent,
+    MatButtonModule,
+    ProfessorModule,
+    RouterModule,
   ],
   templateUrl: './student-leaderboards.component.html',
   styleUrl: './student-leaderboards.component.scss',
