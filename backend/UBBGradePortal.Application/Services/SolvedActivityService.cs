@@ -18,6 +18,7 @@ public class SolvedActivityService : ISolvedActivityService
     private readonly IActivityRepository _activityRepository;
     private readonly ISolvedActivityRepository _solvedActivityRepository;
     private readonly INotificationService _notificationService;
+    private readonly INotificationPublisher _notificationPublisher;
     private readonly IOpenAiService _genAiFeedbackService;
     private readonly ILogger<SolvedActivityService> _logger;
 
@@ -26,6 +27,7 @@ public class SolvedActivityService : ISolvedActivityService
         IActivityRepository activityRepository,
         ISolvedActivityRepository solvedActivityRepository,
         INotificationService notificationService,
+        INotificationPublisher notificationPublisher,
         IOpenAiService genAiFeedbackService,
         ILogger<SolvedActivityService> logger
     )
@@ -34,6 +36,7 @@ public class SolvedActivityService : ISolvedActivityService
         _activityRepository = activityRepository;
         _solvedActivityRepository = solvedActivityRepository;
         _notificationService = notificationService;
+        _notificationPublisher = notificationPublisher;
         _genAiFeedbackService = genAiFeedbackService;
         _logger = logger;
     }
@@ -162,6 +165,12 @@ public class SolvedActivityService : ISolvedActivityService
 
         if (activity.Course != null)
         {
+            await _notificationPublisher.PublishSubmissionCreated(
+                activity.Course.CreatedByUserId,
+                solvedActivity.Id,
+                cancellationToken
+            );
+
             var pendingCount = await _solvedActivityRepository.CountSubmittedForCourse(
                 activity.Course.Id,
                 cancellationToken
@@ -193,7 +202,9 @@ public class SolvedActivityService : ISolvedActivityService
             solvedActivity.AiDetectedGoodPoints = null;
             solvedActivity.AiDetectedBadPoints = null;
 
-            return solvedActivity.Id;
+            solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);
+
+            return solvedActivityId;
         }
 
         var aiSummary = await TryGenerateAiSummary(solvedActivityId, loggedUserId, cancellationToken);
@@ -252,6 +263,15 @@ public class SolvedActivityService : ISolvedActivityService
             };
 
             await _solvedActivityRepository.AddDocument(solvedActivityDocument, cancellationToken);
+        }
+
+        if (solvedActivity.Activity?.Course != null)
+        {
+            await _notificationPublisher.PublishSubmissionCreated(
+                solvedActivity.Activity.Course.CreatedByUserId,
+                solvedActivity.Id,
+                cancellationToken
+            );
         }
 
         var solvedActivityId = await _solvedActivityRepository.Update(solvedActivity, cancellationToken);

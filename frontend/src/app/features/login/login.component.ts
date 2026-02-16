@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppToastService } from '$shared/toast';
 import { AccountService } from '$backend/services';
 import { AuthService } from '../../core/auth/auth.service';
+import { NotificationsService } from '$core/notifications/notifications.service';
 
 @Component({
   selector: 'app-login',
@@ -45,6 +46,7 @@ export class LoginComponent implements OnInit {
   private readonly toastService = inject(AppToastService);
   private readonly accountService = inject(AccountService);
   private readonly authService = inject(AuthService);
+  private readonly notificationsService = inject(NotificationsService);
 
   hide = true;
 
@@ -92,6 +94,8 @@ export class LoginComponent implements OnInit {
       });
 
       this.authService.setToken(res.accessToken);
+      this.notificationsService.connect();
+      void this.notificationsService.refresh();
       this.toastService.open('Successfully logged in');
 
       this.submitting = false;

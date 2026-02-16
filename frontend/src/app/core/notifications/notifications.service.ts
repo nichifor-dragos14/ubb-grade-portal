@@ -1,4 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -15,6 +16,10 @@ export class NotificationsService {
     () =>
       this.notifications().filter((notification) => !notification.isRead).length
   );
+  private readonly notificationCreatedSubject = new Subject<void>();
+  private readonly submissionCreatedSubject = new Subject<void>();
+  notificationCreated$ = this.notificationCreatedSubject.asObservable();
+  submissionCreated$ = this.submissionCreatedSubject.asObservable();
 
   private connection: HubConnection | null = null;
 
@@ -38,6 +43,11 @@ export class NotificationsService {
 
     this.connection.on('notificationCreated', async () => {
       await this.refresh();
+      this.notificationCreatedSubject.next();
+    });
+
+    this.connection.on('submissionCreated', () => {
+      this.submissionCreatedSubject.next();
     });
 
     this.connection.onreconnected(async () => {

@@ -20,6 +20,7 @@ import { CourseDto, CourseService } from '$backend/services';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AppToastService } from '$shared/toast';
+import { NotificationsService } from '$core/notifications/notifications.service';
 import {
   StudentEnrollmentEventService,
   StudentSolvedActivityEventService,
@@ -51,6 +52,7 @@ export class StudentEnrollmentsComponent implements OnInit {
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly enrollmentService = inject(
     StudentSolvedActivityEventService
   );
@@ -97,6 +99,16 @@ export class StudentEnrollmentsComponent implements OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadPage().then(() => this.navigateToMostSubmittedEnrollment());
+      });
+
+    this.notificationsService.notificationCreated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (!this.router.url.startsWith('/main/student/enrollments')) {
+          return;
+        }
+
+        this.loadPage();
       });
   }
 

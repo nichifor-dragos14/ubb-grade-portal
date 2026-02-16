@@ -27,6 +27,7 @@ import {
   SolvedActivityStatus,
   SolvedActivityStatusFilter,
 } from '$backend/services';
+import { NotificationsService } from '$core/notifications/notifications.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProfessorFeedbackEventService } from '../professor-feedback-event.service';
 
@@ -59,6 +60,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   private readonly solvedActivityService = inject(SolvedActivityService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly professorFeedbackEventService = inject(
     ProfessorFeedbackEventService
   );
@@ -88,6 +90,17 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     this.professorFeedbackEventService.gradedSolvedActivity$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
+        await this.loadPage();
+        this.navigateToFirstSubmission(true);
+      });
+
+    this.notificationsService.submissionCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        if (!this.router.url.startsWith('/main/professor/feedback')) {
+          return;
+        }
+
         await this.loadPage();
         this.navigateToFirstSubmission(true);
       });

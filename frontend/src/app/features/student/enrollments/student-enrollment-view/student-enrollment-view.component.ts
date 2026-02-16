@@ -35,6 +35,7 @@ import {
   ConfirmUnenrollDialog,
   ConfirmUnenrollDialogData,
 } from '$shared/dialogs/confirm-unenroll-dialog.component';
+import { NotificationsService } from '$core/notifications/notifications.service';
 
 type CPState = 'submitted' | 'completed' | 'returned' | 'unlocked' | 'locked';
 
@@ -79,6 +80,7 @@ export class StudentEnrollmentViewComponent
   );
   private readonly courseService = inject(CourseService);
   private readonly toastService = inject(AppToastService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly destroy$ = new Subject<void>();
 
   @ViewChild('roadPath', { static: false })
@@ -138,6 +140,16 @@ export class StudentEnrollmentViewComponent
     this.enrollmentService.updatedSolvedActivity$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
+        this.refreshCourse();
+      });
+
+    this.notificationsService.notificationCreated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (!this.router.url.startsWith('/main/student/enrollments')) {
+          return;
+        }
+
         this.refreshCourse();
       });
   }

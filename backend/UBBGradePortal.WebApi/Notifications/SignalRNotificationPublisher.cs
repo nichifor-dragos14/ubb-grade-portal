@@ -19,4 +19,11 @@ public class SignalRNotificationPublisher : INotificationPublisher
             .User(receiverId.ToString())
             .SendAsync("notificationCreated", new { notificationId }, cancellationToken);
     }
+
+    public Task PublishSubmissionCreated(Guid receiverId, Guid solvedActivityId, CancellationToken cancellationToken)
+    {
+        return _hubContext.Clients
+            .User(receiverId.ToString())
+            .SendAsync("submissionCreated", new { solvedActivityId }, cancellationToken);
+    }
 }
