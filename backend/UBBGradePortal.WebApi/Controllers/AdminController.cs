@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.Application.DTOs.Admin;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.User;
 using UBBGradePortal.Domain.Enums;
 using UBBGradePortal.Infrastructure.Auth;
@@ -32,21 +33,27 @@ public class AdminController : ControllerBase
 
     [HttpGet("users")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<Results<Ok<List<AdminUserDto>>, BadRequest>> GetUsers(
-        CancellationToken cancellationToken
+    public async Task<Results<Ok<PaginatedAdminUsersDto>, BadRequest<string>>> GetUsers(
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string? role = null,
+        [FromQuery] string? searchQuery = null
     )
     {
-        var users = await _userService.GetAll(cancellationToken);
+        Role? roleFilter = null;
 
-        var result = users
-            .Select(user => new AdminUserDto(
-                user.Id,
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                user.Role.ToString(),
-                user.IsBanned))
-            .ToList();
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            if (!Enum.TryParse<Role>(role, true, out var parsedRole))
+            {
+                return TypedResults.BadRequest("Invalid role filter.");
+            }
+
+            roleFilter = parsedRole;
+        }
+
+        var result = await _userService.GetAll(pageNumber, pageSize, roleFilter, searchQuery, cancellationToken);
 
         return TypedResults.Ok(result);
     }

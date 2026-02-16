@@ -13,10 +13,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { AdminService, AdminUserDto } from '$backend/services';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-admin-users',
@@ -29,6 +32,8 @@ import { AdminService, AdminUserDto } from '$backend/services';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatPaginatorModule,
+    MatSelectModule,
     AppPageHeaderComponent,
   ],
   templateUrl: './admin-users.component.html',
@@ -41,30 +46,30 @@ export class AdminUsersComponent implements OnInit {
   private readonly toastService = inject(AppToastService);
 
   users: AdminUserDto[] = [];
+  usersCount = 0;
   isLoading = false;
   updatingIds = new Set<string>();
 
   filterControl = new FormControl('', { nonNullable: true });
+  roleFilterControl = new FormControl('', { nonNullable: true });
+
+  pageIndex = 0;
+  pageSize = 5;
 
   async ngOnInit() {
     await this.loadUsers();
-  }
 
-  get filteredUsers(): AdminUserDto[] {
-    const query = this.filterControl.value.trim().toLowerCase();
-
-    if (!query) {
-      return this.users;
-    }
-
-    return this.users.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-      return (
-        fullName.includes(query) ||
-        user.email.toLowerCase().includes(query) ||
-        user.role.toLowerCase().includes(query)
-      );
+    this.roleFilterControl.valueChanges.subscribe(() => {
+      this.pageIndex = 0;
+      this.loadUsers();
     });
+
+    this.filterControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.loadUsers();
+      });
   }
 
   async loadUsers() {
@@ -72,7 +77,15 @@ export class AdminUsersComponent implements OnInit {
       this.isLoading = true;
       this.cdr.detectChanges();
 
-      this.users = await this.adminService.apiAdminUsersGetAsync();
+      const result = await this.adminService.apiAdminUsersGetAsync({
+        pageNumber: this.pageIndex + 1,
+        pageSize: this.pageSize,
+        role: this.roleFilterControl.value || undefined,
+        searchQuery: this.filterControl.value || undefined,
+      });
+
+      this.users = result.users;
+      this.usersCount = result.count;
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =
@@ -85,6 +98,13 @@ export class AdminUsersComponent implements OnInit {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
+  }
+
+  async onPageChange(event: PageEvent) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+
+    await this.loadUsers();
   }
 
   isUpdating(user: AdminUserDto): boolean {

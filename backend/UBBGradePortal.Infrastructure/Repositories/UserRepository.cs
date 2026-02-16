@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UBBGradePortal.Domain.Entities;
+using UBBGradePortal.Domain.Enums;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
 using Microsoft.Extensions.Logging;
@@ -31,14 +32,36 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
-    public async Task<List<User>> GetAll(CancellationToken cancellationToken)
+    public async Task<(int Count, List<User> Users)> GetAll(int pageNumber, int pageSize, Role? role, string? searchQuery, CancellationToken cancellationToken)
     {
-        return await _dbContext
+        var skip = (pageNumber - 1) * pageSize;
+        var query = _dbContext
             .Users
             .AsNoTracking()
-            .OrderBy(u => u.LastName)
-            .ThenBy(u => u.FirstName)
+            .Where(user => user.Role == Role.Student || user.Role == Role.Professor);
+
+        if (role.HasValue)
+        {
+            query = query.Where(user => user.Role == role.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var trimmed = searchQuery.Trim().ToLower();
+            query = query.Where(user =>
+                (user.FirstName + " " + user.LastName).ToLower().Contains(trimmed) ||
+                user.FirstName.ToLower().Contains(trimmed) ||
+                user.LastName.ToLower().Contains(trimmed));
+        }
+
+        var count = await query.CountAsync(cancellationToken);
+        var users = await query
+            .OrderByDescending(user => user.CreatedOn ?? DateTime.MinValue)
+            .Skip(skip)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (count, users);
     }
 
     public async Task<Guid> Add(User user, CancellationToken cancellationToken)

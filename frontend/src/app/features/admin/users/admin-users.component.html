@@ -2,10 +2,23 @@
 
 <section class="card">
   <div class="toolbar">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search users</mat-label>
-      <input matInput [formControl]="filterControl" />
+      <input
+        matInput
+        [formControl]="filterControl"
+        placeholder="Search by name"
+      />
       <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="role-filter">
+      <mat-label>Role</mat-label>
+      <mat-select [formControl]="roleFilterControl">
+        <mat-option value="">All roles</mat-option>
+        <mat-option value="Student">Student</mat-option>
+        <mat-option value="Professor">Professor</mat-option>
+      </mat-select>
     </mat-form-field>
   </div>
 
@@ -14,17 +27,25 @@
     </mat-progress-spinner>
   </div>
 
-  <div class="empty" *ngIf="!isLoading && filteredUsers.length === 0">
+  <div class="empty" *ngIf="!isLoading && users.length === 0">
     No users match your search.
   </div>
 
-  <div class="user-list" *ngIf="!isLoading && filteredUsers.length > 0">
-    <div class="user-row" *ngFor="let user of filteredUsers">
+  <div class="user-list" *ngIf="!isLoading && users.length > 0">
+    <div class="user-row" *ngFor="let user of users">
       <div class="user-main">
         <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
         <div class="user-meta">{{ user.email }}</div>
         <div class="user-tags">
-          <span class="tag">{{ user.role }}</span>
+          <span
+            class="tag"
+            [ngClass]="{
+              'role-student': user.role === 'Student',
+              'role-professor': user.role === 'Professor',
+            }"
+          >
+            {{ user.role }}
+          </span>
           <span class="tag banned" *ngIf="user.isBanned">Banned</span>
         </div>
       </div>
@@ -52,3 +73,13 @@
     </div>
   </div>
 </section>
+
+<mat-paginator
+  *ngIf="usersCount > 0"
+  [length]="usersCount"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  showFirstLastButtons
+  (page)="onPageChange($event)"
+>
+</mat-paginator>

@@ -2,6 +2,10 @@
   display: block;
 }
 
+app-page-header {
+  margin-bottom: 24px;
+}
+
 .card {
   background: #fff;
   border: 1px solid #e5e7eb;
@@ -14,9 +18,24 @@
   margin: 0 auto 0 0;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .toolbar mat-form-field {
   width: 320px;
   max-width: 100%;
+}
+
+.toolbar .search-field {
+  width: 320px;
+}
+
+.toolbar .role-filter {
+  width: 200px;
 }
 
 .loader {
@@ -72,7 +91,23 @@
   color: #374151;
 }
 
+.tag.role-student {
+  background: rgba(22, 163, 74, 0.16);
+  color: #166534;
+}
+
+.tag.role-professor {
+  background: rgba(37, 99, 235, 0.16);
+  color: #1d4ed8;
+}
+
 .tag.banned {
   background: rgba(239, 68, 68, 0.16);
   color: #b91c1c;
+}
+
+mat-paginator {
+  max-width: 860px;
+  margin: 12px 0 0;
+  background-color: #fafafa;
 }

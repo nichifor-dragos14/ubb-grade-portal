@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using UBBGradePortal.Application.Abstractions;
+using UBBGradePortal.Application.DTOs.Admin;
+using UBBGradePortal.Application.DTOs.Pagination;
 using UBBGradePortal.Application.DTOs.User;
 using UBBGradePortal.Domain.Entities;
+using UBBGradePortal.Domain.Enums;
 using UBBGradePortal.Infrastructure.Abstractions;
 
 namespace UBBGradePortal.Application.Services;
@@ -78,9 +81,24 @@ public class UserService : IUserService
         return await _userRepository.GetById(userId, cancellationToken);
     }
 
-    public async Task<List<User>> GetAll(CancellationToken cancellationToken)
+    public async Task<PaginatedAdminUsersDto> GetAll(int pageNumber, int pageSize, Role? role, string? searchQuery, CancellationToken cancellationToken)
     {
-        return await _userRepository.GetAll(cancellationToken);
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        pageSize = pageSize < 1 ? 5 : pageSize;
+
+        var (count, users) = await _userRepository.GetAll(pageNumber, pageSize, role, searchQuery, cancellationToken);
+
+        var result = users
+            .Select(user => new AdminUserDto(
+                user.Id,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.Role.ToString(),
+                user.IsBanned))
+            .ToList();
+
+        return new PaginatedAdminUsersDto(count, result);
     }
 
     public async Task<bool> SetBanned(Guid userId, bool isBanned, CancellationToken cancellationToken)
