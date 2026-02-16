@@ -1,0 +1,109 @@
+<app-page-header title="Leaderboards 🏆"> </app-page-header>
+
+<div class="leaderboard-grid">
+  <section class="card">
+    <div class="card-header">
+      <div class="card-header-content">
+        <div class="card-title">Top submissions this week 📅</div>
+        <div class="card-subtitle">Ranking is based on total submissions.</div>
+      </div>
+    </div>
+
+    <div class="card-content">
+      <div class="loader" *ngIf="isLoadingWeekly">
+        <mat-progress-spinner mode="indeterminate" diameter="40">
+        </mat-progress-spinner>
+      </div>
+
+      <mat-nav-list class="scroll-list" *ngIf="!isLoadingWeekly">
+        <div class="empty" *ngIf="weeklyEntries.length === 0">
+          No submissions yet this week.
+        </div>
+
+        @for (entry of weeklyEntries; track entry.userId) {
+          <div class="list-item">
+            <div class="rank">#{{ entry.position }}</div>
+            <div class="name">
+              {{ entry.name || 'Student' }}
+              <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
+            </div>
+            <div class="count">
+              {{ entry.submissionsCount }}
+              {{ entry.submissionsCount === 1 ? 'submission' : 'submissions' }}
+            </div>
+          </div>
+        }
+      </mat-nav-list>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div class="card-header-content">
+        <div class="card-title">
+          @if (isCurrentMonth) {
+            Top submissions this month 🗓️
+          } @else {
+            Top submissions in {{ selectedMonthLabel }} 🗓️
+          }
+        </div>
+        <div class="card-subtitle">Pick a month to compare student effort.</div>
+        @if (isCurrentMonth) {
+          <div class="card-note">
+            Submissions count through the 27th. Badges are awarded on the 28th.
+          </div>
+        }
+      </div>
+      <mat-form-field appearance="outline" class="month-select">
+        <mat-label>Month</mat-label>
+        <mat-select
+          [value]="selectedMonth"
+          panelClass="month-select-panel"
+          (selectionChange)="onMonthChange($event.value)"
+        >
+          @for (month of months; track month.value) {
+            <mat-option [value]="month.value">{{ month.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="card-content">
+      <div class="loader" *ngIf="isLoadingMonthly">
+        <mat-progress-spinner mode="indeterminate" diameter="40">
+        </mat-progress-spinner>
+      </div>
+
+      <mat-nav-list class="scroll-list" *ngIf="!isLoadingMonthly">
+        <div class="empty" *ngIf="monthlyEntries.length === 0">
+          No submissions for this month yet.
+        </div>
+
+        @for (entry of monthlyEntries; track entry.userId) {
+          <div class="list-item">
+            <div class="rank">#{{ entry.position }}</div>
+            <div class="name">
+              {{ entry.name || 'Student' }}
+              <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
+            </div>
+            <div class="count">
+              {{ entry.submissionsCount }}
+              {{ entry.submissionsCount === 1 ? 'submission' : 'submissions' }}
+            </div>
+          </div>
+        }
+      </mat-nav-list>
+    </div>
+  </section>
+</div>
+
+<section class="badges" *ngIf="!isLoadingBadges; else badgeLoader">
+  <app-student-badges [badges]="badges"></app-student-badges>
+</section>
+
+<ng-template #badgeLoader>
+  <div class="loader">
+    <mat-progress-spinner mode="indeterminate" diameter="40">
+    </mat-progress-spinner>
+  </div>
+</ng-template>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using System.Text;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.WebApi.Auth;
@@ -61,7 +62,22 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
 
             services.AddScoped<TokenService>();
             services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
-            services.AddHostedService<MonthlyBadgeJob>();
+            services.AddQuartz(options =>
+            {
+                var jobKey = new JobKey(nameof(MonthlyBadgeJob));
+
+                options.AddJob<MonthlyBadgeJob>(job => job.WithIdentity(jobKey));
+                options.AddTrigger(trigger => trigger
+                    .ForJob(jobKey)
+                    .WithIdentity("MonthlyBadgeJob-trigger")
+                    .WithCronSchedule("0 0 0 28 * ?", schedule =>
+                        schedule.InTimeZone(TimeZoneInfo.Utc)));
+            });
+
+            services.AddQuartzHostedService(options =>
+            {
+                options.WaitForJobsToComplete = true;
+            });
 
             services.AddControllers();
             services.AddSignalR();

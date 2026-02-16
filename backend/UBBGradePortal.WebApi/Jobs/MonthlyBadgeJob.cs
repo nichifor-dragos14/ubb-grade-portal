@@ -1,51 +1,26 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Quartz;
 using UBBGradePortal.Application.Abstractions;
 
 namespace UBBGradePortal.WebApi.Jobs;
 
-internal class MonthlyBadgeJob : BackgroundService
+internal class MonthlyBadgeJob : IJob
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILeaderboardService _leaderboardService;
     private readonly ILogger<MonthlyBadgeJob> _logger;
 
-    public MonthlyBadgeJob(IServiceProvider serviceProvider, ILogger<MonthlyBadgeJob> logger)
+    public MonthlyBadgeJob(ILeaderboardService leaderboardService, ILogger<MonthlyBadgeJob> logger)
     {
-        _serviceProvider = serviceProvider;
+        _leaderboardService = leaderboardService;
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                await RunOnce(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Monthly badge job failed");
-            }
-
-            await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
-        }
-    }
-
-    private async Task RunOnce(CancellationToken stoppingToken)
+    public async Task Execute(IJobExecutionContext context)
     {
         var now = DateTime.UtcNow;
-
-        if (now.Day != 28)
-        {
-            return;
-        }
-
-        using var scope = _serviceProvider.CreateScope();
-        var leaderboardService = scope.ServiceProvider.GetRequiredService<ILeaderboardService>();
-
-        var created = await leaderboardService.AwardMonthlyBadges(now.Year, now.Month, stoppingToken);
+        var created = await _leaderboardService.AwardMonthlyBadges(
+            now.Year,
+            now.Month,
+            context.CancellationToken);
 
         if (created)
         {

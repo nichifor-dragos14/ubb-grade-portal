@@ -18,6 +18,7 @@ import { DialogPageComponent } from '$shared/dialog-page';
 import { SolveActivityComponent } from './activities/solve-activity.component';
 import { SolvedActivityUpdateComponent } from './activities/solved-activity-update.component';
 import { StudentDashboardComponent } from './dashboard/student-dashboard.component';
+import { StudentLeaderboardsComponent } from './leaderboards/student-leaderboards.component';
 
 const STUDENT_ROUTES: Routes = [
   {
@@ -28,6 +29,12 @@ const STUDENT_ROUTES: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['Student'] },
         component: StudentDashboardComponent,
+      },
+      {
+        path: 'leaderboards',
+        canActivate: [roleGuard],
+        data: { roles: ['Student'] },
+        component: StudentLeaderboardsComponent,
       },
       {
         path: 'enrollments',

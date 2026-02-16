@@ -4,7 +4,6 @@ import { LoginComponent } from '../features/login/login.component';
 import { RegisterComponent } from '../features/register/register.component';
 import { roleGuard } from './auth/role.guard';
 import { RoleDashboardRedirectComponent } from './role-dashboard-redirect.component';
-import { StudentLeaderboardsComponent } from '../features/leaderboards/student-leaderboards.component';
 
 export const routes: Routes = [
   {
@@ -49,12 +48,6 @@ export const routes: Routes = [
           import('../features/student/student.module').then(
             (m) => m.StudentModule
           ),
-      },
-      {
-        path: 'leaderboards',
-        canActivate: [roleGuard],
-        data: { roles: ['Student'] },
-        component: StudentLeaderboardsComponent,
       },
     ],
   },

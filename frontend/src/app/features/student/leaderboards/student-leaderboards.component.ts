@@ -20,6 +20,7 @@ import {
 } from '$backend/services';
 import { AppToastService } from '$shared/toast';
 import { StudentBadgesComponent } from './student-badges/student-badges.component';
+import { AuthService } from '$core/auth/auth.service';
 
 interface MonthOption {
   value: number;
@@ -47,12 +48,14 @@ export class StudentLeaderboardsComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly leaderboardsService = inject(LeaderboardsService);
   private readonly toastService = inject(AppToastService);
+  private readonly authService = inject(AuthService);
 
   weeklyEntries: StudentLeaderboardEntryDto[] = [];
   monthlyEntries: StudentLeaderboardEntryDto[] = [];
   badges: BadgeDto[] = [];
 
   months: MonthOption[] = [];
+  currentMonth = new Date().getMonth() + 1;
   selectedMonth = new Date().getMonth() + 1;
 
   isLoadingWeekly = false;
@@ -138,5 +141,30 @@ export class StudentLeaderboardsComponent implements OnInit {
 
       return { value: month, label };
     });
+  }
+
+  get isCurrentMonth(): boolean {
+    return this.selectedMonth === this.currentMonth;
+  }
+
+  get selectedMonthLabel(): string {
+    const found = this.months.find(
+      (month) => month.value === this.selectedMonth
+    );
+    if (found) {
+      return found.label;
+    }
+
+    return new Date(2020, this.selectedMonth - 1, 1).toLocaleString('en-US', {
+      month: 'long',
+    });
+  }
+
+  isCurrentUser(userId?: string | null): boolean {
+    if (!userId) {
+      return false;
+    }
+
+    return String(this.authService.userId() ?? '') === String(userId);
   }
 }

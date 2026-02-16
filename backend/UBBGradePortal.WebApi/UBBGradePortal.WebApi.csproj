@@ -20,6 +20,8 @@
 		<PackageReference Include="NJsonSchema.CodeGeneration.TypeScript" Version="11.5.1" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.6.1" />
 		<PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.6.1" />
+		<PackageReference Include="Quartz" Version="3.11.0" />
+		<PackageReference Include="Quartz.Extensions.Hosting" Version="3.11.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
 		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />

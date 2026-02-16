@@ -4,10 +4,14 @@ const TOKEN_KEY = 'auth_token';
 
 export interface DecodedToken {
   id?: string;
+  sub?: string;
   name?: string;
   email?: string;
   exp?: number;
   role?: string | string[];
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'?:
+    | string
+    | string[];
   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?:
     | string
     | string[];
@@ -97,7 +101,16 @@ export class AuthService {
     const expMs = decoded?.exp ? decoded.exp * 1000 : null;
 
     this.expiresAt.set(expMs);
-    this.userId.set((decoded?.id as string) ?? null);
+    const nameIdentifier =
+      decoded?.[
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+      ];
+    this.userId.set(
+      (decoded?.id as string) ??
+        decoded?.sub ??
+        (Array.isArray(nameIdentifier) ? nameIdentifier[0] : nameIdentifier) ??
+        null
+    );
     this.name.set((decoded?.name as string) ?? null);
 
     const raw =

@@ -19,6 +19,7 @@
   <div class="pager" *ngIf="pageCount > 1">
     <button
       mat-stroked-button
+      color="primary"
       type="button"
       (click)="prevPage()"
       [disabled]="pageIndex === 0"
@@ -28,6 +29,7 @@
     <div class="pager-info">Page {{ pageIndex + 1 }} of {{ pageCount }}</div>
     <button
       mat-stroked-button
+      color="primary"
       type="button"
       (click)="nextPage()"
       [disabled]="pageIndex + 1 >= pageCount"
