@@ -127,7 +127,7 @@ export class StudentFindCoursesComponent implements OnInit {
       );
 
       if (currentRequestId === this.requestId) {
-        this.courses = courses ?? [];
+        this.courses = (courses ?? []).slice(0, 10);
         this.cdr.detectChanges();
       }
     } catch (error) {

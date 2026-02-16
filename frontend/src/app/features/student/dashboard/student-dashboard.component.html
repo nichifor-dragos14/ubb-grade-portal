@@ -15,12 +15,19 @@
   <div class="header-right"></div>
 
   <section class="card course-panel">
-    <div class="card-title">Select a course to view your statistics 📚</div>
+    <div class="card-title">
+      @if (generalStats?.courses?.length) {
+        Select a course to view your statistics 📚
+      } @else {
+        Enroll to a course to view statistics 📚
+      }
+    </div>
 
     <mat-form-field appearance="outline" class="course-select">
       <mat-label>Course</mat-label>
       <mat-select
         [value]="selectedCourseId"
+        [disabled]="!generalStats?.courses?.length"
         (selectionChange)="onCourseChange($event.value)"
       >
         <mat-option
@@ -158,7 +165,13 @@
       </div>
 
       <ng-template #emptyCourse>
-        <div class="empty">No course selected.</div>
+        <div class="empty">
+          @if (generalStats?.courses?.length) {
+            No course selected.
+          } @else {
+            You are not enrolled to any course.
+          }
+        </div>
       </ng-template>
     </div>
 

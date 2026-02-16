@@ -1,6 +1,6 @@
 <app-page-header title="Your enrollments 🧑‍🎓">
   <button mat-button button color="primary" (click)="openFindCourses()">
-    FIND MORE COURSES
+    EXPLORE MORE COURSES
   </button>
 </app-page-header>
 
@@ -51,9 +51,18 @@
       <span matListItemMeta> {{ enrollment.courseDomainName }}</span>
     </a>
   }
+
+  <div class="empty-state" *ngIf="enrollments.length === 0">
+    <mat-icon class="empty-icon">school</mat-icon>
+    <div class="empty-title">No enrollments yet</div>
+    <div class="empty-subtitle">
+      Start exploring courses to begin your learning journey.
+    </div>
+  </div>
 </mat-nav-list>
 
 <mat-paginator
+  *ngIf="enrollmentsCount > 0"
   [length]="enrollmentsCount"
   [pageIndex]="pageIndex"
   [pageSize]="pageSize"

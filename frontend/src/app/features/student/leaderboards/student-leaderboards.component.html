@@ -32,7 +32,7 @@
         @for (entry of weeklyEntries; track entry.userId) {
           <div class="list-item">
             <div class="rank">#{{ entry.position }}</div>
-            <div class="name">
+            <div class="name" [class.current-user]="isCurrentUser(entry.userId)">
               {{ entry.name || 'Student' }}
               <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
             </div>
@@ -85,13 +85,17 @@
 
       <mat-nav-list class="scroll-list" *ngIf="!isLoadingMonthly">
         <div class="empty" *ngIf="monthlyEntries.length === 0">
-          No submissions for this month yet.
+          @if (isCurrentMonth) {
+            No submissions for this month yet.
+          } @else {
+            There are no submissions for this month.
+          }
         </div>
 
         @for (entry of monthlyEntries; track entry.userId) {
           <div class="list-item">
             <div class="rank">#{{ entry.position }}</div>
-            <div class="name">
+            <div class="name" [class.current-user]="isCurrentUser(entry.userId)">
               {{ entry.name || 'Student' }}
               <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
             </div>

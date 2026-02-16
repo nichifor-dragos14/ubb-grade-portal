@@ -39,7 +39,11 @@
 
     <ng-container *ngIf="!isLoading">
       <p class="empty-text" *ngIf="courses.length === 0">
-        No courses were found.
+        @if (searchControl.value.trim()) {
+          No courses were found.
+        } @else {
+          No recommendations yet. Try searching for a course that interests you.
+        }
       </p>
 
       <div class="course-list" *ngIf="courses.length > 0">

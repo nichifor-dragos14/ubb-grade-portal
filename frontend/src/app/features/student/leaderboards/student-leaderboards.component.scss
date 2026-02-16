@@ -98,6 +98,10 @@ app-page-header {
   color: #1f2937;
 }
 
+.name.current-user {
+  color: var(--mat-sys-primary, var(--mdc-theme-primary, #3f51b5));
+}
+
 .you {
   font-size: 12px;
   font-weight: 600;

@@ -23,6 +23,32 @@ mat-nav-list {
   grid-area: list;
 }
 
+.empty-state {
+  margin-top: 24px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #6b7280;
+  gap: 6px;
+}
+
+.empty-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #9ca3af;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.empty-subtitle {
+  font-size: 13px;
+}
+
 mat-paginator {
   grid-area: pager;
   align-self: end;
