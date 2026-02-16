@@ -31,6 +31,8 @@ public class SolvedActivityRepository : ISolvedActivityRepository
                 .ThenInclude(a => a.CreatedByUser)
             .Where(sa => sa.Activity.Course.CreatedByUser.Id == loggedUserId);
 
+        query = query.Where(sa => !sa.User.IsBanned);
+
         if (status.HasValue)
         {
             query = query.Where(sa => sa.Status == status.Value);
@@ -64,9 +66,11 @@ public class SolvedActivityRepository : ISolvedActivityRepository
         return await _dbContext
             .SolvedActivities
             .AsNoTracking()
+            .Include(sa => sa.User)
             .Include(sa => sa.Activity)
                 .ThenInclude(a => a.Course)
             .Where(sa => sa.Activity.CourseId == courseId && sa.Status == SolvedActivityStatus.Submitted)
+            .Where(sa => !sa.User.IsBanned)
             .CountAsync(cancellationToken);
     }
 
@@ -92,6 +96,7 @@ public class SolvedActivityRepository : ISolvedActivityRepository
             .Include(sa => sa.User)
             .Where(sa => sa.CreatedOn >= startDateUtc && sa.CreatedOn < endDateUtc)
             .Where(sa => sa.User.Role == Role.Student)
+            .Where(sa => !sa.User.IsBanned)
             .GroupBy(sa => new { sa.UserId, sa.User.FirstName, sa.User.LastName })
             .Select(group => new SubmissionCountByUser(
                 group.Key.UserId,

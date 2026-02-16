@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+  max-width: 520px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spinner {
+  display: grid;
+  place-items: center;
+}

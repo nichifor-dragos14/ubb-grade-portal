@@ -49,6 +49,13 @@ export const routes: Routes = [
             (m) => m.StudentModule
           ),
       },
+      {
+        path: 'admin',
+        canActivate: [roleGuard],
+        data: { roles: ['Admin'] },
+        loadChildren: () =>
+          import('../features/admin/admin.module').then((m) => m.AdminModule),
+      },
     ],
   },
 ];

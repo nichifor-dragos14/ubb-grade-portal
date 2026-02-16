@@ -26,6 +26,7 @@ public class CourseRepository : ICourseRepository
             .Courses
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
+            .ThenInclude(c => c.User)
             .Include(c => c.Activities)
             .Include(c => c.CreatedByUser)
             .ToListAsync(cancellationToken);
@@ -60,6 +61,7 @@ public class CourseRepository : ICourseRepository
             .Courses
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
+                .ThenInclude(c => c.User)
             .Include(c => c.Activities)
             .Include(c => c.CreatedByUser)
             .Where(c => c.CreatedByUserId == loggedUserId)
@@ -83,8 +85,10 @@ public class CourseRepository : ICourseRepository
             .Courses
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
+                .ThenInclude(c => c.User)
             .Include(c => c.Activities)
                 .ThenInclude(a => a.SolvedActivities)
+                    .ThenInclude(sa => sa.User)
             .Include(c => c.CreatedByUser)
             .Where(c => c.CreatedByUserId == loggedUserId)
             .OrderByDescending(c => c.UpdatedOn)
@@ -132,6 +136,7 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.CreatedByUser)
             .Include(c => c.CourseDomain)
             .Include(c => c.CourseEnrollments)
+                .ThenInclude(c => c.User)
             .Include(c => c.Activities)
                 .ThenInclude(c => c.ActivityDocuments)
             .Include(c => c.Activities)

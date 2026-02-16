@@ -32,7 +32,10 @@
         @for (entry of weeklyEntries; track entry.userId) {
           <div class="list-item">
             <div class="rank">#{{ entry.position }}</div>
-            <div class="name" [class.current-user]="isCurrentUser(entry.userId)">
+            <div
+              class="name"
+              [class.current-user]="isCurrentUser(entry.userId)"
+            >
               {{ entry.name || 'Student' }}
               <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
             </div>
@@ -95,7 +98,10 @@
         @for (entry of monthlyEntries; track entry.userId) {
           <div class="list-item">
             <div class="rank">#{{ entry.position }}</div>
-            <div class="name" [class.current-user]="isCurrentUser(entry.userId)">
+            <div
+              class="name"
+              [class.current-user]="isCurrentUser(entry.userId)"
+            >
               {{ entry.name || 'Student' }}
               <span class="you" *ngIf="isCurrentUser(entry.userId)">(You)</span>
             </div>

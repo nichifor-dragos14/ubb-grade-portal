@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FormBuilder,
   FormsModule,
@@ -104,7 +105,11 @@ export class LoginComponent implements OnInit {
 
       await this.router.navigateByUrl('/main');
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof HttpErrorResponse) {
+        const message =
+          typeof error.error === 'string' ? error.error : error.message;
+        this.toastService.open(message, 'warning');
+      } else if (error instanceof Error) {
         this.toastService.open(error.message, 'warning');
       }
     } finally {

@@ -72,43 +72,16 @@
             [class.active]="isSectionActive('/main/admin/users')"
           >
             <mat-icon matListItemIcon>group</mat-icon>
-            <div matListItemTitle>Manage Users</div>
+            <div matListItemTitle>Edit Users</div>
           </a>
 
           <a
             mat-list-item
-            (click)="onSectionNavigate('/main/admin/courses')"
-            [class.active]="isSectionActive('/main/admin/courses')"
+            (click)="onSectionNavigate('/main/admin/professors')"
+            [class.active]="isSectionActive('/main/admin/professors')"
           >
-            <mat-icon matListItemIcon>menu_book</mat-icon>
-            <div matListItemTitle>Manage Courses</div>
-          </a>
-
-          <a
-            mat-list-item
-            (click)="onSectionNavigate('/main/admin/enrollments')"
-            [class.active]="isSectionActive('/main/admin/enrollments')"
-          >
-            <mat-icon matListItemIcon>how_to_reg</mat-icon>
-            <div matListItemTitle>Manage Enrollments</div>
-          </a>
-
-          <a
-            mat-list-item
-            (click)="onSectionNavigate('/main/admin/course-domains')"
-            [class.active]="isSectionActive('/main/admin/course-domains')"
-          >
-            <mat-icon matListItemIcon>category</mat-icon>
-            <div matListItemTitle>Manage Course Domains</div>
-          </a>
-
-          <a
-            mat-list-item
-            (click)="onSectionNavigate('/main/admin/activities')"
-            [class.active]="isSectionActive('/main/admin/activities')"
-          >
-            <mat-icon matListItemIcon>assignment</mat-icon>
-            <div matListItemTitle>Manage Activities</div>
+            <mat-icon matListItemIcon>person_add</mat-icon>
+            <div matListItemTitle>Add Professor</div>
           </a>
         </ng-container>
       </mat-nav-list>

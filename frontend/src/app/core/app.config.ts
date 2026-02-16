@@ -15,12 +15,13 @@ import {
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { authInterceptor } from './auth/auth.interceptor';
+import { bannedInterceptor } from './auth/banned.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideAnimations(),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, bannedInterceptor])),
     importProvidersFrom(
       BackendApiModule.forRoot({ rootUrl: '/api' }),
       HttpClientModule,

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UBBGradePortal.Application.Abstractions;
@@ -95,6 +96,13 @@ public class AccountController : ControllerBase
         if (user is null)
         {
             return Unauthorized("Invalid credentials.");
+        }
+
+        var profile = await _userService.GetById(user.Id, cancellationToken);
+
+        if (profile is not null && profile.IsBanned)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "This account is banned.");
         }
 
         var valid = await _users.CheckPasswordAsync(user, request.Password);

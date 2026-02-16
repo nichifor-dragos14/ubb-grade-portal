@@ -1,6 +1,7 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using UBBGradePortal.WebApi.Hubs;
+using UBBGradePortal.WebApi.Middleware;
 
 namespace UBBGradePortal.WebApi.ExtensionMethods;
 
@@ -18,6 +19,7 @@ public static class WebApplicationExtensions
         app.UseRouting();
 
         app.UseAuthentication();
+        app.UseMiddleware<BannedUserMiddleware>();
         app.UseAuthorization();
 
         app.UseHealthChecks("/healthy");

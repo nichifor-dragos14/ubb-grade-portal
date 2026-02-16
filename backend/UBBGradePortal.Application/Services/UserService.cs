@@ -35,6 +35,7 @@ public class UserService : IUserService
             LastName = addUserDto.LastName,
             Email = addUserDto.Email,
             Role = addUserDto.Role,
+            IsBanned = false,
             CreatedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow,
         };
@@ -75,5 +76,15 @@ public class UserService : IUserService
     public async Task<User?> GetById(Guid userId, CancellationToken cancellationToken)
     {
         return await _userRepository.GetById(userId, cancellationToken);
+    }
+
+    public async Task<List<User>> GetAll(CancellationToken cancellationToken)
+    {
+        return await _userRepository.GetAll(cancellationToken);
+    }
+
+    public async Task<bool> SetBanned(Guid userId, bool isBanned, CancellationToken cancellationToken)
+    {
+        return await _userRepository.SetBanned(userId, isBanned, cancellationToken);
     }
 }

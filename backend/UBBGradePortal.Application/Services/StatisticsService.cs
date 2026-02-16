@@ -200,7 +200,9 @@ public class StatisticsService : IStatisticsService
                 Id = course.Id,
                 Name = course.Name,
                 ActivitiesCount = course.Activities.Count,
-                SubmissionsCount = course.Activities.SelectMany(a => a.SolvedActivities).Count()
+                SubmissionsCount = course.Activities
+                    .SelectMany(a => a.SolvedActivities)
+                    .Count(sa => sa.User is not null && !sa.User.IsBanned)
             })
             .OrderBy(course => course.Name)
             .ToList();
@@ -217,14 +219,20 @@ public class StatisticsService : IStatisticsService
         }
 
         var mostEnrolledCourses = courses
-            .OrderByDescending(course => course.CourseEnrollments.Count)
-            .ThenBy(course => course.Name)
-            .Take(3)
-            .Select(course => new ProfessorCoursePopularityDto
+            .Select(course => new
             {
-                CourseId = course.Id,
-                CourseName = course.Name,
-                EnrolledCount = course.CourseEnrollments.Count
+                Course = course,
+                EnrolledCount = course.CourseEnrollments
+                    .Count(enrollment => enrollment.User is not null && !enrollment.User.IsBanned)
+            })
+            .OrderByDescending(entry => entry.EnrolledCount)
+            .ThenBy(entry => entry.Course.Name)
+            .Take(3)
+            .Select(entry => new ProfessorCoursePopularityDto
+            {
+                CourseId = entry.Course.Id,
+                CourseName = entry.Course.Name,
+                EnrolledCount = entry.EnrolledCount
             })
             .ToList();
 
@@ -259,7 +267,11 @@ public class StatisticsService : IStatisticsService
         }
 
         var totalActivitiesCount = course.Activities.Count;
-        var enrolledStudentIds = course.CourseEnrollments.Select(e => e.UserId).Distinct().ToList();
+        var enrolledStudentIds = course.CourseEnrollments
+            .Where(enrollment => enrollment.User is not null && !enrollment.User.IsBanned)
+            .Select(enrollment => enrollment.UserId)
+            .Distinct()
+            .ToList();
         var enrolledStudentsCount = enrolledStudentIds.Count;
 
         var latestByStudentAndActivity = course.Activities
@@ -376,7 +388,8 @@ public class StatisticsService : IStatisticsService
     private static double CalculateAllStudentsAverageGrade(Course course, int totalActivitiesCount, Guid loggedUserId)
     {
         var studentIds = course.CourseEnrollments
-            .Select(e => e.UserId)
+            .Where(enrollment => enrollment.User is not null && !enrollment.User.IsBanned)
+            .Select(enrollment => enrollment.UserId)
             .Where(id => id != loggedUserId)
             .Distinct()
             .ToList();
@@ -463,6 +476,7 @@ public class StatisticsService : IStatisticsService
         var solvedActivities = courses
             .SelectMany(course => course.Activities)
             .SelectMany(activity => activity.SolvedActivities)
+            .Where(sa => sa.User is not null && !sa.User.IsBanned)
             .ToList();
 
         var now = DateTime.UtcNow.Date;

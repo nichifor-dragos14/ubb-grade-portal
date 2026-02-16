@@ -1,0 +1,54 @@
+<app-page-header title="Edit users"></app-page-header>
+
+<section class="card">
+  <div class="toolbar">
+    <mat-form-field appearance="outline">
+      <mat-label>Search users</mat-label>
+      <input matInput [formControl]="filterControl" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <mat-progress-spinner mode="indeterminate" diameter="48">
+    </mat-progress-spinner>
+  </div>
+
+  <div class="empty" *ngIf="!isLoading && filteredUsers.length === 0">
+    No users match your search.
+  </div>
+
+  <div class="user-list" *ngIf="!isLoading && filteredUsers.length > 0">
+    <div class="user-row" *ngFor="let user of filteredUsers">
+      <div class="user-main">
+        <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+        <div class="user-meta">{{ user.email }}</div>
+        <div class="user-tags">
+          <span class="tag">{{ user.role }}</span>
+          <span class="tag banned" *ngIf="user.isBanned">Banned</span>
+        </div>
+      </div>
+
+      <button
+        mat-stroked-button
+        color="warn"
+        type="button"
+        *ngIf="!user.isBanned"
+        [disabled]="isUpdating(user)"
+        (click)="banUser(user)"
+      >
+        Ban
+      </button>
+      <button
+        mat-stroked-button
+        color="primary"
+        type="button"
+        *ngIf="user.isBanned"
+        [disabled]="isUpdating(user)"
+        (click)="unbanUser(user)"
+      >
+        Unban
+      </button>
+    </div>
+  </div>
+</section>

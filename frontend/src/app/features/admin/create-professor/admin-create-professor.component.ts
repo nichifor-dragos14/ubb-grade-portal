@@ -1,0 +1,86 @@
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { AppPageHeaderComponent } from '$shared/page-header';
+import { AppToastService } from '$shared/toast';
+import { AdminService } from '$backend/services';
+
+@Component({
+  selector: 'app-admin-create-professor',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    AppPageHeaderComponent,
+  ],
+  templateUrl: './admin-create-professor.component.html',
+  styleUrl: './admin-create-professor.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AdminCreateProfessorComponent {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly adminService = inject(AdminService);
+  private readonly toastService = inject(AppToastService);
+
+  isSubmitting = false;
+
+  form = this.formBuilder.group({
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
+
+  async onSubmit() {
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid || this.isSubmitting) {
+      return;
+    }
+
+    try {
+      this.isSubmitting = true;
+      this.cdr.detectChanges();
+
+      const value = this.form.getRawValue();
+      await this.adminService.apiAdminProfessorsPostAsync({
+        body: {
+          firstName: value.firstName!,
+          lastName: value.lastName!,
+          email: value.email!,
+          password: value.password!,
+        },
+      });
+
+      this.toastService.open('Professor account created.', 'info');
+      this.form.reset();
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        const message =
+          typeof error.error === 'string' ? error.error : error.message;
+        this.toastService.open(message, 'error');
+      } else if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+    } finally {
+      this.isSubmitting = false;
+      this.cdr.detectChanges();
+    }
+  }
+}

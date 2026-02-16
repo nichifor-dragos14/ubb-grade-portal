@@ -9,6 +9,7 @@ public class User
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public Role Role { get; set; }
+    public bool IsBanned { get; set; }
     public DateTime? CreatedOn { get; set; }
     public DateTime? UpdatedOn { get; set; }
 

@@ -31,11 +31,38 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 
+    public async Task<List<User>> GetAll(CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .Users
+            .AsNoTracking()
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Guid> Add(User user, CancellationToken cancellationToken)
     {
         await _dbContext.Users.AddAsync(user, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         
         return user.Id;
+    }
+
+    public async Task<bool> SetBanned(Guid userId, bool isBanned, CancellationToken cancellationToken)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.IsBanned = isBanned;
+        user.UpdatedOn = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 }
