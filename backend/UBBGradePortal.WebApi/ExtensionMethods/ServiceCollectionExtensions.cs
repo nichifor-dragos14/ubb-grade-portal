@@ -5,6 +5,7 @@ using System.Text;
 using UBBGradePortal.Application.Abstractions;
 using UBBGradePortal.WebApi.Auth;
 using UBBGradePortal.WebApi.Development;
+using UBBGradePortal.WebApi.Jobs;
 using UBBGradePortal.WebApi.Notifications;
 using Vernou.Swashbuckle.HttpResultsAdapter;
 
@@ -60,6 +61,7 @@ namespace UBBGradePortal.WebApi.ExtensionMethods
 
             services.AddScoped<TokenService>();
             services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
+            services.AddHostedService<MonthlyBadgeJob>();
 
             services.AddControllers();
             services.AddSignalR();

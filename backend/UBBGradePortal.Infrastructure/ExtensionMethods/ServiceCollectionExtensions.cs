@@ -57,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IActivityRepository, ActivityRepository>();
         services.AddScoped<ISolvedActivityRepository, SolvedActivityRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IBadgeRepository, BadgeRepository>();
 
         return services;
     }

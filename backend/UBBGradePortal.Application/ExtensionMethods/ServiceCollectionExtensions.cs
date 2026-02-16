@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISolvedActivityService, SolvedActivityService>();
         services.AddScoped<IStatisticsService, StatisticsService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<ILeaderboardService, LeaderboardService>();
 
         return services;
     }

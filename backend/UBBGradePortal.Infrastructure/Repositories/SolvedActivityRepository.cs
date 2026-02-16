@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using UBBGradePortal.Domain.Entities;
+using UBBGradePortal.Domain.Enums;
 using UBBGradePortal.Infrastructure.Abstractions;
 using UBBGradePortal.Infrastructure.EntityFramework;
 
@@ -81,6 +82,24 @@ public class SolvedActivityRepository : ISolvedActivityRepository
                 .ThenInclude(a => a.Course)
                 .ThenInclude(c => c.CreatedByUser)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    }
+
+    public async Task<List<SubmissionCountByUser>> GetSubmissionCountsByUser(DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .SolvedActivities
+            .AsNoTracking()
+            .Include(sa => sa.User)
+            .Where(sa => sa.CreatedOn >= startDateUtc && sa.CreatedOn < endDateUtc)
+            .Where(sa => sa.User.Role == Role.Student)
+            .GroupBy(sa => new { sa.UserId, sa.User.FirstName, sa.User.LastName })
+            .Select(group => new SubmissionCountByUser(
+                group.Key.UserId,
+                group.Key.FirstName,
+                group.Key.LastName,
+                group.Count()
+            ))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Guid> Add(SolvedActivity solvedActivity, CancellationToken cancellationToken)

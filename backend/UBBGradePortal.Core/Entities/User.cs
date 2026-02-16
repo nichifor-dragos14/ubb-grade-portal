@@ -23,4 +23,7 @@ public class User
 
     // The notifications received by the user
     public List<Notification> Notifications { get; set; } = [];
+
+    // The badges earned by the user
+    public List<Badge> Badges { get; set; } = [];
 }

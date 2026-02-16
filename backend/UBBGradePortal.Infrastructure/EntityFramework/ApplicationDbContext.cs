@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ActivityDocument> ActivityDocuments { get; set; } = null!;
     public DbSet<SolvedActivityDocument> SolvedActivityDocuments { get; set; } = null!; 
     public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<Badge> Badges { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
