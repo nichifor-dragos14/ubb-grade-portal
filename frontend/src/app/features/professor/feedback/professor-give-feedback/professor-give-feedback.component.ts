@@ -326,7 +326,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
       });
 
       await this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-      this.toastService.open('The activity was graded', 'info');
+      this.toastService.open('The activity was successfully graded ✨', 'info');
     } catch (error) {
       if (error instanceof Error) {
         this.toastService.open(error.message, 'error');
@@ -389,7 +389,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
       };
 
       this.toastService.open(
-        'The activity was returned to the student',
+        'The activity was successfully returned to the student ✨',
         'info'
       );
       this.professorFeedbackEventService.emitGradedSolvedActivity({

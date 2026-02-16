@@ -58,8 +58,8 @@ export class ProfessorAddCourseComponent implements OnInit {
   );
 
   addCourseFormGroup = this.formBuilder.group({
-    name: ['', Validators.required],
-    description: [''],
+    name: ['', [Validators.required, Validators.maxLength(30)]],
+    description: ['', [Validators.maxLength(1500)]],
     courseDomainId: ['', Validators.required],
     assistedLlmEvaluation: [false],
   });
@@ -140,7 +140,10 @@ export class ProfessorAddCourseComponent implements OnInit {
       this.redirecting = true;
       this.cdr.detectChanges();
 
-      this.toastService.open(`Successfully created ${name}`);
+      this.toastService.open(
+        `Successfully created course '${name}' ✨`,
+        'info'
+      );
 
       await this.router.navigate(['..', courseId], {
         relativeTo: this.activatedRoute,

@@ -307,7 +307,7 @@ export class StudentEnrollmentViewComponent
       });
 
       this.toastService.open(
-        `You successfully unenrolled from ${this.course.name}.`,
+        `You successfully unenrolled from '${this.course.name}' 👋`,
         'info'
       );
       this.studentEnrollmentEventService.emitUnenrolledFromCourse({

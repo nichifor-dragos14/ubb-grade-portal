@@ -41,9 +41,18 @@
       <span matListItemMeta>Created {{ course.createdOn | dateFormat }}</span>
     </a>
   }
+
+  <div class="empty-state" *ngIf="courses.length === 0">
+    <mat-icon class="empty-icon">library_books</mat-icon>
+    <div class="empty-title">No courses yet</div>
+    <div class="empty-subtitle">
+      Create your first course to start teaching.
+    </div>
+  </div>
 </mat-nav-list>
 
 <mat-paginator
+  *ngIf="courseCount > 0"
   [length]="courseCount"
   [pageIndex]="pageIndex"
   [pageSize]="pageSize"

@@ -97,7 +97,7 @@ export class LoginComponent implements OnInit {
       this.authService.setToken(res.accessToken);
       this.notificationsService.connect();
       void this.notificationsService.refresh();
-      this.toastService.open('Successfully logged in');
+      this.toastService.open('You successfully logged in ✨', 'info');
 
       this.submitting = false;
       this.redirecting = true;

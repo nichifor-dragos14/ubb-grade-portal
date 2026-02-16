@@ -217,7 +217,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
       });
 
       this.toastService.open(
-        `Successfully updated ${this.course.name}`,
+        `Successfully updated course '${this.course.name}' ✨`,
         'info'
       );
     } catch (error) {

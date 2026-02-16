@@ -34,7 +34,9 @@ import { ConfirmCloseUnsavedDialog } from '$shared/dialogs/confirm-close-unsaved
         class="submit-tooltip"
         button
         [matTooltip]="
-          !dropzone?.hasUploadedFiles ? 'Please upload at least one file' : ''
+          !dropzone?.hasUploadedFiles
+            ? 'Please add your submission files first'
+            : ''
         "
         [matTooltipDisabled]="!!dropzone?.hasUploadedFiles"
       >
@@ -230,7 +232,7 @@ export class SolveActivityComponent {
         });
 
       if (solvedActivityId) {
-        this.toast.open(`Your submission was saved succesfully`, 'info');
+        this.toast.open(`Your submission for was saved succesfully 🚀`, 'info');
         this.studentSolvedActivityEventService.emitAddedSolvedActivity({
           activityId,
         });

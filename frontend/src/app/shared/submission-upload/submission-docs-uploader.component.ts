@@ -157,6 +157,9 @@ import { ConfirmDeleteSolvedActivityDocumentDialog } from '$shared/dialogs/confi
         </div>
         <div class="hint">
           {{ multiple ? 'Multiple files allowed.' : 'Single file.' }}
+          <ng-container *ngIf="maxFiles">
+            • Max {{ maxFiles }} files</ng-container
+          >
           <ng-container *ngIf="accept"> • Allowed: {{ accept }}</ng-container>
           <ng-container *ngIf="maxSizeMB">
             • Max {{ maxSizeMB }} MB each</ng-container
@@ -298,6 +301,7 @@ export class SubmissionDocsDropzoneComponent {
   }
   @Input() accept = '.pdf, .docx, .zip';
   @Input() maxSizeMB = 5;
+  @Input() maxFiles = 5;
   @Input() multiple = true;
   @Input() disabled = false;
   @Input() allowDelete = true;
@@ -335,7 +339,7 @@ export class SubmissionDocsDropzoneComponent {
 
   getUploadAllTooltip() {
     if (!this.hasQueued) {
-      return 'Please add your submission documents first';
+      return 'Please add your submission files first';
     }
 
     return '';
@@ -414,7 +418,7 @@ export class SubmissionDocsDropzoneComponent {
   displaySizeOf(file: QueuedFile) {
     const bytes = file.file?.size ?? file.sizeBytes ?? 0;
 
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    return `${(bytes / 1024 / 1024).toFixed(3)} MB`;
   }
 
   extOf(file: QueuedFile) {
@@ -495,7 +499,15 @@ export class SubmissionDocsDropzoneComponent {
     const validated = this.filterBySize(accepted);
     const toQueue = this.multiple ? validated : validated.slice(0, 1);
 
-    const items: QueuedFile[] = toQueue.map((file) => ({
+    const remaining = Math.max(this.maxFiles - this._queue.length, 0);
+    if (this.maxFiles && remaining === 0) {
+      this.appToastService.open('The maximum of 5 files was reached', 'error');
+      return;
+    }
+
+    const limited = this.maxFiles ? toQueue.slice(0, remaining) : toQueue;
+
+    const items: QueuedFile[] = limited.map((file) => ({
       file,
       previewUrl: file.type.startsWith('image/')
         ? URL.createObjectURL(file)
@@ -504,6 +516,13 @@ export class SubmissionDocsDropzoneComponent {
       error: null,
       xhr: null,
     }));
+
+    if (this.maxFiles && toQueue.length > limited.length) {
+      this.appToastService.open(
+        'The maximum of 5 files was reached',
+        'warning'
+      );
+    }
 
     this._queue = [...this._queue, ...items];
     this.cdr.markForCheck();

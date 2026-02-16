@@ -2,6 +2,7 @@
   <div class="header-left">
     <app-page-header title="Your dashboard 📊">
       <button
+        *ngIf="hasCourses"
         mat-button
         button
         color="primary"
@@ -9,18 +10,34 @@
       >
         GO TO FEEDBACK
       </button>
+      <button
+        *ngIf="!hasCourses"
+        mat-button
+        button
+        color="primary"
+        routerLink="/main/professor/courses/new"
+      >
+        ADD A COURSE
+      </button>
     </app-page-header>
   </div>
 
   <div class="header-right"></div>
 
   <section class="card course-panel">
-    <div class="card-title">Select a course to view statistics 📚</div>
+    <div class="card-title">
+      @if (hasCourses) {
+        Select a course to view statistics 📚
+      } @else {
+        Add a course to view statistics 📚
+      }
+    </div>
 
     <mat-form-field appearance="outline" class="course-select">
       <mat-label>Course</mat-label>
       <mat-select
         [value]="selectedCourseId"
+        [disabled]="!hasCourses"
         (selectionChange)="onCourseChange($event.value)"
       >
         <mat-option
@@ -125,7 +142,7 @@
       </div>
 
       <ng-template #emptyCourse>
-        <div class="empty">Select a course to view insights.</div>
+        <div class="empty" *ngIf="hasCourses">Select a course.</div>
       </ng-template>
     </div>
 

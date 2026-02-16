@@ -127,7 +127,7 @@ export class StudentFindCoursesComponent implements OnInit {
       );
 
       if (currentRequestId === this.requestId) {
-        this.courses = (courses ?? []).slice(0, 10);
+        this.courses = courses ?? [];
         this.cdr.detectChanges();
       }
     } catch (error) {
@@ -161,7 +161,7 @@ export class StudentFindCoursesComponent implements OnInit {
       .apiCourseIdEnrollPostAsync({ id: course.id })
       .then(() => {
         this.toastService.open(
-          `You successfully enrolled in ${course.name}.`,
+          `You successfully enrolled in '${course.name}' ✨`,
           'info'
         );
         this.studentEnrollmentEventService.emitEnrolledToCourse({

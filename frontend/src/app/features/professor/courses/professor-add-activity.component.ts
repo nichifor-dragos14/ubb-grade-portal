@@ -70,6 +70,9 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
           <mat-error *ngIf="name.touched && name.hasError('required')">
             The activity name is required.
           </mat-error>
+          <mat-error *ngIf="name.touched && name.hasError('maxlength')">
+            Title must be at most 30 characters.
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -80,6 +83,14 @@ import { ProfessorCoursesEventService } from './professor-courses-event.service'
             placeholder="Add information to guide students solve the activity"
           >
           </textarea>
+          <mat-error
+            *ngIf="
+              addActivityFormGroup.controls.description.touched &&
+              addActivityFormGroup.controls.description.hasError('maxlength')
+            "
+          >
+            Description must be at most 1500 characters.
+          </mat-error>
         </mat-form-field>
 
         <p class="hint-text">
@@ -178,8 +189,8 @@ export class ProfessorAddActivityComponent {
   @Input() course!: CourseDto;
 
   addActivityFormGroup = this.formBuilder.group({
-    name: ['', Validators.required],
-    description: [''],
+    name: ['', [Validators.required, Validators.maxLength(30)]],
+    description: ['', [Validators.maxLength(1500)]],
   });
 
   submitting = false;
@@ -231,7 +242,10 @@ export class ProfessorAddActivityComponent {
         activityId: activityId,
       });
 
-      this.toastService.open(`Succesfully created ${name}`, 'info');
+      this.toastService.open(
+        `Succesfully created activity '${name}' ✨`,
+        'info'
+      );
 
       await this.router.navigate(['..', activityId], {
         relativeTo: this.activatedRoute,

@@ -1,14 +1,25 @@
 <div class="dashboard-grid">
   <div class="header-left">
     <app-page-header title="Your dashboard 📊">
-      <button
-        mat-button
-        button
-        color="primary"
-        routerLink="/main/student/enrollments"
-      >
-        RESUME YOUR LEARNING PATH
-      </button>
+      @if (generalStats?.courses?.length) {
+        <button
+          mat-button
+          button
+          color="primary"
+          routerLink="/main/student/enrollments"
+        >
+          RESUME YOUR LEARNING PATH
+        </button>
+      } @else {
+        <button
+          mat-button
+          button
+          color="primary"
+          routerLink="/main/student/enrollments/find"
+        >
+          ENROLL TO A COURSE
+        </button>
+      }
     </app-page-header>
   </div>
 

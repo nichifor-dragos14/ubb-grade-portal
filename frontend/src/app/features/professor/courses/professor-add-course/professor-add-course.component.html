@@ -41,10 +41,14 @@
         matInput
         formControlName="name"
         placeholder="The name of your course"
+        maxlength="30"
       />
 
       <mat-error *ngIf="name.touched && name.hasError('required')">
         The name is required.
+      </mat-error>
+      <mat-error *ngIf="name.touched && name.hasError('maxlength')">
+        Title must be at most 30 characters.
       </mat-error>
     </mat-form-field>
 
@@ -82,8 +86,17 @@
         matInput
         formControlName="description"
         placeholder="Add some basic and relevant course information"
+        maxlength="1500"
       >
       </textarea>
+      <mat-error
+        *ngIf="
+          addCourseFormGroup.controls.description.touched &&
+          addCourseFormGroup.controls.description.hasError('maxlength')
+        "
+      >
+        Description must be at most 1500 characters.
+      </mat-error>
     </mat-form-field>
 
     <p class="hint-text">You can add activities after creating the course.</p>

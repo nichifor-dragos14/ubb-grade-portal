@@ -458,7 +458,7 @@ export class SolvedActivityUpdateComponent {
         });
 
       if (returnedSolvedActivityId) {
-        this.toast.open(`Your submission was saved succesfully`, 'info');
+        this.toast.open(`Your submission for was saved succesfully 🚀`, 'info');
         this.studentSolvedActivityEventService.emitAddedSolvedActivity({
           activityId: returnedSolvedActivityId,
         });
@@ -466,7 +466,7 @@ export class SolvedActivityUpdateComponent {
         await this.router.navigate(['../../../'], { relativeTo: this.route });
       }
 
-      this.toast.open(`Your submission was updated succesfully`, 'info');
+      this.toast.open(`Your submission for was updated succesfully 🚀`, 'info');
 
       await this.router.navigate(['../../../'], { relativeTo: this.route });
     } catch (error: any) {

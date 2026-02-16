@@ -72,8 +72,17 @@ import { ProfessorCoursesEventService } from '../courses/professor-courses-event
             matInput
             formControlName="description"
             placeholder="Add information to guide students solve the activity"
+            maxlength="1500"
           >
           </textarea>
+          <mat-error
+            *ngIf="
+              updateActivityFormGroup.controls.description.touched &&
+              updateActivityFormGroup.controls.description.hasError('maxlength')
+            "
+          >
+            Description must be at most 1500 characters.
+          </mat-error>
         </mat-form-field>
       </section>
 
@@ -186,8 +195,8 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
   docsChanged = false;
 
   updateActivityFormGroup = this.formBuilder.group({
-    description: [''],
-    name: ['', Validators.required],
+    description: ['', [Validators.maxLength(1500)]],
+    name: ['', [Validators.required, Validators.maxLength(30)]],
   });
 
   submitting = false;
@@ -316,7 +325,7 @@ export class ProfessorUpdateActivityComponent implements OnChanges {
       this.cdr.detectChanges();
 
       this.toastService.open(
-        `Succesfully updated activity ${this.activity.name}`,
+        `Succesfully updated activity '${this.activity.name}' ✨`,
         'info'
       );
 

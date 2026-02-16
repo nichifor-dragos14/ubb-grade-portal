@@ -38,6 +38,7 @@ public class CourseService : ICourseService
         var courses = await _courseRepository.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
         return courses
+            .Where(c => c.Activities.Count > 0)
             .Select(c => CourseMapper.FromCourseToCourseDto(c, null, null))
             .ToList();
     }
@@ -151,6 +152,7 @@ public class CourseService : ICourseService
             var courseRecommendations = await _courseRepository.GetAllByCourseDomainIds(courseDomainIds, cancellationToken);
 
             return courseRecommendations
+                .Where(course => course.Activities.Count > 0)
                 .Where(course => !enrollments.Select(e => e.CourseId).Contains(course.Id))
                 .Select(course => CourseMapper.FromCourseToCourseDto(
                     course,
@@ -164,6 +166,7 @@ public class CourseService : ICourseService
         var filteredCourses = await _courseRepository.GetAllBySearchString(searchString, cancellationToken);
 
         return filteredCourses
+            .Where(course => course.Activities.Count > 0)
                 .Where(course => !enrollments.Select(e => e.CourseId).Contains(course.Id))
                 .Select(course => CourseMapper.FromCourseToCourseDto(
                     course,

@@ -126,6 +126,10 @@ export class ProfessorDashboardComponent implements OnInit {
     return 'completion-green';
   }
 
+  get hasCourses(): boolean {
+    return (this.generalStats?.courses?.length ?? 0) > 0;
+  }
+
   get weeklySubmissions() {
     return this.generalStats?.weeklySubmissions ?? [];
   }
