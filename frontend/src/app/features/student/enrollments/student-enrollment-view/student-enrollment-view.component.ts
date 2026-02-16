@@ -4,11 +4,8 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Input,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -28,6 +25,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   StudentEnrollmentEventService,
   StudentSolvedActivityEventService,
@@ -59,13 +57,14 @@ interface RoadmapPosition {
     MatDialogModule,
     AppPageHeaderComponent,
     RouterModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './student-enrollment-view.component.html',
   styleUrls: ['./student-enrollment-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudentEnrollmentViewComponent
-  implements AfterViewInit, OnChanges, OnDestroy, OnInit
+  implements AfterViewInit, OnDestroy, OnInit
 {
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -88,16 +87,19 @@ export class StudentEnrollmentViewComponent
   @ViewChild('board', { static: false }) boardRef?: ElementRef<HTMLElement>;
   @ViewChild(MatTooltip, { static: false }) tooltipDir?: MatTooltip;
 
-  @Input() course!: CourseDto;
+  course: CourseDto | null = null;
 
   private courseReady = false;
   private svgReady = false;
+  private loadRequestId = 0;
 
   readonly roadD =
     'M 80 520 C 220 420, 540 560, 700 500 S 600 260, 420 260 S 220 200, 300 120';
 
   positions: RoadmapPosition[] = [];
   isUnenrolling = false;
+  isRefreshing = false;
+  isLoading = true;
   descriptionExpanded = false;
 
   tooltip = {
@@ -112,6 +114,21 @@ export class StudentEnrollmentViewComponent
   private resizeObs?: ResizeObserver;
 
   async ngOnInit() {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const courseId = params.get('id');
+
+      if (!courseId) {
+        this.course = null;
+        this.courseReady = false;
+        this.positions = [];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      void this.loadCourse(courseId);
+    });
+
     this.enrollmentService.addedSolvedActivity$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
@@ -143,22 +160,6 @@ export class StudentEnrollmentViewComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if ('course' in changes) {
-      this.courseReady = !!this.course && !!this.course.activities?.length;
-      this.descriptionExpanded = false;
-
-      if (this.svgReady && this.courseReady) {
-        this.safeComputeWithRetry();
-      } else if (!this.courseReady) {
-        this.zone.run(() => {
-          this.positions = [];
-          this.cdr.markForCheck();
-        });
-      }
-    }
-  }
-
   isDescriptionLong(): boolean {
     return (this.course?.description ?? '').length > 500;
   }
@@ -185,10 +186,51 @@ export class StudentEnrollmentViewComponent
     this.descriptionExpanded = !this.descriptionExpanded;
   }
 
-  private async refreshCourse() {
-    const courseId = this.course.id;
+  private async loadCourse(courseId: string) {
+    const requestId = ++this.loadRequestId;
+
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
     try {
+      const updated = await this.courseService.apiCourseIdStudentGetAsync({
+        id: courseId,
+      });
+
+      if (requestId !== this.loadRequestId) {
+        return;
+      }
+
+      this.zone.run(() => {
+        this.course = updated;
+        this.courseReady = !!this.course && !!this.course.activities?.length;
+        this.descriptionExpanded = false;
+        this.safeComputeWithRetry();
+        this.cdr.markForCheck();
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+    } finally {
+      if (requestId === this.loadRequestId) {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  private async refreshCourse() {
+    const courseId = this.course?.id;
+
+    if (!courseId) {
+      return;
+    }
+
+    try {
+      this.isRefreshing = true;
+      this.cdr.detectChanges();
+
       const updated = await this.courseService.apiCourseIdStudentGetAsync({
         id: courseId,
       });
@@ -201,6 +243,9 @@ export class StudentEnrollmentViewComponent
       });
     } catch (error) {
       console.error('Failed to fetch course:', error);
+    } finally {
+      this.isRefreshing = false;
+      this.cdr.detectChanges();
     }
   }
 

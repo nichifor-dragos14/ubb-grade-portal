@@ -73,6 +73,7 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
 
   submitting = false;
   loading = false;
+  resolving = true;
 
   feedbackForm = this.formBuilder.group({
     grade: [
@@ -84,6 +85,10 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
 
   get isLoading(): boolean {
     return this.submitting || this.loading;
+  }
+
+  get isResolving(): boolean {
+    return this.resolving;
   }
 
   get grade() {
@@ -182,13 +187,11 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.activatedRoute.data
+    this.activatedRoute.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const resolved = data['solvedActivity'] as
-          | SolvedActivityDto
-          | undefined;
-        this.applySolvedActivity(resolved ?? this.solvedActivity);
+      .subscribe((params) => {
+        const id = params.get('id');
+        void this.loadSolvedActivity(id);
       });
 
     const state = this.router.getCurrentNavigation()?.extras
@@ -201,8 +204,38 @@ export class ProfessorGiveFeedbackComponent implements OnInit {
     }
   }
 
+  private async loadSolvedActivity(id: string | null) {
+    if (!id) {
+      this.solvedActivity = undefined;
+      this.resolving = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    try {
+      this.resolving = true;
+      this.cdr.detectChanges();
+
+      const solvedActivity =
+        await this.solvedActivityService.apiSolvedActivityIdGetAsync({
+          id,
+        });
+
+      this.applySolvedActivity(solvedActivity);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+
+      this.solvedActivity = undefined;
+      this.resolving = false;
+      this.cdr.markForCheck();
+    }
+  }
+
   private applySolvedActivity(activity?: SolvedActivityDto) {
     this.solvedActivity = activity;
+    this.resolving = false;
 
     const gradeValue = activity?.grade ? activity.grade : null;
     const commentValue = activity?.professorComment ?? '';

@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  Input,
   OnChanges,
   OnInit,
   inject,
@@ -14,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
@@ -60,6 +59,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly toastService = inject(AppToastService);
   private readonly courseService = inject(CourseService);
@@ -67,7 +67,8 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
     ProfessorCoursesEventService
   );
 
-  @Input() course!: CourseDto;
+  course: CourseDto | null = null;
+  courseId: string | null = null;
 
   updateCourseFormGroup = this.formBuilder.group({
     courseId: ['', Validators.required],
@@ -101,16 +102,32 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
   }
 
   async ngOnInit() {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const courseId = params.get('id');
+        this.courseId = courseId;
+
+        if (!courseId) {
+          this.course = null;
+          this.courseLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        void this.fetchCourse(courseId);
+      });
+
     this.professorCoursesEventService.activityCreated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
-        this.getCourse();
+        this.fetchCourse(this.courseId);
       });
 
     this.professorCoursesEventService.updateActivityCount$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
-        this.getCourse();
+        this.fetchCourse(this.courseId);
       });
   }
 
@@ -119,6 +136,18 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
   }
 
   resetForm() {
+    if (!this.course) {
+      this.updateCourseFormGroup.reset({
+        courseId: this.courseId ?? '',
+        name: '',
+        description: '',
+        courseDomainName: '',
+        assistedLlmEvaluation: false,
+      });
+      this.updateCourseFormGroup.markAsPristine();
+      return;
+    }
+
     this.updateCourseFormGroup.reset({
       name: this.course?.name,
       description: this.course?.description,
@@ -132,10 +161,8 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
     this.updateCourseFormGroup.markAsPristine();
   }
 
-  async getCourse() {
-    const courseId = this.course.id;
-
-    if (courseId == null) {
+  async fetchCourse(courseId: string | null) {
+    if (!courseId) {
       return;
     }
 
@@ -145,6 +172,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
 
     try {
       this.courseLoading = true;
+      this.cdr.detectChanges();
 
       this.course = await this.courseService.apiCourseIdGetAsync({
         id: courseId,
@@ -163,12 +191,12 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
   async updateCourse() {
     this.updateCourseFormGroup.markAllAsTouched();
 
-    const courseId = this.course.id;
+    const courseId = this.courseId ?? this.course?.id ?? null;
     const description = this.updateCourseFormGroup.controls.description.value;
     const assistedLlmEvaluation =
       this.updateCourseFormGroup.controls.assistedLlmEvaluation.value ?? false;
 
-    if (courseId == null || description == null) {
+    if (courseId == null || description == null || !this.course) {
       return;
     }
 
@@ -198,7 +226,7 @@ export class ProfessorUpdateCourseComponent implements OnChanges, OnInit {
       }
     } finally {
       this.submitting = false;
-      this.getCourse();
+      this.fetchCourse(this.courseId ?? courseId);
       this.cdr.detectChanges();
     }
   }

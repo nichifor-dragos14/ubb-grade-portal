@@ -31,12 +31,12 @@
   </ng-container>
 </section>
 
-<div *ngIf="isLoading" class="form-loader">
+<div *ngIf="isLoading || isResolving" class="form-loader">
   <mat-progress-spinner mode="indeterminate" diameter="56">
   </mat-progress-spinner>
 </div>
 
-<div *ngIf="!isLoading && solvedActivity" class="content">
+<div *ngIf="!isLoading && !isResolving && solvedActivity" class="content">
   <section class="card">
     <div class="card-title">Submission details 📄</div>
 
@@ -188,6 +188,6 @@
   </form>
 </div>
 
-<div *ngIf="!isLoading && !solvedActivity" class="empty-state">
+<div *ngIf="!isLoading && !isResolving && !solvedActivity" class="empty-state">
   Select a submission to view details.
 </div>

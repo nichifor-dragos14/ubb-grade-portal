@@ -51,21 +51,6 @@ const STUDENT_ROUTES: Routes = [
             data: { roles: ['Student'] },
             runGuardsAndResolvers: 'paramsChange',
             component: StudentEnrollmentViewComponent,
-            resolve: {
-              course: async ({ params }: ActivatedRouteSnapshot) => {
-                const router = inject(Router);
-                const courseService = inject(CourseService);
-
-                try {
-                  return await courseService.apiCourseIdStudentGetAsync({
-                    id: params['id'],
-                  });
-                } catch (error) {
-                  router.navigate(['/error']);
-                  return null;
-                }
-              },
-            },
             children: [
               {
                 path: 'activities',

@@ -1,204 +1,242 @@
-<app-page-header title="Your roadmap for '{{ course.name }}' 🧭">
-  <button
-    mat-button
-    color="warn"
-    class="header-action"
-    (click)="unenroll()"
-    [disabled]="isUnenrolling"
-    button
-  >
-    UNENROLL
-  </button>
-  <a
-    mat-icon-button
-    button
-    routerLink="../../"
-    color="accent"
-    class="header-action"
-  >
-    <mat-icon>close</mat-icon>
-  </a>
-</app-page-header>
-
-<div class="board" #board *ngIf="course.activities?.length; else noActivities">
-  <div class="legend">
-    <span>
-      <span class="dot completed"></span> Completed and graded by professor
-    </span>
-    <span>
-      <span class="dot submitted"></span> Submitted and waiting for feedback
-    </span>
-    <span><span class="dot returned"></span> Returned for resubmission</span>
-    <span><span class="dot unlocked"></span> Unlocked</span>
-    <span><span class="dot locked"></span> Locked</span>
-  </div>
-  <svg
-    #svg
-    class="map"
-    viewBox="0 0 800 600"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    <defs>
-      <filter id="glow-completed">
-        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-        <feMerge>
-          <feMergeNode in="coloredBlur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-
-      <filter id="glow-returned">
-        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-        <feMerge>
-          <feMergeNode in="coloredBlur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-
-      <filter id="glow-unlocked">
-        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-        <feMerge>
-          <feMergeNode in="coloredBlur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-
-      <linearGradient
-        id="completedGradient"
-        x1="0%"
-        y1="0%"
-        x2="100%"
-        y2="100%"
-      >
-        <stop offset="0%" stop-color="#4caf50" />
-        <stop offset="100%" stop-color="#2e7d32" />
-      </linearGradient>
-
-      <linearGradient
-        id="submittedGradient"
-        x1="0%"
-        y1="0%"
-        x2="100%"
-        y2="100%"
-      >
-        <stop offset="0%" stop-color="#93c5fd" />
-        <stop offset="100%" stop-color="#3b82f6" />
-      </linearGradient>
-
-      <linearGradient id="returnedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ef5350" />
-        <stop offset="100%" stop-color="#c62828" />
-      </linearGradient>
-
-      <linearGradient id="unlockedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ffd54f" />
-        <stop offset="100%" stop-color="#f9a825" />
-      </linearGradient>
-
-      <linearGradient id="lockedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#e0e0e0" />
-        <stop offset="100%" stop-color="#b0bec5" />
-      </linearGradient>
-
-      <radialGradient id="coinGloss" cx="35%" cy="35%" r="70%">
-        <stop offset="0%" stop-color="white" stop-opacity="0.6" />
-        <stop offset="50%" stop-color="white" stop-opacity="0.2" />
-        <stop offset="100%" stop-color="white" stop-opacity="0" />
-      </radialGradient>
-    </defs>
-
-    <path #roadPath [attr.d]="roadD" class="guide" />
-
-    <g
-      *ngFor="let cp of positions; trackBy: trackById"
-      [attr.transform]="'translate(' + cp.x + ',' + cp.y + ')'"
+<ng-container *ngIf="!isLoading && course as courseData; else loadingState">
+  <app-page-header title="Your roadmap for '{{ courseData.name }}' 🧭">
+    <button
+      mat-button
+      color="warn"
+      class="header-action"
+      (click)="unenroll()"
+      [disabled]="isUnenrolling"
+      button
     >
-      <circle r="24" class="coin-shadow" [ngClass]="cp.state"></circle>
+      UNENROLL
+    </button>
+    <a
+      mat-icon-button
+      button
+      routerLink="../../"
+      color="accent"
+      class="header-action"
+    >
+      <mat-icon>close</mat-icon>
+    </a>
+  </app-page-header>
+
+  <div class="overlay" *ngIf="isRefreshing">
+    <mat-progress-spinner mode="indeterminate" diameter="48">
+    </mat-progress-spinner>
+  </div>
+
+  <div
+    class="board"
+    #board
+    *ngIf="courseData.activities?.length; else noActivities"
+  >
+    <div class="legend">
+      <span>
+        <span class="dot completed"></span> Completed and graded by professor
+      </span>
+      <span>
+        <span class="dot submitted"></span> Submitted and waiting for feedback
+      </span>
+      <span><span class="dot returned"></span> Returned for resubmission</span>
+      <span><span class="dot unlocked"></span> Unlocked</span>
+      <span><span class="dot locked"></span> Locked</span>
+    </div>
+    <svg
+      #svg
+      class="map"
+      viewBox="0 0 800 600"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <filter id="glow-completed">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <filter id="glow-returned">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <filter id="glow-unlocked">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <linearGradient
+          id="completedGradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop offset="0%" stop-color="#4caf50" />
+          <stop offset="100%" stop-color="#2e7d32" />
+        </linearGradient>
+
+        <linearGradient
+          id="submittedGradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop offset="0%" stop-color="#93c5fd" />
+          <stop offset="100%" stop-color="#3b82f6" />
+        </linearGradient>
+
+        <linearGradient
+          id="returnedGradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop offset="0%" stop-color="#ef5350" />
+          <stop offset="100%" stop-color="#c62828" />
+        </linearGradient>
+
+        <linearGradient
+          id="unlockedGradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop offset="0%" stop-color="#ffd54f" />
+          <stop offset="100%" stop-color="#f9a825" />
+        </linearGradient>
+
+        <linearGradient id="lockedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e0e0e0" />
+          <stop offset="100%" stop-color="#b0bec5" />
+        </linearGradient>
+
+        <radialGradient id="coinGloss" cx="35%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="white" stop-opacity="0.6" />
+          <stop offset="50%" stop-color="white" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <path #roadPath [attr.d]="roadD" class="guide" />
 
       <g
-        class="activity-node"
-        [class.clickable]="cp.state !== 'locked'"
-        (click)="onActivityClick(cp.a, cp.state)"
-        (mouseenter)="onActivityHover($event, cp)"
-        (mouseleave)="onActivityLeave()"
+        *ngFor="let cp of positions; trackBy: trackById"
+        [attr.transform]="'translate(' + cp.x + ',' + cp.y + ')'"
       >
-        <circle
-          r="22"
-          class="coin"
-          [ngClass]="cp.state"
-          [attr.filter]="
-            cp.state === 'returned'
-              ? 'url(#glow-returned)'
-              : cp.state === 'unlocked'
-                ? 'url(#glow-unlocked)'
-                : cp.state === 'completed'
-                  ? 'url(#glow-completed)'
-                  : ''
-          "
-        ></circle>
+        <circle r="24" class="coin-shadow" [ngClass]="cp.state"></circle>
 
-        <circle r="22" fill="url(#coinGloss)"></circle>
+        <g
+          class="activity-node"
+          [class.clickable]="cp.state !== 'locked'"
+          (click)="onActivityClick(cp.a, cp.state)"
+          (mouseenter)="onActivityHover($event, cp)"
+          (mouseleave)="onActivityLeave()"
+        >
+          <circle
+            r="22"
+            class="coin"
+            [ngClass]="cp.state"
+            [attr.filter]="
+              cp.state === 'returned'
+                ? 'url(#glow-returned)'
+                : cp.state === 'unlocked'
+                  ? 'url(#glow-unlocked)'
+                  : cp.state === 'completed'
+                    ? 'url(#glow-completed)'
+                    : ''
+            "
+          ></circle>
 
-        <text class="coin-label" [ngClass]="cp.state">
-          {{ cp.idx + 1 }}
-        </text>
+          <circle r="22" fill="url(#coinGloss)"></circle>
 
-        <g *ngIf="cp.state === 'completed'" class="checkmark">
-          <circle r="10" fill="#fff" opacity="0.95" cy="12"></circle>
-          <path
-            d="M -3 12 L -1 14 L 4 9"
-            stroke="#2e7d32"
-            stroke-width="2"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
+          <text class="coin-label" [ngClass]="cp.state">
+            {{ cp.idx + 1 }}
+          </text>
+
+          <g *ngIf="cp.state === 'completed'" class="checkmark">
+            <circle r="10" fill="#fff" opacity="0.95" cy="12"></circle>
+            <path
+              d="M -3 12 L -1 14 L 4 9"
+              stroke="#2e7d32"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </g>
         </g>
       </g>
-    </g>
-  </svg>
+    </svg>
 
-  <span
-    class="mat-tooltip-anchor"
-    [style.left.px]="tooltip.x"
-    [style.top.px]="tooltip.y"
-    [matTooltip]="tooltip.name"
-    [matTooltipDisabled]="!tooltip.visible"
-    matTooltipPosition="above"
-  ></span>
-</div>
-
-<section class="course-details">
-  <div class="note" *ngIf="course.assistedLlmEvaluation">
-    The professor activated AI-assisted evaluation for this course.
+    <span
+      class="mat-tooltip-anchor"
+      [style.left.px]="tooltip.x"
+      [style.top.px]="tooltip.y"
+      [matTooltip]="tooltip.name"
+      [matTooltipDisabled]="!tooltip.visible"
+      matTooltipPosition="above"
+    ></span>
   </div>
-  <div class="detail-grid">
-    <div class="detail-item">
-      <span class="detail-label">Subject area:</span>
-      <span class="detail-value">{{ course.courseDomainName || '—' }}</span>
+
+  <section class="course-details">
+    <div class="note" *ngIf="courseData.assistedLlmEvaluation">
+      The professor activated AI-assisted evaluation for this course.
     </div>
-    <div class="detail-item">
-      <span class="detail-label">Created on:</span>
-      <span class="detail-value">
-        {{ course.createdOn ? (course.createdOn | date: 'mediumDate') : '—' }}
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Subject area:</span>
+        <span class="detail-value">
+          {{ courseData.courseDomainName || '—' }}
+        </span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Created on:</span>
+        <span class="detail-value">
+          {{
+            courseData.createdOn
+              ? (courseData.createdOn | date: 'mediumDate')
+              : '—'
+          }}
+        </span>
+      </div>
+    </div>
+    <div class="detail-item description">
+      <span class="detail-label">Description</span>
+      <span class="detail-value description-text">
+        {{ getDescriptionText() }}
       </span>
+      <button
+        class="link-button"
+        type="button"
+        *ngIf="isDescriptionLong()"
+        (click)="toggleDescription()"
+      >
+        {{ getDescriptionToggleLabel() }}
+      </button>
     </div>
+  </section>
+
+  <router-outlet />
+</ng-container>
+
+<ng-template #loadingState>
+  <div class="page-loader">
+    <mat-progress-spinner mode="indeterminate" diameter="56">
+    </mat-progress-spinner>
   </div>
-  <div class="detail-item description">
-    <span class="detail-label">Description</span>
-    <span class="detail-value description-text">
-      {{ getDescriptionText() }}
-    </span>
-    <button
-      class="link-button"
-      type="button"
-      *ngIf="isDescriptionLong()"
-      (click)="toggleDescription()"
-    >
-      {{ getDescriptionToggleLabel() }}
-    </button>
-  </div>
-</section>
+</ng-template>
 
 <ng-template #noActivities>
   <div class="empty-state">
@@ -207,5 +245,3 @@
     <p>Activities will appear here once they're added to this course.</p>
   </div>
 </ng-template>
-
-<router-outlet />

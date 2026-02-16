@@ -49,22 +49,6 @@ const PROFESSOR_ROUTES: Routes = [
             data: { roles: ['Professor'] },
             runGuardsAndResolvers: 'paramsChange',
             component: ProfessorUpdateCourseComponent,
-            resolve: {
-              course: async ({ params }: ActivatedRouteSnapshot) => {
-                const router = inject(Router);
-                const courseService = inject(CourseService);
-
-                try {
-                  return await courseService.apiCourseIdGetAsync({
-                    id: params['id'],
-                  });
-                } catch (error) {
-                  router.navigate(['/error']);
-
-                  return null;
-                }
-              },
-            },
             children: [
               {
                 path: 'activities',
@@ -147,24 +131,6 @@ const PROFESSOR_ROUTES: Routes = [
       {
         path: ':id',
         component: ProfessorGiveFeedbackComponent,
-        resolve: {
-          solvedActivity: async ({ params }: ActivatedRouteSnapshot) => {
-            const router = inject(Router);
-            const solvedActivityService = inject(SolvedActivityService);
-
-            const id = params['id'];
-
-            try {
-              return await solvedActivityService.apiSolvedActivityIdGetAsync({
-                id,
-              });
-            } catch (error) {
-              router.navigate(['/error']);
-
-              return null;
-            }
-          },
-        },
       },
     ],
   },

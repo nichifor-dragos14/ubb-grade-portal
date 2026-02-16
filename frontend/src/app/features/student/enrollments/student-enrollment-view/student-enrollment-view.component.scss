@@ -4,6 +4,7 @@
   padding: 0 32px !important;
   --map-height: 440px;
   padding-bottom: 24px !important;
+  position: relative;
 }
 
 h1 {
@@ -19,6 +20,29 @@ section[role='course-actions'] {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 8px;
+}
+.page-loader {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 5;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 5;
 }
 
 .course-details {

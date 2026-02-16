@@ -25,13 +25,13 @@
   </span>
 </section>
 
-<div *ngIf="isLoading" class="form-loader">
+<div *ngIf="isLoading || !course" class="form-loader">
   <mat-progress-spinner mode="indeterminate" diameter="56">
   </mat-progress-spinner>
 </div>
 
 <form
-  *ngIf="!isLoading"
+  *ngIf="!isLoading && course as courseData"
   [formGroup]="updateCourseFormGroup"
   (ngSubmit)="updateCourse()"
 >
@@ -74,7 +74,7 @@
   </section>
 
   <section class="activities-section card" aria-label="Activities">
-    <div *ngIf="course.activities!.length === 0">
+    <div *ngIf="courseData.activities!.length === 0">
       <div class="activities-empty">
         <span class="activities-title">No activities yet 😟</span>
         <p class="text-muted">
@@ -83,13 +83,13 @@
       </div>
     </div>
 
-    <div *ngIf="course.activities!.length !== 0">
+    <div *ngIf="courseData.activities!.length !== 0">
       <span class="activities-title">Activities 📘</span>
 
       <mat-nav-list>
         <a
           mat-list-item
-          *ngFor="let activity of course.activities"
+          *ngFor="let activity of courseData.activities"
           [routerLink]="['activities', activity.id]"
           routerLinkActive="isActive"
         >
