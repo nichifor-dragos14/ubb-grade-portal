@@ -1,56 +1,51 @@
 :host {
-  display: block;
-}
-
-app-page-header {
-  margin-bottom: 24px;
-}
-
-.admin-panel {
-  max-width: 860px;
-  margin: 0 auto 0 0;
+  padding: 24px;
+  padding-bottom: 36px;
+  width: 56vw;
+  height: 64vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f9fafb;
 }
 
 .header-actions {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.primary-action {
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overflow-x: visible;
+  scrollbar-width: none;
+  padding: 16px;
 }
 
-.header-spinner {
-  width: 22px;
-  height: 22px;
+.form-loader {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
 }
 
 .card {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-  max-width: 860px;
-  margin: 0;
-  display: grid;
-  gap: 32px;
-  padding-left: 48px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
-.intro {
-  margin: 0;
-  width: 100%;
-  color: #6b7280;
-  font-size: 14px;
-  text-align: left;
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 18px;
 }
 
-.form {
-  display: grid;
-  gap: 8px;
+mat-form-field {
   width: 100%;
-  max-width: 420px;
 }

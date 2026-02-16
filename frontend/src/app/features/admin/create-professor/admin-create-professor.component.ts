@@ -13,10 +13,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { AdminService } from '$backend/services';
+import { AdminUsersEventService } from '../admin-users-event.service';
 
 @Component({
   selector: 'app-admin-create-professor',
@@ -29,6 +32,8 @@ import { AdminService } from '$backend/services';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
+    RouterModule,
     AppPageHeaderComponent,
   ],
   templateUrl: './admin-create-professor.component.html',
@@ -41,6 +46,7 @@ export class AdminCreateProfessorComponent {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly toastService = inject(AppToastService);
+  private readonly adminUsersEventService = inject(AdminUsersEventService);
 
   isSubmitting = false;
   hide = true;
@@ -81,6 +87,9 @@ export class AdminCreateProfessorComponent {
       });
 
       this.toastService.open('Professor account created.', 'info');
+      this.adminUsersEventService.emitProfessorCreated({
+        professorId: String(value.email ?? ''),
+      });
       this.form.reset();
       await this.router.navigateByUrl('/main/admin/users');
     } catch (error) {

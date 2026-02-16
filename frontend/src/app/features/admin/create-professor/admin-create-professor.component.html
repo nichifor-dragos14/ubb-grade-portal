@@ -1,120 +1,120 @@
-<div class="admin-panel">
-  <app-page-header title="Add professor 🎓">
-    <div class="header-actions" button>
-      <button
-        mat-button
-        color="primary"
-        type="submit"
-        form="create-professor-form"
-        class="primary-action"
-        [disabled]="form.invalid || isSubmitting"
-      >
-        CREATE
-      </button>
-      <mat-progress-spinner
-        *ngIf="isSubmitting"
-        class="header-spinner"
-        mode="indeterminate"
-        diameter="22"
-      ></mat-progress-spinner>
-    </div>
-  </app-page-header>
-
-  <section class="card">
-    <p class="intro">Enter professor information.</p>
-    <form
-      id="create-professor-form"
-      class="form"
-      [formGroup]="form"
-      (ngSubmit)="onSubmit()"
+<app-page-header title="Add a professor 🎓">
+  <span
+    button
+    class="header-actions"
+    [matTooltip]="form.invalid ? 'Please fill in all the required fields' : ''"
+    [matTooltipDisabled]="!form.invalid"
+  >
+    <button
+      mat-button
+      color="primary"
+      type="submit"
+      form="create-professor-form"
+      [disabled]="form.invalid || isSubmitting"
     >
-      <mat-form-field appearance="outline">
-        <mat-label>First name</mat-label>
-        <input matInput formControlName="firstName" />
-        <mat-error
-          *ngIf="
-            form.controls.firstName.touched && form.controls.firstName.invalid
-          "
-        >
-          First name is required.
-        </mat-error>
-      </mat-form-field>
+      ADD
+    </button>
+    <button mat-button color="warn" routerLink="../">CLOSE</button>
+  </span>
+</app-page-header>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Last name</mat-label>
-        <input matInput formControlName="lastName" />
-        <mat-error
-          *ngIf="
-            form.controls.lastName.touched && form.controls.lastName.invalid
-          "
-        >
-          Last name is required.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" />
-        <mat-error
-          *ngIf="
-            form.controls.email.touched &&
-            form.controls.email.hasError('required')
-          "
-        >
-          Email is required.
-        </mat-error>
-        <mat-error
-          *ngIf="
-            form.controls.email.touched && form.controls.email.hasError('email')
-          "
-        >
-          Must be a valid email.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <input
-          matInput
-          formControlName="password"
-          [type]="hide ? 'password' : 'text'"
-        />
-        <button
-          type="button"
-          mat-icon-button
-          matSuffix
-          (click)="hide = !hide"
-          [attr.aria-label]="'Toggle password visibility'"
-        >
-          <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        <mat-error
-          *ngIf="
-            form.controls.password.touched &&
-            form.controls.password.hasError('required')
-          "
-        >
-          Password is required.
-        </mat-error>
-        <mat-error
-          *ngIf="
-            form.controls.password.touched &&
-            form.controls.password.hasError('minlength')
-          "
-        >
-          Minimum 8 characters.
-        </mat-error>
-        <mat-error
-          *ngIf="
-            form.controls.password.touched &&
-            form.controls.password.hasError('pattern') &&
-            !form.controls.password.hasError('required') &&
-            !form.controls.password.hasError('minlength')
-          "
-        >
-          Must include at least one letter and one number.
-        </mat-error>
-      </mat-form-field>
-    </form>
-  </section>
+<div *ngIf="isSubmitting" class="form-loader">
+  <mat-progress-spinner mode="indeterminate" diameter="56">
+  </mat-progress-spinner>
 </div>
+
+<form
+  *ngIf="!isSubmitting"
+  id="create-professor-form"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+>
+  <section class="card">
+    <div class="card-title">Professor details ✍️</div>
+    <mat-form-field appearance="outline">
+      <mat-label>First name</mat-label>
+      <input matInput formControlName="firstName" />
+      <mat-error
+        *ngIf="
+          form.controls.firstName.touched && form.controls.firstName.invalid
+        "
+      >
+        First name is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Last name</mat-label>
+      <input matInput formControlName="lastName" />
+      <mat-error
+        *ngIf="form.controls.lastName.touched && form.controls.lastName.invalid"
+      >
+        Last name is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" />
+      <mat-error
+        *ngIf="
+          form.controls.email.touched &&
+          form.controls.email.hasError('required')
+        "
+      >
+        Email is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          form.controls.email.touched && form.controls.email.hasError('email')
+        "
+      >
+        Must be a valid email.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        [type]="hide ? 'password' : 'text'"
+      />
+      <button
+        type="button"
+        mat-icon-button
+        matSuffix
+        (click)="hide = !hide"
+        [attr.aria-label]="'Toggle password visibility'"
+      >
+        <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      <mat-error
+        *ngIf="
+          form.controls.password.touched &&
+          form.controls.password.hasError('required')
+        "
+      >
+        Password is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          form.controls.password.touched &&
+          form.controls.password.hasError('minlength')
+        "
+      >
+        Minimum 8 characters.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          form.controls.password.touched &&
+          form.controls.password.hasError('pattern') &&
+          !form.controls.password.hasError('required') &&
+          !form.controls.password.hasError('minlength')
+        "
+      >
+        Must include at least one letter and one number.
+      </mat-error>
+    </mat-form-field>
+  </section>
+</form>

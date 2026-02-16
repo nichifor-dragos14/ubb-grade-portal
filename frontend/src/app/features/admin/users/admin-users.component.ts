@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  OnDestroy,
   OnInit,
   inject,
 } from '@angular/core';
@@ -15,11 +16,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { RouterModule } from '@angular/router';
 
 import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { AdminService, AdminUserDto } from '$backend/services';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  firstValueFrom,
+  takeUntil,
+} from 'rxjs';
+import {
+  ConfirmUserStatusDialog,
+  ConfirmUserStatusDialogData,
+} from '$shared/dialogs/confirm-user-status-dialog.component';
+import { AdminUsersEventService } from '../admin-users-event.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -34,16 +48,21 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
     MatProgressSpinnerModule,
     MatPaginatorModule,
     MatSelectModule,
+    MatDialogModule,
+    RouterModule,
     AppPageHeaderComponent,
   ],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly adminService = inject(AdminService);
   private readonly toastService = inject(AppToastService);
+  private readonly dialog = inject(MatDialog);
+  private readonly adminUsersEventService = inject(AdminUsersEventService);
+  private readonly destroy$ = new Subject<void>();
 
   users: AdminUserDto[] = [];
   usersCount = 0;
@@ -70,6 +89,18 @@ export class AdminUsersComponent implements OnInit {
         this.pageIndex = 0;
         this.loadUsers();
       });
+
+    this.adminUsersEventService.professorCreated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.loadUsers();
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadUsers() {
@@ -111,8 +142,28 @@ export class AdminUsersComponent implements OnInit {
     return this.updatingIds.has(user.id);
   }
 
+  private async confirmUserStatus(
+    user: AdminUserDto,
+    action: ConfirmUserStatusDialogData['action']
+  ): Promise<boolean> {
+    const fullName = `${user.firstName} ${user.lastName}`.trim();
+    const ref = this.dialog.open(ConfirmUserStatusDialog, {
+      data: {
+        userName: fullName,
+        action: action,
+      },
+    });
+
+    return (await firstValueFrom(ref.afterClosed())) === true;
+  }
+
   async banUser(user: AdminUserDto) {
     if (this.isUpdating(user)) {
+      return;
+    }
+
+    const confirmed = await this.confirmUserStatus(user, 'ban');
+    if (!confirmed) {
       return;
     }
 
@@ -122,7 +173,8 @@ export class AdminUsersComponent implements OnInit {
 
       await this.adminService.apiAdminUsersIdBanPutAsync({ id: user.id });
       user.isBanned = true;
-      this.toastService.open('User has been banned.', 'info');
+      const fullName = `${user.firstName} ${user.lastName}`.trim();
+      this.toastService.open(`User ${fullName} has been banned.`, 'info');
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =
@@ -142,13 +194,19 @@ export class AdminUsersComponent implements OnInit {
       return;
     }
 
+    const confirmed = await this.confirmUserStatus(user, 'unban');
+    if (!confirmed) {
+      return;
+    }
+
     try {
       this.updatingIds.add(user.id);
       this.cdr.detectChanges();
 
       await this.adminService.apiAdminUsersIdUnbanPutAsync({ id: user.id });
       user.isBanned = false;
-      this.toastService.open('User has been unbanned.', 'info');
+      const fullName = `${user.firstName} ${user.lastName}`.trim();
+      this.toastService.open(`User ${fullName} has been unbanned.`, 'info');
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
         const message =

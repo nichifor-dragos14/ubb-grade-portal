@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { roleGuard } from '$core/auth/role.guard';
 import { AdminUsersComponent } from './users/admin-users.component';
 import { AdminCreateProfessorComponent } from './create-professor/admin-create-professor.component';
+import { DialogPageComponent } from '$shared/dialog-page';
 
 const ADMIN_ROUTES: Routes = [
   {
@@ -13,17 +14,20 @@ const ADMIN_ROUTES: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['Admin'] },
         component: AdminUsersComponent,
-      },
-      {
-        path: 'professors',
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-        component: AdminCreateProfessorComponent,
-      },
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'users',
+        children: [
+          {
+            path: 'add-professor',
+            canActivate: [roleGuard],
+            data: { roles: ['Admin'] },
+            component: DialogPageComponent,
+            children: [
+              {
+                path: '',
+                component: AdminCreateProfessorComponent,
+              },
+            ],
+          },
+        ],
       },
     ],
   },

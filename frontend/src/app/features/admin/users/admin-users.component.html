@@ -1,4 +1,8 @@
-<app-page-header title="Edit users 🧑‍💼"></app-page-header>
+<app-page-header title="Edit users 🧑‍💼">
+  <button mat-button color="primary" button routerLink="add-professor">
+    ADD PROFESSOR
+  </button>
+</app-page-header>
 
 <section class="card">
   <div class="toolbar">
@@ -83,3 +87,5 @@
   (page)="onPageChange($event)"
 >
 </mat-paginator>
+
+<router-outlet />
