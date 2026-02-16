@@ -91,6 +91,28 @@ public class CourseController : ControllerBase
         return TypedResults.Ok(paginatedResponse);
     }
 
+    /// <summary> Get all the courses created by professor with at least one activity </summary>
+    [HttpGet("created/with-activities")]
+    [Authorize(Roles = "Professor")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<Results<Ok<List<CourseDto>>, BadRequest, ForbidHttpResult>> GetAllProfessorCreatedWithActivities(
+        CancellationToken cancellationToken
+    )
+    {
+        var loggedUserIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(loggedUserIdValue, out var loggedUserId))
+        {
+            return TypedResults.Forbid();
+        }
+
+        var courses = await _courseService.GetAllProfessorCreatedWithActivities(loggedUserId, cancellationToken);
+
+        return TypedResults.Ok(courses);
+    }
+
     /// <summary> Get all course enrollments of a student </summary>
     [HttpGet("enrollments")]
     [Authorize(Roles = "Student")]

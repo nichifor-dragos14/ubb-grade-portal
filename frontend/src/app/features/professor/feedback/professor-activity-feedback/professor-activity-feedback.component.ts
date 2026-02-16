@@ -21,6 +21,8 @@ import { AppPageHeaderComponent } from '$shared/page-header';
 import { AppToastService } from '$shared/toast';
 import { DateConverterModule } from '$shared/date-converter';
 import {
+  CourseDto,
+  CourseService,
   PaginatedProfessorSolvedActivityDto,
   SolvedActivityDto,
   SolvedActivityService,
@@ -60,6 +62,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   private readonly solvedActivityService = inject(SolvedActivityService);
+  private readonly courseService = inject(CourseService);
   private readonly notificationsService = inject(NotificationsService);
   private readonly professorFeedbackEventService = inject(
     ProfessorFeedbackEventService
@@ -67,6 +70,9 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
 
   solvedActivities: SolvedActivityDto[] = [];
   totalCount = 0;
+
+  courses: CourseDto[] = [];
+  courseFilter = '';
 
   pageIndex = 0;
   pageSize = 6;
@@ -87,6 +93,8 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
   ];
 
   async ngOnInit() {
+    await this.loadCourses();
+
     this.professorFeedbackEventService.gradedSolvedActivity$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async () => {
@@ -131,6 +139,14 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
 
   async onStatusChange(value: SolvedActivityStatusFilter) {
     this.statusFilter = value;
+    this.pageIndex = 0;
+
+    await this.loadPage();
+    this.navigateToFirstSubmission(true);
+  }
+
+  async onCourseChange(courseId: string) {
+    this.courseFilter = courseId;
     this.pageIndex = 0;
 
     await this.loadPage();
@@ -197,15 +213,53 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
     );
   }
 
+  getCourseFilterLabel(): string {
+    if (!this.courseFilter) {
+      return 'All courses';
+    }
+
+    return (
+      this.courses.find((course) => course.id === this.courseFilter)?.name ??
+      'Selected course'
+    );
+  }
+
   getEmptySubtitle(): string {
+    const courseLabel = this.getCourseFilterLabel();
+    const coursePart =
+      courseLabel === 'All courses' ? '' : ` for course "${courseLabel}"`;
+
     if (this.getStatusFilterLabel() === 'All') {
-      return 'No submissions yet.';
+      return `No submissions${coursePart} yet.`;
     }
 
     const trimmedFilter = this.studentNameFilter.trim();
     const searchPart = trimmedFilter ? ` and search "${trimmedFilter}"` : '';
 
-    return `No submissions matching status ${this.getStatusFilterLabel()}${searchPart} yet.`;
+    return `No submissions matching status ${this.getStatusFilterLabel()}${coursePart}${searchPart} yet.`;
+  }
+
+  private async loadCourses() {
+    try {
+      this.courses =
+        await this.courseService.apiCourseCreatedWithActivitiesGetAsync();
+
+      if (this.courseFilter) {
+        const stillValid = this.courses.some(
+          (course) => course.id === this.courseFilter
+        );
+
+        if (!stillValid) {
+          this.courseFilter = '';
+        }
+      }
+
+      this.cdr.detectChanges();
+    } catch (error) {
+      if (error instanceof Error) {
+        this.toastService.open(error.message, 'error');
+      }
+    }
   }
 
   private async loadPage() {
@@ -219,6 +273,7 @@ export class ProfessorActivityFeedbackComponent implements OnInit {
           pageSize: this.pageSize,
           status: this.statusFilter,
           studentName: this.studentNameFilter.trim() || undefined,
+          courseId: this.courseFilter || undefined,
         } as any);
 
       this.solvedActivities = result.solvedActivities ?? [];

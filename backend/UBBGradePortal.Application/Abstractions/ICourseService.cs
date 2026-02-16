@@ -11,6 +11,7 @@ public interface ICourseService
     Task<List<CourseDto>> GetAllStudentCoursesByRecommendationOrSearchString(string? searchString, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<CourseDto?> GetByIdStudent(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<PaginatedProfessorCreatedCourseDto> GetAllProfessorCreated(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
+    Task<List<CourseDto>> GetAllProfessorCreatedWithActivities(Guid loggedUserId, CancellationToken cancellationToken);
     public Task<PaginatedStudentCourseEnrollmentDto> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<List<CourseDomainDto>> GetAllCourseDomains(CancellationToken cancellationToken);
     public Task<CourseRecommendationResultDto> GetRegistrationRecommendations(string? phrase, CancellationToken cancellationToken);

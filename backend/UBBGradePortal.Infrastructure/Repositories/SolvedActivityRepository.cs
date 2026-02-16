@@ -20,7 +20,7 @@ public class SolvedActivityRepository : ISolvedActivityRepository
         _dbContext = dbContext;
         _logger = logger;
     }
-    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus? status, string? studentName, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus? status, string? studentName, Guid? courseId, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var query = _dbContext
             .SolvedActivities
@@ -44,6 +44,11 @@ public class SolvedActivityRepository : ISolvedActivityRepository
             query = query.Where(sa =>
                 (sa.User.FirstName + " " + sa.User.LastName).ToLower().Contains(search) ||
                 (sa.User.LastName + " " + sa.User.FirstName).ToLower().Contains(search));
+        }
+
+        if (courseId.HasValue)
+        {
+            query = query.Where(sa => sa.Activity.CourseId == courseId);
         }
 
         var solvedActivities = await query

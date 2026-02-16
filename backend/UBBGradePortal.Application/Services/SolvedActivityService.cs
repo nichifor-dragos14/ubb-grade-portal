@@ -41,13 +41,13 @@ public class SolvedActivityService : ISolvedActivityService
         _logger = logger;
     }
 
-    public async Task<PaginatedProfessorSolvedActivityDto> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatusFilter status, string? studentName, Guid loggedUserId, CancellationToken cancellationToken)
+    public async Task<PaginatedProfessorSolvedActivityDto> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatusFilter status, string? studentName, Guid? courseId, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var statusFilter = status == SolvedActivityStatusFilter.All
             ? (SolvedActivityStatus?)null
             : (SolvedActivityStatus)status;
 
-        var (Count, Activities) = await _solvedActivityRepository.GetAllByStatusForProfessorCourses(pageNumber, pageSize, statusFilter, studentName, loggedUserId, cancellationToken);
+        var (Count, Activities) = await _solvedActivityRepository.GetAllByStatusForProfessorCourses(pageNumber, pageSize, statusFilter, studentName, courseId, loggedUserId, cancellationToken);
 
        
 

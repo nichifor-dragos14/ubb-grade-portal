@@ -6,7 +6,7 @@ namespace UBBGradePortal.Application.Abstractions;
 
 public interface ISolvedActivityService
 {
-    Task<PaginatedProfessorSolvedActivityDto> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatusFilter status, string? studentName, Guid loggedUserId, CancellationToken cancellationToken);
+    Task<PaginatedProfessorSolvedActivityDto> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatusFilter status, string? studentName, Guid? courseId, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<SolvedActivityDto?> GetLastByActivityId(Guid activityId, Guid loggedUserId, CancellationToken cancellationToken);
     Task<SolvedActivityDto?> GetById(Guid id, Guid loggedUserId, CancellationToken cancellationToken);
     public Task<Guid> Add(AddSolvedActivityDto addSolvedActivityDto, Guid loggedUserId, CancellationToken cancellationToken);

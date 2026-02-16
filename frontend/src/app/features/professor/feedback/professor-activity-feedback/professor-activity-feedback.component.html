@@ -28,6 +28,20 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="header-filter">
+        <mat-label>Course</mat-label>
+        <mat-select
+          [value]="courseFilter"
+          (selectionChange)="onCourseChange($event.value)"
+          [disabled]="courses.length === 0"
+        >
+          <mat-option value="">All courses</mat-option>
+          @for (course of courses; track course.id) {
+            <mat-option [value]="course.id">{{ course.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
       <mat-form-field appearance="outline" class="header-filter header-search">
         <mat-label>Student name</mat-label>
         <input

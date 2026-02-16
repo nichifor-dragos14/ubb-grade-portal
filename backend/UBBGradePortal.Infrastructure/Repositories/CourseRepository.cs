@@ -95,6 +95,21 @@ public class CourseRepository : ICourseRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Course>> GetAllProfessorCreatedWithActivities(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        return await _dbContext
+            .Courses
+            .Include(c => c.CourseDomain)
+            .Include(c => c.CourseEnrollments)
+                .ThenInclude(c => c.User)
+            .Include(c => c.Activities)
+            .Include(c => c.CreatedByUser)
+            .Where(c => c.CreatedByUserId == loggedUserId)
+            .Where(c => c.Activities.Count > 0)
+            .OrderBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<(int Count, List<CourseEnrollment> CourseEnrollments)> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var courseEnrollments = await _dbContext

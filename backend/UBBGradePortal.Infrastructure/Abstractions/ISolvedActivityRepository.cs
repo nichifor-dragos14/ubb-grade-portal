@@ -4,7 +4,7 @@ namespace UBBGradePortal.Infrastructure.Abstractions;
 
 public interface ISolvedActivityRepository
 {
-    Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus? status, string? studentName, Guid loggedUserId, CancellationToken cancellationToken);
+    Task<(int Count, List<SolvedActivity> Activities)> GetAllByStatusForProfessorCourses(int pageNumber, int pageSize, SolvedActivityStatus? status, string? studentName, Guid? courseId, Guid loggedUserId, CancellationToken cancellationToken);
     Task<int> CountSubmittedForCourse(Guid courseId, CancellationToken cancellationToken);
     Task<SolvedActivity?> GetById(Guid id, CancellationToken cancellationToken);
     Task<List<SubmissionCountByUser>> GetSubmissionCountsByUser(DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken);

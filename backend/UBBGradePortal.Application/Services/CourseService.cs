@@ -96,6 +96,15 @@ public class CourseService : ICourseService
             );
     }
 
+    public async Task<List<CourseDto>> GetAllProfessorCreatedWithActivities(Guid loggedUserId, CancellationToken cancellationToken)
+    {
+        var courses = await _courseRepository.GetAllProfessorCreatedWithActivities(loggedUserId, cancellationToken);
+
+        return courses
+            .Select(course => CourseMapper.FromCourseToCourseDto(course, null, null))
+            .ToList();
+    }
+
     public async Task<PaginatedStudentCourseEnrollmentDto> GetAllStudentCourseEnrollments(int pageNumber, int pageSize, Guid loggedUserId, CancellationToken cancellationToken)
     {
         var (Count, Courses) = await _courseRepository.GetAllStudentCourseEnrollments(pageNumber, pageSize, loggedUserId, cancellationToken);
