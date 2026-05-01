@@ -101,12 +101,19 @@
               class="value"
               *ngIf="courseStats.leastSolvedActivityName; else noLeast"
             >
-              {{ courseStats.leastSolvedActivityName }} has only
-              {{ courseStats.leastSolvedActivitySubmissions }}
-              submission
-              <span *ngIf="courseStats.leastSolvedActivitySubmissions > 1">
-                s
-              </span>
+              {{ courseStats.leastSolvedActivityName }}
+              <ng-container
+                [ngSwitch]="courseStats.leastSolvedActivitySubmissions"
+              >
+                <span *ngSwitchCase="0">has no submissions</span>
+
+                <span *ngSwitchCase="1"> has only 1 submission </span>
+
+                <span *ngSwitchDefault>
+                  has only
+                  {{ courseStats.leastSolvedActivitySubmissions }} submissions
+                </span>
+              </ng-container>
             </div>
             <ng-template #noLeast>
               <div class="value muted">No activity data yet.</div>
